@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `teacher` (
     `avatar` VARCHAR(512),
     `works` JSON,
     `sort_order` INT DEFAULT 0,
+    `status` TINYINT DEFAULT 1,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

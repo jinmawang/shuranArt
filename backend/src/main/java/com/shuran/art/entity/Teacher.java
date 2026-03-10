@@ -18,5 +18,6 @@ public class Teacher {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> works;
     private Integer sortOrder;
+    private Integer status;
     private LocalDateTime createdAt;
 }
