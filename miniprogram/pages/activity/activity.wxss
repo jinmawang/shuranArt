@@ -1,87 +1,141 @@
+/* ============================================
+   活动页 - Claymorphism 蓝紫色系
+   ============================================ */
+
 .activity-page {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 140rpx;
+  padding-bottom: 160rpx;
 }
 
+/* ============================================
+   活动封面
+   ============================================ */
 .activity-cover {
   width: 100%;
-  height: 400rpx;
+  height: 420rpx;
+  object-fit: cover;
 }
 
+/* ============================================
+   活动内容区
+   ============================================ */
 .activity-content {
-  margin-top: -40rpx;
+  margin-top: -48rpx;
   position: relative;
   z-index: 1;
+  padding: 0 24rpx;
 }
 
+/* ============================================
+   活动头部 - Claymorphism
+   ============================================ */
 .activity-header {
-  background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
-  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28rpx;
+  padding: 36rpx;
+  box-shadow:
+    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
+    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
+  border: 2rpx solid rgba(99, 102, 241, 0.08);
 }
 
 .activity-title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1E1B4B;
+  margin-bottom: 18rpx;
+  line-height: 1.4;
 }
 
 .activity-time {
   display: flex;
   align-items: center;
-  color: #999;
+  color: #8B5CF6;
   font-size: 26rpx;
+  font-weight: 500;
 }
 
 .time-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 10rpx;
+  padding: 4rpx;
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+  border-radius: 8rpx;
 }
 
+/* ============================================
+   活动详情和规则 - Claymorphism
+   ============================================ */
 .activity-body, .activity-rules {
-  background: #fff;
-  padding: 30rpx;
-  margin-top: 20rpx;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 32rpx;
+  margin-top: 24rpx;
+  border-radius: 24rpx;
+  box-shadow:
+    8rpx 8rpx 24rpx rgba(99, 102, 241, 0.12),
+    -4rpx -4rpx 16rpx rgba(255, 255, 255, 0.9);
+  border: 2rpx solid rgba(99, 102, 241, 0.08);
 }
 
 .section-title {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16rpx;
-  padding-left: 16rpx;
-  border-left: 6rpx solid #ff6b35;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1E1B4B;
+  margin-bottom: 20rpx;
+  padding-left: 20rpx;
+  border-left: 8rpx solid transparent;
+  border-image: linear-gradient(180deg, #6366F1, #8B5CF6) 1;
+  display: flex;
+  align-items: center;
 }
 
 .activity-desc {
   font-size: 28rpx;
-  color: #666;
-  line-height: 1.8;
+  color: #4B5563;
+  line-height: 1.9;
 }
 
 .rules-list {
-  padding: 10rpx 0;
+  padding: 12rpx 0;
 }
 
 .rule-item {
   font-size: 26rpx;
-  color: #666;
-  line-height: 2;
+  color: #4B5563;
+  line-height: 2.2;
+  padding-left: 20rpx;
+  position: relative;
 }
 
-/* 底部操作栏 */
+.rule-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8rpx;
+  height: 8rpx;
+  background: #8B5CF6;
+  border-radius: 50%;
+}
+
+/* ============================================
+   底部操作栏 - Claymorphism
+   ============================================ */
 .action-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
-  padding: 20rpx 30rpx;
-  background: #fff;
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+  padding: 24rpx 28rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  box-shadow:
+    0 -8rpx 24rpx rgba(99, 102, 241, 0.1);
+  border-top: 2rpx solid rgba(99, 102, 241, 0.08);
 }
 
 .btn-share, .btn-lottery {
@@ -89,25 +143,45 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 88rpx;
-  border-radius: 44rpx;
+  height: 92rpx;
+  border-radius: 46rpx;
   font-size: 30rpx;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 250ms ease-out;
 }
 
 .btn-share {
-  background: #666;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.9);
+  color: #6366F1;
   margin-right: 20rpx;
+  border: 3rpx solid #6366F1;
+  box-shadow:
+    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.15),
+    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.6);
+}
+
+.btn-share:active {
+  background: #EEF2FF;
+  transform: scale(0.98);
 }
 
 .btn-lottery {
-  background: linear-gradient(135deg, #ff6b35, #ff8f65);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   color: #fff;
+  box-shadow:
+    6rpx 6rpx 16rpx rgba(99, 102, 241, 0.4),
+    -3rpx -3rpx 10rpx rgba(255, 255, 255, 0.3);
+}
+
+.btn-lottery:active {
+  transform: scale(0.98);
+  box-shadow:
+    3rpx 3rpx 10rpx rgba(99, 102, 241, 0.5),
+    -2rpx -2rpx 6rpx rgba(255, 255, 255, 0.2);
 }
 
 .btn-icon {
-  width: 36rpx;
-  height: 36rpx;
-  margin-right: 10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 12rpx;
 }

@@ -14,13 +14,13 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#ff6b35",
+    "navigationBarBackgroundColor": "#6366F1",
     "navigationBarTitleText": "舒然画室",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#ff6b35",
+    "color": "#9CA3AF",
+    "selectedColor": "#6366F1",
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
     "list": [
