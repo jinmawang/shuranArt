@@ -1,0 +1,38 @@
+<view class="config-page">
+  <view class="form-section">
+    <view class="section-title">基本信息</view>
+
+    <view class="form-item">
+      <text class="label">画室名称</text>
+      <input class="input" value="{{config.studio_name}}" data-key="studio_name" bindinput="onInput" placeholder="请输入画室名称"/>
+    </view>
+
+    <view class="form-item">
+      <text class="label">宣传语</text>
+      <input class="input" value="{{config.studio_slogan}}" data-key="studio_slogan" bindinput="onInput" placeholder="请输入宣传语"/>
+    </view>
+
+    <view class="form-item">
+      <text class="label">画室简介</text>
+      <textarea class="textarea" value="{{config.studio_description}}" data-key="studio_description" bindinput="onInput" placeholder="请输入画室简介"/>
+    </view>
+  </view>
+
+  <view class="form-section">
+    <view class="section-title">分享设置</view>
+
+    <view class="form-item">
+      <text class="label">分享标题模板</text>
+      <input class="input" value="{{config.share_title_template}}" data-key="share_title_template" bindinput="onInput" placeholder="使用{activity_title}作为活动名称占位符"/>
+    </view>
+
+    <view class="form-item">
+      <text class="label">分享描述模板</text>
+      <input class="input" value="{{config.share_desc_template}}" data-key="share_desc_template" bindinput="onInput" placeholder="请输入分享描述"/>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn-primary" bindtap="saveConfig">保存配置</button>
+  </view>
+</view>

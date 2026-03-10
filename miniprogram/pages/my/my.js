@@ -53,5 +53,11 @@ Page({
     wx.navigateTo({
       url: '/pages/share/share'
     });
+  },
+
+  goToAdmin() {
+    wx.navigateTo({
+      url: '/pages/admin/index/index'
+    });
   }
 });

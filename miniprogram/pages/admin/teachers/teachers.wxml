@@ -1,0 +1,55 @@
+<view class="list-page">
+  <view class="list-header">
+    <text class="header-title">老师管理</text>
+    <view class="add-btn" bindtap="addTeacher">
+      <text>+ 添加</text>
+    </view>
+  </view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{teachers}}" wx:key="id">
+      <image src="{{item.avatar || '/images/default-avatar.png'}}" class="item-avatar"/>
+      <view class="item-info">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-title">{{item.title}}</view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn edit" bindtap="editTeacher" data-item="{{item}}">编辑</view>
+        <view class="action-btn delete" bindtap="deleteTeacher" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{teachers.length === 0}}" class="empty-tip">暂无数据</view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-title">{{editing.id ? '编辑老师' : '添加老师'}}</view>
+      <view class="form-item">
+        <text class="label">姓名</text>
+        <input class="input" value="{{editing.name}}" data-key="name" bindinput="onInput" placeholder="请输入姓名"/>
+      </view>
+      <view class="form-item">
+        <text class="label">职称</text>
+        <input class="input" value="{{editing.title}}" data-key="title" bindinput="onInput" placeholder="请输入职称"/>
+      </view>
+      <view class="form-item">
+        <text class="label">简介</text>
+        <textarea class="textarea" value="{{editing.intro}}" data-key="intro" bindinput="onInput" placeholder="请输入简介"/>
+      </view>
+      <view class="form-item">
+        <text class="label">头像URL</text>
+        <input class="input" value="{{editing.avatar}}" data-key="avatar" bindinput="onInput" placeholder="请输入头像URL"/>
+      </view>
+      <view class="form-item">
+        <text class="label">排序</text>
+        <input class="input" type="number" value="{{editing.sortOrder}}" data-key="sortOrder" bindinput="onInput" placeholder="数字越小越靠前"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeModal">取消</button>
+        <button class="btn-confirm" bindtap="saveTeacher">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

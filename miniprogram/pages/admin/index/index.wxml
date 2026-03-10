@@ -1,0 +1,29 @@
+<view class="admin-page">
+  <view class="admin-header">
+    <view class="header-title">管理后台</view>
+    <view class="header-desc">舒然画室</view>
+  </view>
+
+  <view class="menu-grid">
+    <view class="menu-item" bindtap="goToConfig">
+      <image src="/images/icon-config.png" class="menu-icon"/>
+      <text>画室配置</text>
+    </view>
+    <view class="menu-item" bindtap="goToTeachers">
+      <image src="/images/icon-teacher.png" class="menu-icon"/>
+      <text>老师管理</text>
+    </view>
+    <view class="menu-item" bindtap="goToActivities">
+      <image src="/images/icon-activity.png" class="menu-icon"/>
+      <text>活动管理</text>
+    </view>
+    <view class="menu-item" bindtap="goToPrizes">
+      <image src="/images/icon-prize.png" class="menu-icon"/>
+      <text>奖品管理</text>
+    </view>
+  </view>
+
+  <view class="admin-notice" wx:if="{{!isAdmin}}">
+    <text>您没有管理员权限</text>
+  </view>
+</view>

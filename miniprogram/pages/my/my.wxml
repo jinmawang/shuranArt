@@ -30,6 +30,11 @@
       <text class="menu-title">邀请好友</text>
       <image src="/images/icon-arrow.png" class="menu-arrow"/>
     </view>
+    <view class="menu-item admin-entry" bindtap="goToAdmin">
+      <image src="/images/icon-admin.png" class="menu-icon"/>
+      <text class="menu-title">管理后台</text>
+      <image src="/images/icon-arrow.png" class="menu-arrow"/>
+    </view>
   </view>
 
   <!-- 中奖记录 -->

@@ -21,6 +21,9 @@
 - `icon-records.png` - 记录图标
 - `icon-invite.png` - 邀请图标
 - `icon-arrow.png` - 箭头图标
+- `icon-admin.png` - 管理后台图标
+- `icon-config.png` - 配置图标
+- `icon-prize.png` - 奖品图标
 
 ## 默认图片
 - `default-banner.png` - 默认轮播图 (750x360px)

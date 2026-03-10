@@ -1,0 +1,70 @@
+<view class="list-page">
+  <view class="list-header">
+    <text class="header-title">活动管理</text>
+    <view class="add-btn" bindtap="addActivity">
+      <text>+ 添加</text>
+    </view>
+  </view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{activities}}" wx:key="id">
+      <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="item-cover"/>
+      <view class="item-info">
+        <view class="item-name">{{item.title}}</view>
+        <view class="item-time">{{item.startTime}} - {{item.endTime}}</view>
+        <view class="item-status {{item.status === 1 ? 'active' : ''}}">
+          {{item.status === 1 ? '进行中' : '已结束'}}
+        </view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn edit" bindtap="editActivity" data-item="{{item}}">编辑</view>
+        <view class="action-btn delete" bindtap="deleteActivity" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无数据</view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-title">{{editing.id ? '编辑活动' : '添加活动'}}</view>
+      <view class="form-item">
+        <text class="label">活动标题</text>
+        <input class="input" value="{{editing.title}}" data-key="title" bindinput="onInput" placeholder="请输入活动标题"/>
+      </view>
+      <view class="form-item">
+        <text class="label">活动描述</text>
+        <textarea class="textarea" value="{{editing.description}}" data-key="description" bindinput="onInput" placeholder="请输入活动描述"/>
+      </view>
+      <view class="form-item">
+        <text class="label">封面图URL</text>
+        <input class="input" value="{{editing.coverImg}}" data-key="coverImg" bindinput="onInput" placeholder="请输入封面图URL"/>
+      </view>
+      <view class="form-item">
+        <text class="label">开始时间</text>
+        <picker mode="date" value="{{editing.startDate}}" bindchange="onStartDateChange">
+          <view class="input picker">{{editing.startDate || '请选择开始日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">结束时间</text>
+        <picker mode="date" value="{{editing.endDate}}" bindchange="onEndDateChange">
+          <view class="input picker">{{editing.endDate || '请选择结束日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">每日分享上限</text>
+        <input class="input" type="number" value="{{editing.dailyShareLimit}}" data-key="dailyShareLimit" bindinput="onInput" placeholder="默认5次"/>
+      </view>
+      <view class="form-item">
+        <text class="label">状态</text>
+        <switch checked="{{editing.status === 1}}" bindchange="onStatusChange"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeModal">取消</button>
+        <button class="btn-confirm" bindtap="saveActivity">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -5,7 +5,12 @@
     "pages/lottery/lottery",
     "pages/share/share",
     "pages/teachers/teachers",
-    "pages/my/my"
+    "pages/my/my",
+    "pages/admin/index/index",
+    "pages/admin/config/config",
+    "pages/admin/teachers/teachers",
+    "pages/admin/activities/activities",
+    "pages/admin/prizes/prizes"
   ],
   "window": {
     "backgroundTextStyle": "light",
