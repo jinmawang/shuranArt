@@ -2,7 +2,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://your-domain.com/api'  // 需要替换为实际域名
+    baseUrl: 'https://tima.chat/api'
   },
 
   onLaunch() {

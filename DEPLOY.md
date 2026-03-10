@@ -84,12 +84,12 @@ docker-compose logs -f backend
 1. 登录 [微信公众平台](https://mp.weixin.qq.com/)
 2. 进入「开发」-「开发管理」-「开发设置」
 3. 配置服务器域名：
-   - request合法域名: `https://your-domain.com`
+   - request合法域名: `https://tima.chat`
 
 4. 更新小程序中的 `app.js`:
 ```javascript
 globalData: {
-  baseUrl: 'https://your-domain.com/api'
+  baseUrl: 'https://tima.chat/api'
 }
 ```
 
