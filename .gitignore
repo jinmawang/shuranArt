@@ -1,0 +1,22 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Java
+target/
+*.class
+*.jar
+*.log
+
+# Node
+node_modules/
+
+# 小程序
+miniprogram_npm/
+
+# 环境配置
+*.local
+.env
+application-prod.yml
