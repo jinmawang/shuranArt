@@ -1,0 +1,57 @@
+<view class="lottery-page">
+  <!-- 用户信息 -->
+  <view class="user-bar">
+    <view class="chances-info">
+      <text class="chances-label">剩余抽奖次数</text>
+      <text class="chances-num">{{userInfo.lotteryChances || 0}}</text>
+    </view>
+    <view class="share-btn" bindtap="goToShare">
+      <text>分享获取机会</text>
+    </view>
+  </view>
+
+  <!-- 转盘区域 -->
+  <view class="wheel-container">
+    <view class="wheel-wrapper" style="transform: rotate({{rotateAngle}}deg); transition: transform {{isSpinning ? '4s' : '0s'}} cubic-bezier(0.17, 0.67, 0.12, 0.99);">
+      <view class="wheel-item" wx:for="{{prizes}}" wx:key="id" style="transform: rotate({{index * (360 / prizes.length)}}deg);">
+        <view class="prize-content" style="transform: rotate({{180 / prizes.length}}deg);">
+          <image src="{{item.icon || '/images/prize-default.png'}}" class="prize-icon"/>
+          <text class="prize-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="wheel-pointer" bindtap="startLottery">
+      <text>抽奖</text>
+    </view>
+  </view>
+
+  <!-- 奖品说明 -->
+  <view class="card prizes-info">
+    <view class="section-title">奖品说明</view>
+    <view class="prize-list">
+      <view class="prize-item" wx:for="{{prizes}}" wx:key="id">
+        <image src="{{item.icon || '/images/prize-default.png'}}" class="prize-icon-small"/>
+        <text class="prize-name-text">{{item.name}}</text>
+        <text class="prize-prob">{{item.probability}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 中奖弹窗 -->
+  <view class="result-modal" wx:if="{{showResult}}">
+    <view class="modal-mask" bindtap="closeResult"></view>
+    <view class="modal-content">
+      <view class="modal-title">恭喜您</view>
+      <image src="{{resultPrize.icon || '/images/prize-default.png'}}" class="result-icon"/>
+      <view class="result-name">{{resultPrize.prizeName}}</view>
+      <view class="result-claim" wx:if="{{resultPrize.needClaim}}">
+        <text>兑换码：{{resultPrize.claimCode}}</text>
+        <text class="claim-tip">请到店出示兑换码领取奖品</text>
+      </view>
+      <view class="result-points" wx:if="{{resultPrize.prizeType === 'points'}}">
+        <text>已自动发放到您的账户</text>
+      </view>
+      <button class="btn-primary" bindtap="closeResult">知道了</button>
+    </view>
+  </view>
+</view>

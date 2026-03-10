@@ -1,0 +1,50 @@
+<view class="index-page">
+  <!-- 顶部轮播 -->
+  <swiper class="banner-swiper" indicator-dots autoplay circular>
+    <swiper-item wx:for="{{banners}}" wx:key="index">
+      <image src="{{item}}" mode="aspectFill" class="banner-img"/>
+    </swiper-item>
+  </swiper>
+
+  <!-- 画室介绍 -->
+  <view class="card studio-intro">
+    <view class="studio-name">{{studioConfig.studio_name || '舒然画室'}}</view>
+    <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
+    <view class="studio-desc">{{studioConfig.studio_description}}</view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="feature-grid">
+    <view class="feature-item" bindtap="goToTeachers">
+      <image src="/images/icon-teacher.png" class="feature-icon"/>
+      <text>师资团队</text>
+    </view>
+    <view class="feature-item" bindtap="goToActivity">
+      <image src="/images/icon-activity.png" class="feature-icon"/>
+      <text>活动详情</text>
+    </view>
+    <view class="feature-item" bindtap="goToLottery">
+      <image src="/images/icon-lottery.png" class="feature-icon"/>
+      <text>幸运抽奖</text>
+    </view>
+    <view class="feature-item" bindtap="goToShare">
+      <image src="/images/icon-share.png" class="feature-icon"/>
+      <text>分享助力</text>
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="section">
+    <view class="section-title">热门活动</view>
+    <view class="activity-list">
+      <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}">
+        <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
+        <view class="activity-info">
+          <view class="activity-title">{{item.title}}</view>
+          <view class="activity-time">{{item.startTime}} ~ {{item.endTime}}</view>
+        </view>
+      </view>
+      <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无活动</view>
+    </view>
+  </view>
+</view>

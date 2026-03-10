@@ -1,0 +1,129 @@
+.index-page {
+  padding-bottom: 20rpx;
+}
+
+/* 轮播图 */
+.banner-swiper {
+  width: 100%;
+  height: 360rpx;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* 画室介绍 */
+.studio-intro {
+  margin: 20rpx;
+  text-align: center;
+}
+
+.studio-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.studio-slogan {
+  font-size: 28rpx;
+  color: #ff6b35;
+  margin: 10rpx 0;
+}
+
+.studio-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 功能入口 */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+  padding: 30rpx 20rpx;
+  background: #fff;
+  margin: 0 20rpx 20rpx;
+  border-radius: 16rpx;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.feature-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 10rpx;
+}
+
+.feature-item text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 区块标题 */
+.section {
+  margin: 0 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  padding: 20rpx 0;
+}
+
+/* 活动列表 */
+.activity-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.activity-card {
+  display: flex;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.activity-card:last-child {
+  border-bottom: none;
+}
+
+.activity-cover {
+  width: 200rpx;
+  height: 150rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.activity-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.activity-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.activity-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.empty-tip {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}

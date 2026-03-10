@@ -1,0 +1,39 @@
+<view class="activity-page">
+  <image src="{{activity.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
+
+  <view class="activity-content">
+    <view class="activity-header">
+      <view class="activity-title">{{activity.title}}</view>
+      <view class="activity-time">
+        <image src="/images/icon-time.png" class="time-icon"/>
+        <text>{{activity.startTime}} - {{activity.endTime}}</text>
+      </view>
+    </view>
+
+    <view class="activity-body">
+      <view class="section-title">活动详情</view>
+      <view class="activity-desc">{{activity.description}}</view>
+    </view>
+
+    <view class="activity-rules">
+      <view class="section-title">活动规则</view>
+      <view class="rules-list">
+        <view class="rule-item">1. 分享活动链接给好友</view>
+        <view class="rule-item">2. 好友点击链接访问后，您可获得1次抽奖机会</view>
+        <view class="rule-item">3. 每日最多获得{{activity.dailyShareLimit || 5}}次抽奖机会</view>
+        <view class="rule-item">4. 抽中实物奖品请到店凭兑换码领取</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn-share" open-type="share">
+      <image src="/images/icon-share-white.png" class="btn-icon"/>
+      分享活动
+    </button>
+    <button class="btn-lottery" bindtap="goToLottery">
+      <image src="/images/icon-lottery-white.png" class="btn-icon"/>
+      立即抽奖
+    </button>
+  </view>
+</view>

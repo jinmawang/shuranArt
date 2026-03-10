@@ -1,0 +1,14 @@
+{
+  "projectname": "shuran-art",
+  "description": "舒然画室小程序",
+  "appid": "你的小程序AppID",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "condition": {}
+}

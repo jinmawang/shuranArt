@@ -1,0 +1,25 @@
+<view class="teachers-page">
+  <view class="page-header">
+    <view class="header-title">师资团队</view>
+    <view class="header-desc">专业的老师，专注的态度</view>
+  </view>
+
+  <view class="teacher-list">
+    <view class="teacher-card" wx:for="{{teachers}}" wx:key="id">
+      <image src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill" class="teacher-avatar"/>
+      <view class="teacher-info">
+        <view class="teacher-name">{{item.name}}</view>
+        <view class="teacher-title">{{item.title}}</view>
+        <view class="teacher-intro">{{item.intro}}</view>
+      </view>
+      <view class="teacher-works" wx:if="{{item.works && item.works.length > 0}}">
+        <view class="works-title">代表作品</view>
+        <scroll-view scroll-x class="works-scroll">
+          <image wx:for="{{item.works}}" wx:for-item="work" wx:key="index" src="{{work}}" mode="aspectFill" class="work-img" bindtap="previewWork" data-works="{{item.works}}" data-current="{{work}}"/>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view wx:if="{{teachers.length === 0}}" class="empty-tip">暂无师资信息</view>
+  </view>
+</view>

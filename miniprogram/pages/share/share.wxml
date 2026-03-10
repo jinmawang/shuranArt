@@ -1,0 +1,51 @@
+<view class="share-page">
+  <!-- 活动信息 -->
+  <view class="activity-header">
+    <image src="{{activity.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-bg"/>
+    <view class="activity-overlay">
+      <view class="activity-title">{{activity.title}}</view>
+      <view class="activity-desc">{{activity.description}}</view>
+    </view>
+  </view>
+
+  <!-- 分享说明 -->
+  <view class="card share-info">
+    <view class="section-title">分享规则</view>
+    <view class="rules">
+      <view class="rule-item">
+        <view class="rule-num">1</view>
+        <text>点击下方分享按钮，将活动分享给好友</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-num">2</view>
+        <text>好友通过您分享的链接访问活动</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-num">3</view>
+        <text>每成功邀请1位好友，您获得1次抽奖机会</text>
+      </view>
+      <view class="rule-item">
+        <view class="rule-num">4</view>
+        <text>每日最多获得{{activity.dailyShareLimit || 5}}次抽奖机会</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的邀请 -->
+  <view class="card my-invite">
+    <view class="invite-stat">
+      <view class="stat-item">
+        <view class="stat-num">{{userInfo.lotteryChances || 0}}</view>
+        <view class="stat-label">当前抽奖次数</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分享按钮 -->
+  <view class="share-action">
+    <button class="btn-primary share-btn" open-type="share">
+      <image src="/images/icon-share-white.png" class="share-icon"/>
+      立即分享
+    </button>
+  </view>
+</view>
