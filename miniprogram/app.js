@@ -2,7 +2,7 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://tianma.chat/api'
+    baseUrl: 'https://tima.chat/api'
   },
 
   onLaunch() {
