@@ -35,7 +35,7 @@ Page({
 
   loadConfig() {
     return app.request({
-      url: '/admin/config',
+      url: '/studio/config',
       noAuth: true
     }).then(data => {
       const banners = data.studio_images ? JSON.parse(data.studio_images) : [];
