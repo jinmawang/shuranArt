@@ -4,16 +4,43 @@
 USE shuran_art;
 
 -- 1. 活动表添加分享配置字段
-ALTER TABLE `activity`
-ADD COLUMN IF NOT EXISTS `total_share_limit` INT DEFAULT 5 COMMENT '每人每个活动总分享次数限制' AFTER `daily_share_limit`,
-ADD COLUMN IF NOT EXISTS `share_title` VARCHAR(128) COMMENT '分享标题/文案' AFTER `total_share_limit`,
-ADD COLUMN IF NOT EXISTS `share_image` VARCHAR(512) COMMENT '分享图片' AFTER `share_title`;
+-- 先检查列是否存在再添加
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'activity' AND column_name = 'total_share_limit');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `activity` ADD COLUMN `total_share_limit` INT DEFAULT 5 COMMENT "每人每个活动总分享次数限制"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'activity' AND column_name = 'share_title');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `activity` ADD COLUMN `share_title` VARCHAR(128) COMMENT "分享标题/文案"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'activity' AND column_name = 'share_image');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `activity` ADD COLUMN `share_image` VARCHAR(512) COMMENT "分享图片"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 2. 分享记录表添加确认机制字段
-ALTER TABLE `share_record`
-ADD COLUMN IF NOT EXISTS `share_code` VARCHAR(32) COMMENT '分享码，用于追踪点击' AFTER `activity_id`,
-ADD COLUMN IF NOT EXISTS `confirmed` TINYINT DEFAULT 0 COMMENT '是否已确认（被点击访问）' AFTER `share_code`,
-ADD COLUMN IF NOT EXISTS `confirmed_at` DATETIME COMMENT '确认时间' AFTER `confirmed`;
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'share_record' AND column_name = 'share_code');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `share_record` ADD COLUMN `share_code` VARCHAR(32) COMMENT "分享码，用于追踪点击"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'share_record' AND column_name = 'confirmed');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `share_record` ADD COLUMN `confirmed` TINYINT DEFAULT 0 COMMENT "是否已确认（被点击访问）"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @exist_col := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'shuran_art' AND table_name = 'share_record' AND column_name = 'confirmed_at');
+SET @sql := IF(@exist_col = 0, 'ALTER TABLE `share_record` ADD COLUMN `confirmed_at` DATETIME COMMENT "确认时间"', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 修改 visitor_id 允许为空（分享时还不知道谁会点击）
 ALTER TABLE `share_record` MODIFY COLUMN `visitor_id` BIGINT NULL;
