@@ -9,9 +9,12 @@ import com.shuran.art.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
@@ -37,6 +40,15 @@ public class UserService {
         );
 
         RestTemplate restTemplate = new RestTemplate();
+        // 添加支持 text/plain 的 JSON 转换器
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Arrays.asList(
+            MediaType.APPLICATION_JSON,
+            MediaType.TEXT_PLAIN,
+            new MediaType("application", "*+json")
+        ));
+        restTemplate.getMessageConverters().add(0, converter);
+
         Map<String, Object> wxResult = restTemplate.getForObject(url, Map.class);
 
         if (wxResult == null || wxResult.containsKey("errcode")) {
