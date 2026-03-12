@@ -15,6 +15,17 @@ public class Activity {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Integer dailyShareLimit;
+    private Integer totalShareLimit;
+    private String shareTitle;
+    private String shareImage;
     private Integer status;
     private LocalDateTime createdAt;
+
+    // 是否已开始（非数据库字段）
+    @TableField(exist = false)
+    private Boolean started;
+
+    // 是否已结束（非数据库字段）
+    @TableField(exist = false)
+    private Boolean ended;
 }

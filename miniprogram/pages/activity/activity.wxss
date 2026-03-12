@@ -47,6 +47,26 @@
   line-height: 1.4;
 }
 
+/* 活动状态标签 */
+.activity-status {
+  display: inline-block;
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.activity-status.active {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  color: #059669;
+}
+
+.activity-status.upcoming {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #D97706;
+}
+
 .activity-time {
   display: flex;
   align-items: center;
@@ -163,6 +183,18 @@
 .btn-share:active {
   background: #EEF2FF;
   transform: scale(0.98);
+}
+
+.btn-share.disabled {
+  background: #E5E7EB;
+  color: #9CA3AF;
+  border-color: #D1D5DB;
+  box-shadow: none;
+}
+
+.btn-share.disabled:active {
+  background: #E5E7EB;
+  transform: none;
 }
 
 .btn-lottery {

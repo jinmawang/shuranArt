@@ -11,6 +11,37 @@
     <view class="studio-name">{{studioConfig.studio_name || '舒然画室'}}</view>
     <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
     <view class="studio-desc">{{studioConfig.studio_description}}</view>
+    <!-- 画室详细介绍 -->
+    <view class="studio-intro-text" wx:if="{{studioConfig.studio_intro}}">
+      {{studioConfig.studio_intro}}
+    </view>
+  </view>
+
+  <!-- 画室地址 -->
+  <view class="card studio-location" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
+    <view class="location-header">
+      <image src="/images/icon-location.png" class="location-icon"/>
+      <text class="location-title">画室地址</text>
+      <text class="location-nav">导航</text>
+    </view>
+    <view class="location-address">{{studioConfig.studio_address}}</view>
+    <!-- 地图 -->
+    <map wx:if="{{latitude && longitude}}"
+         class="studio-map"
+         latitude="{{latitude}}"
+         longitude="{{longitude}}"
+         markers="{{markers}}"
+         scale="16"
+         show-location/>
+  </view>
+
+  <!-- 联系老师 -->
+  <view class="card contact-section" wx:if="{{studioConfig.studio_qrcode}}">
+    <view class="section-title">联系我们</view>
+    <view class="qrcode-wrapper">
+      <image src="{{studioConfig.studio_qrcode}}" mode="aspectFit" class="qrcode-img" bindtap="previewQrcode"/>
+      <view class="qrcode-tip">长按识别二维码添加老师微信</view>
+    </view>
   </view>
 
   <!-- 功能入口 -->
@@ -41,6 +72,9 @@
         <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
         <view class="activity-info">
           <view class="activity-title">{{item.title}}</view>
+          <view class="activity-status-tag {{item.started ? 'active' : 'upcoming'}}" wx:if="{{!item.ended}}">
+            {{item.started ? '进行中' : '即将开始'}}
+          </view>
           <view class="activity-time">{{item.startTime}} ~ {{item.endTime}}</view>
         </view>
       </view>

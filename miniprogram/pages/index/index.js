@@ -4,7 +4,10 @@ Page({
   data: {
     banners: [],
     studioConfig: {},
-    activities: []
+    activities: [],
+    latitude: null,
+    longitude: null,
+    markers: []
   },
 
   onLoad() {
@@ -39,9 +42,29 @@ Page({
       noAuth: true
     }).then(data => {
       const banners = data.studio_images ? JSON.parse(data.studio_images) : [];
+      const latitude = data.studio_latitude ? parseFloat(data.studio_latitude) : null;
+      const longitude = data.studio_longitude ? parseFloat(data.studio_longitude) : null;
+
+      // 设置地图标记
+      const markers = [];
+      if (latitude && longitude) {
+        markers.push({
+          id: 1,
+          latitude: latitude,
+          longitude: longitude,
+          title: data.studio_name || '舒然画室',
+          iconPath: '/images/icon-marker.png',
+          width: 40,
+          height: 40
+        });
+      }
+
       this.setData({
         studioConfig: data,
-        banners: banners.length ? banners : ['/images/default-banner.png']
+        banners: banners.length ? banners : ['/images/default-banner.png'],
+        latitude: latitude,
+        longitude: longitude,
+        markers: markers
       });
     }).catch(() => {
       this.setData({
@@ -59,6 +82,36 @@ Page({
         activities: data || []
       });
     });
+  },
+
+  // 打开地图导航
+  openMap() {
+    const { latitude, longitude, studioConfig } = this.data;
+    if (latitude && longitude) {
+      wx.openLocation({
+        latitude: latitude,
+        longitude: longitude,
+        name: studioConfig.studio_name || '舒然画室',
+        address: studioConfig.studio_address || '',
+        scale: 16
+      });
+    } else {
+      wx.showToast({
+        title: '暂无地址信息',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 预览二维码
+  previewQrcode() {
+    const qrcode = this.data.studioConfig.studio_qrcode;
+    if (qrcode) {
+      wx.previewImage({
+        urls: [qrcode],
+        current: qrcode
+      });
+    }
   },
 
   goToTeachers() {

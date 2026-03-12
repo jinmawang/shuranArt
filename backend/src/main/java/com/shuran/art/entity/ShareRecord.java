@@ -12,6 +12,9 @@ public class ShareRecord {
     private Long sharerId;
     private Long visitorId;
     private Long activityId;
+    private String shareCode;
+    private Integer confirmed;
+    private LocalDateTime confirmedAt;
     private Integer lotteryGranted;
     private LocalDateTime createdAt;
 }

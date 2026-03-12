@@ -1,9 +1,12 @@
 <view class="my-page">
   <!-- 用户信息 -->
-  <view class="user-header">
-    <image src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" class="user-avatar"/>
+  <view class="user-header" bindtap="showEditProfile">
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image src="{{tempAvatarUrl || userInfo.avatarUrl || defaultAvatar}}" class="user-avatar"/>
+    </button>
     <view class="user-info">
-      <view class="user-name">{{userInfo.nickName || '微信用户'}}</view>
+      <view class="user-name" wx:if="{{userInfo.nickName}}">{{userInfo.nickName}}</view>
+      <input wx:else class="nickname-input" type="nickname" placeholder="点击设置昵称" bindinput="onInputNickname" bindblur="onNicknameBlur"/>
       <view class="user-stats">
         <view class="stat-item">
           <text class="stat-num">{{userInfo.points || 0}}</text>
@@ -16,6 +19,7 @@
         </view>
       </view>
     </view>
+    <view class="edit-tip" wx:if="{{!userInfo.nickName}}">点击完善昵称</view>
   </view>
 
   <!-- 功能菜单 -->

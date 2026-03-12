@@ -26,7 +26,7 @@
       </view>
       <view class="rule-item">
         <view class="rule-num">4</view>
-        <text>每日最多获得{{activity.dailyShareLimit || 5}}次抽奖机会</text>
+        <text>每个活动最多可获得{{shareStatus.totalLimit || 5}}次抽奖机会</text>
       </view>
     </view>
   </view>
@@ -35,17 +35,27 @@
   <view class="card my-invite">
     <view class="invite-stat">
       <view class="stat-item">
+        <view class="stat-num">{{shareStatus.confirmedShares || 0}}/{{shareStatus.totalLimit || 5}}</view>
+        <view class="stat-label">已成功邀请</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
         <view class="stat-num">{{userInfo.lotteryChances || 0}}</view>
         <view class="stat-label">当前抽奖次数</view>
       </view>
+    </view>
+    <view class="invite-tip" wx:if="{{!shareStatus.canShare}}">
+      该活动分享次数已达上限
     </view>
   </view>
 
   <!-- 分享按钮 -->
   <view class="share-action">
-    <button class="btn-primary share-btn" open-type="share">
+    <button class="btn-primary share-btn {{shareStatus.canShare === false ? 'disabled' : ''}}"
+            open-type="{{shareStatus.canShare === false ? '' : 'share'}}"
+            bindtap="{{shareStatus.canShare === false ? 'showLimitTip' : ''}}">
       <image src="/images/icon-share-white.png" class="share-icon"/>
-      立即分享
+      {{shareStatus.canShare === false ? '分享次数已达上限' : '立即分享'}}
     </button>
   </view>
 </view>

@@ -27,7 +27,7 @@
   <!-- 编辑弹窗 -->
   <view class="modal" wx:if="{{showModal}}">
     <view class="modal-mask" bindtap="closeModal"></view>
-    <view class="modal-content">
+    <scroll-view scroll-y class="modal-content">
       <view class="modal-title">{{editing.id ? '编辑活动' : '添加活动'}}</view>
       <view class="form-item">
         <text class="label">活动标题</text>
@@ -38,8 +38,13 @@
         <textarea class="textarea" value="{{editing.description}}" data-key="description" bindinput="onInput" placeholder="请输入活动描述"/>
       </view>
       <view class="form-item">
-        <text class="label">封面图URL</text>
-        <input class="input" value="{{editing.coverImg}}" data-key="coverImg" bindinput="onInput" placeholder="请输入封面图URL"/>
+        <text class="label">封面图</text>
+        <view class="image-upload" bindtap="chooseCoverImage">
+          <image wx:if="{{editing.coverImg}}" src="{{editing.coverImg}}" mode="aspectFill" class="upload-preview"/>
+          <view wx:else class="upload-placeholder">
+            <text>+ 选择图片</text>
+          </view>
+        </view>
       </view>
       <view class="form-item">
         <text class="label">开始时间</text>
@@ -53,9 +58,23 @@
           <view class="input picker">{{editing.endDate || '请选择结束日期'}}</view>
         </picker>
       </view>
+      <view class="form-divider">分享设置</view>
       <view class="form-item">
-        <text class="label">每日分享上限</text>
-        <input class="input" type="number" value="{{editing.dailyShareLimit}}" data-key="dailyShareLimit" bindinput="onInput" placeholder="默认5次"/>
+        <text class="label">分享标题/文案</text>
+        <input class="input" value="{{editing.shareTitle}}" data-key="shareTitle" bindinput="onInput" placeholder="分享给好友时显示的标题"/>
+      </view>
+      <view class="form-item">
+        <text class="label">分享图片</text>
+        <view class="image-upload" bindtap="chooseShareImage">
+          <image wx:if="{{editing.shareImage}}" src="{{editing.shareImage}}" mode="aspectFill" class="upload-preview"/>
+          <view wx:else class="upload-placeholder">
+            <text>+ 选择图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label">每人总分享上限</text>
+        <input class="input" type="number" value="{{editing.totalShareLimit}}" data-key="totalShareLimit" bindinput="onInput" placeholder="默认5次"/>
       </view>
       <view class="form-item">
         <text class="label">状态</text>
@@ -65,6 +84,6 @@
         <button class="btn-cancel" bindtap="closeModal">取消</button>
         <button class="btn-confirm" bindtap="saveActivity">保存</button>
       </view>
-    </view>
+    </scroll-view>
   </view>
 </view>

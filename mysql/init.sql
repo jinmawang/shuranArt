@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS `activity` (
     `start_time` DATETIME,
     `end_time` DATETIME,
     `daily_share_limit` INT DEFAULT 5,
+    `total_share_limit` INT DEFAULT 5 COMMENT '每人每个活动总分享次数限制',
+    `share_title` VARCHAR(128) COMMENT '分享标题/文案',
+    `share_image` VARCHAR(512) COMMENT '分享图片',
     `status` TINYINT DEFAULT 1,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -59,13 +62,16 @@ CREATE TABLE IF NOT EXISTS `prize` (
 -- 分享记录表
 CREATE TABLE IF NOT EXISTS `share_record` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `sharer_id` BIGINT NOT NULL,
-    `visitor_id` BIGINT NOT NULL,
-    `activity_id` BIGINT NOT NULL,
-    `lottery_granted` TINYINT DEFAULT 0,
+    `sharer_id` BIGINT NOT NULL COMMENT '分享者ID',
+    `visitor_id` BIGINT COMMENT '访问者ID（点击后填入）',
+    `activity_id` BIGINT NOT NULL COMMENT '活动ID',
+    `share_code` VARCHAR(32) UNIQUE NOT NULL COMMENT '分享码，用于追踪点击',
+    `confirmed` TINYINT DEFAULT 0 COMMENT '是否已确认（被点击访问）',
+    `confirmed_at` DATETIME COMMENT '确认时间',
+    `lottery_granted` TINYINT DEFAULT 0 COMMENT '是否已发放抽奖机会',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY `uk_share` (`sharer_id`, `visitor_id`, `activity_id`),
-    INDEX `idx_sharer` (`sharer_id`, `created_at`)
+    INDEX `idx_sharer` (`sharer_id`, `activity_id`),
+    INDEX `idx_share_code` (`share_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 抽奖记录表
@@ -143,8 +149,8 @@ INSERT INTO `prize` (`name`, `type`, `value`, `probability`, `stock`, `icon`, `n
 ('画材礼包', 'gift', 1, 5, 20, '/images/prize-gift.png', 1);
 
 -- 插入测试活动
-INSERT INTO `activity` (`title`, `description`, `cover_img`, `start_time`, `end_time`, `daily_share_limit`) VALUES
-('暑期班报名优惠', '分享活动，抽取丰厚奖品！', '/images/activity-summer.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5);
+INSERT INTO `activity` (`title`, `description`, `cover_img`, `start_time`, `end_time`, `daily_share_limit`, `total_share_limit`, `share_title`, `share_image`) VALUES
+('暑期班报名优惠', '分享活动，抽取丰厚奖品！', '/images/activity-summer.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5, 5, '快来参与舒然画室暑期班活动', '/images/share-default.jpg');
 
 -- 插入默认画室配置
 INSERT INTO `studio_config` (`config_key`, `config_value`, `config_type`) VALUES
@@ -153,5 +159,11 @@ INSERT INTO `studio_config` (`config_key`, `config_value`, `config_type`) VALUES
 ('studio_description', '专注美术教育10年，培养学员超过2000人', 'text'),
 ('studio_images', '[]', 'json'),
 ('studio_video', '', 'text'),
+('studio_address', '', 'text'),
+('studio_latitude', '', 'text'),
+('studio_longitude', '', 'text'),
+('studio_qrcode', '', 'text'),
+('studio_intro', '', 'text'),
+('studio_intro_images', '[]', 'json'),
 ('share_title_template', '【分享抽奖】{activity_title}', 'text'),
 ('share_desc_template', '分享活动，抽取丰厚奖品！', 'text');

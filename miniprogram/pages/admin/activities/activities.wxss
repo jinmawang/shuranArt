@@ -18,7 +18,7 @@
 }
 
 .add-btn {
-  background: #ff6b35;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
   color: #fff;
   padding: 12rpx 24rpx;
   border-radius: 30rpx;
@@ -201,6 +201,42 @@
 }
 
 .btn-confirm {
-  background: #ff6b35;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
   color: #fff;
+}
+
+/* 分割线 */
+.form-divider {
+  font-size: 26rpx;
+  color: #8B5CF6;
+  font-weight: 500;
+  margin: 30rpx 0 20rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 1rpx solid #E0E7FF;
+}
+
+/* 图片上传 */
+.image-upload {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 26rpx;
 }

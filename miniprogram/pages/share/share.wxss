@@ -155,6 +155,22 @@
   font-weight: 500;
 }
 
+.stat-divider {
+  width: 2rpx;
+  height: 80rpx;
+  background: rgba(99, 102, 241, 0.2);
+  align-self: center;
+}
+
+.invite-tip {
+  text-align: center;
+  font-size: 26rpx;
+  color: #D97706;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid rgba(99, 102, 241, 0.08);
+}
+
 /* ============================================
    分享按钮区 - Claymorphism
    ============================================ */
@@ -194,6 +210,15 @@
   box-shadow:
     4rpx 4rpx 16rpx rgba(99, 102, 241, 0.5),
     -2rpx -2rpx 10rpx rgba(255, 255, 255, 0.2);
+}
+
+.share-btn.disabled {
+  background: linear-gradient(135deg, #9CA3AF 0%, #D1D5DB 100%);
+  box-shadow: none;
+}
+
+.share-btn.disabled:active {
+  transform: none;
 }
 
 .share-icon {

@@ -4,6 +4,11 @@
   <view class="activity-content">
     <view class="activity-header">
       <view class="activity-title">{{activity.title}}</view>
+      <!-- 活动状态提示 -->
+      <view class="activity-status {{activity.started ? 'active' : 'upcoming'}}" wx:if="{{!activity.ended}}">
+        <text wx:if="{{activity.started}}">活动进行中</text>
+        <text wx:else>活动即将开始～</text>
+      </view>
       <view class="activity-time">
         <image src="/images/icon-time.png" class="time-icon"/>
         <text>{{activity.startTime}} - {{activity.endTime}}</text>
@@ -20,14 +25,14 @@
       <view class="rules-list">
         <view class="rule-item">1. 分享活动链接给好友</view>
         <view class="rule-item">2. 好友点击链接访问后，您可获得1次抽奖机会</view>
-        <view class="rule-item">3. 每日最多获得{{activity.dailyShareLimit || 5}}次抽奖机会</view>
+        <view class="rule-item">3. 每个活动最多可获得{{activity.totalShareLimit || 5}}次抽奖机会</view>
         <view class="rule-item">4. 抽中实物奖品请到店凭兑换码领取</view>
       </view>
     </view>
   </view>
 
   <view class="action-bar">
-    <button class="btn-share" open-type="share">
+    <button class="btn-share {{activity.started ? '' : 'disabled'}}" open-type="{{activity.started ? 'share' : ''}}" bindtap="{{activity.started ? '' : 'showNotStartedTip'}}">
       <image src="/images/icon-share-white.png" class="btn-icon"/>
       分享活动
     </button>

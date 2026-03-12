@@ -22,7 +22,7 @@ Page({
   addActivity() {
     this.setData({
       showModal: true,
-      editing: { dailyShareLimit: 5, status: 1 }
+      editing: { totalShareLimit: 5, status: 1 }
     });
   },
 
@@ -60,6 +60,31 @@ Page({
     this.setData({ 'editing.status': e.detail.value ? 1 : 0 });
   },
 
+  // 选择封面图片
+  chooseCoverImage() {
+    this.chooseAndUploadImage('coverImg');
+  },
+
+  // 选择分享图片
+  chooseShareImage() {
+    this.chooseAndUploadImage('shareImage');
+  },
+
+  // 选择并上传图片
+  chooseAndUploadImage(key) {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath;
+        // 这里简化处理，直接使用临时路径
+        // 实际项目中应该上传到云存储获取永久URL
+        this.setData({ [`editing.${key}`]: tempFilePath });
+        wx.showToast({ title: '图片已选择', icon: 'success' });
+      }
+    });
+  },
+
   saveActivity() {
     const { editing } = this.data;
     if (!editing.title) {
@@ -70,7 +95,8 @@ Page({
     const data = {
       ...editing,
       startTime: editing.startDate ? editing.startDate + ' 00:00:00' : null,
-      endTime: editing.endDate ? editing.endDate + ' 23:59:59' : null
+      endTime: editing.endDate ? editing.endDate + ' 23:59:59' : null,
+      totalShareLimit: parseInt(editing.totalShareLimit) || 5
     };
 
     wx.showLoading({ title: '保存中...' });
