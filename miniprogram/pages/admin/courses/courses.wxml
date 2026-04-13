@@ -1,0 +1,88 @@
+<!-- CRS: 管理后台课程管理页 -->
+<!-- 需求来源: EARS-CRS-005, AC-CRS-004 -->
+<!-- 参照 admin/teachers/teachers.wxml 页面结构 -->
+<view class="list-page">
+  <view class="list-header">
+    <text class="header-title">课程管理</text>
+    <view class="add-btn" bindtap="addCourse">
+      <text>+ 添加</text>
+    </view>
+  </view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{courses}}" wx:key="id">
+      <image src="{{item.coverImg || '/images/default-course.png'}}" class="item-cover"/>
+      <view class="item-info">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-meta">
+          <text class="item-category">{{item.category}}</text>
+          <text class="item-price">¥{{item.price}}</text>
+        </view>
+        <!-- AC-CRS-004: 下架课程标记为"已下架" -->
+        <view class="item-status {{item.status === 1 ? 'status-on' : 'status-off'}}">
+          {{item.status === 1 ? '已上架' : '已下架'}}
+        </view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn toggle" bindtap="toggleStatus" data-item="{{item}}">
+          {{item.status === 1 ? '下架' : '上架'}}
+        </view>
+        <view class="action-btn edit" bindtap="editCourse" data-item="{{item}}">编辑</view>
+        <view class="action-btn delete" bindtap="deleteCourse" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{courses.length === 0}}" class="empty-tip">暂无数据</view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-title">{{editing.id ? '编辑课程' : '添加课程'}}</view>
+      <!-- V-004: name 必填 -->
+      <view class="form-item">
+        <text class="label">课程名称 *</text>
+        <input class="input" value="{{editing.name}}" data-key="name" bindinput="onInput" placeholder="请输入课程名称"/>
+      </view>
+      <!-- V-005: category 必填 -->
+      <view class="form-item">
+        <text class="label">课程类别 *</text>
+        <input class="input" value="{{editing.category}}" data-key="category" bindinput="onInput" placeholder="如：素描/水彩/油画/国画"/>
+      </view>
+      <!-- V-006: price 必填 >= 0 -->
+      <view class="form-item">
+        <text class="label">价格（元）*</text>
+        <input class="input" type="number" value="{{editing.price}}" data-key="price" bindinput="onInput" placeholder="0表示免费体验课"/>
+      </view>
+      <!-- V-007: duration 必填 -->
+      <view class="form-item">
+        <text class="label">课程时长 *</text>
+        <input class="input" value="{{editing.duration}}" data-key="duration" bindinput="onInput" placeholder="如：3个月、12课时"/>
+      </view>
+      <!-- V-008: suitableFor 必填 -->
+      <view class="form-item">
+        <text class="label">适合人群 *</text>
+        <input class="input" value="{{editing.suitableFor}}" data-key="suitableFor" bindinput="onInput" placeholder="如：零基础学员"/>
+      </view>
+      <!-- V-009: coverImg 选填 -->
+      <view class="form-item">
+        <text class="label">封面图URL</text>
+        <input class="input" value="{{editing.coverImg}}" data-key="coverImg" bindinput="onInput" placeholder="请输入封面图URL"/>
+      </view>
+      <!-- V-010: description 选填 -->
+      <view class="form-item">
+        <text class="label">课程描述</text>
+        <textarea class="textarea" value="{{editing.description}}" data-key="description" bindinput="onInput" placeholder="请输入课程详细描述（支持HTML）"/>
+      </view>
+      <!-- V-011: sortOrder 选填 默认0 -->
+      <view class="form-item">
+        <text class="label">排序</text>
+        <input class="input" type="number" value="{{editing.sortOrder}}" data-key="sortOrder" bindinput="onInput" placeholder="数字越小越靠前"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeModal">取消</button>
+        <button class="btn-confirm" bindtap="saveCourse">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

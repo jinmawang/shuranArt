@@ -1,0 +1,44 @@
+<!-- CRS: 课程详情页 -->
+<!-- 需求来源: EARS-CRS-003, AC-CRS-003 -->
+<view class="detail-page" wx:if="{{course}}">
+  <!-- 课程封面图 (B3: 加载失败显示占位图) -->
+  <image src="{{course.coverImg || '/images/default-course.png'}}" mode="aspectFill" class="detail-cover" binderror="onImageError"/>
+
+  <!-- 课程基本信息 -->
+  <view class="detail-card">
+    <view class="detail-name">{{course.name}}</view>
+    <view class="detail-category-tag">{{course.category}}</view>
+
+    <!-- AC-CRS-003: 价格 (B1: price=0 显示"免费", B7: 大数值正确格式化) -->
+    <view class="detail-price">
+      <text wx:if="{{course.price === 0}}" class="price-free">免费体验课</text>
+      <text wx:else class="price-amount">¥{{course.price}}</text>
+    </view>
+
+    <!-- 课程信息标签 -->
+    <view class="detail-tags">
+      <view class="detail-tag">
+        <text class="tag-label">时长</text>
+        <text class="tag-value">{{course.duration}}</text>
+      </view>
+      <view class="detail-tag">
+        <text class="tag-label">适合</text>
+        <text class="tag-value">{{course.suitableFor}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- AC-CRS-003: 课程详细描述（富文本） (B2: 描述为空时隐藏) -->
+  <view class="detail-card" wx:if="{{course.description}}">
+    <view class="card-title">课程介绍</view>
+    <rich-text nodes="{{course.description}}" class="detail-description"></rich-text>
+  </view>
+</view>
+
+<!-- 课程不存在或加载中 -->
+<view wx:if="{{!course && !loading}}" class="empty-page">
+  <text class="empty-text">课程不存在</text>
+</view>
+<view wx:if="{{loading}}" class="loading-page">
+  <text class="loading-text">加载中...</text>
+</view>

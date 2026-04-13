@@ -1,146 +1,104 @@
 /* ============================================
-   舒然画室 - Claymorphism 蓝紫色系设计系统
+   舒然画室 - 晴空蓝·明朗欢快设计系统
+   Primary:    #4A9ECC (晴空蓝)
+   Accent:     #F5C842 (明黄)
+   Background: #F0F7FF (天空白)
+   Text:       #1A2E3D / #6A8099
    ============================================ */
 
 /* 全局样式 */
 page {
-  background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 50%, #FDF4FF 100%);
+  background: #F0F7FF;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 28rpx;
-  color: #1E1B4B;
+  color: #1A2E3D;
   line-height: 1.6;
   min-height: 100vh;
 }
 
-/* ============================================
-   颜色变量 (通过类名实现)
-   Primary: #6366F1 (蓝紫)
-   Secondary: #8B5CF6 (紫色)
-   Accent: #A855F7 (亮紫)
-   Background: #EEF2FF ~ #F5F3FF (渐变)
-   ============================================ */
-
 /* 主题颜色 */
-.primary-color {
-  color: #6366F1;
-}
-
-.secondary-color {
-  color: #8B5CF6;
-}
-
-.accent-color {
-  color: #A855F7;
-}
-
-.primary-bg {
-  background: linear-gradient(135deg, #6366F1, #8B5CF6);
-}
-
-.secondary-bg {
-  background: linear-gradient(135deg, #8B5CF6, #A855F7);
-}
+.primary-color { color: #4A9ECC; }
+.secondary-color { color: #3A8EBC; }
+.accent-color { color: #F5C842; }
+.primary-bg { background: #4A9ECC; }
+.secondary-bg { background: #3A8EBC; }
 
 /* 通用容器 */
-.container {
-  padding: 24rpx;
-}
+.container { padding: 24rpx; }
 
 /* ============================================
-   Claymorphism 卡片样式
-   特点: 双层阴影、柔和边框、圆润感
+   卡片样式 - 轻盈明亮
    ============================================ */
 .card {
   background-color: #FFFFFF;
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   padding: 32rpx;
-  margin-bottom: 24rpx;
-  /* Claymorphism 双层阴影效果 */
-  box-shadow:
-    8rpx 8rpx 20rpx rgba(99, 102, 241, 0.15),
-    -4rpx -4rpx 12rpx rgba(255, 255, 255, 0.8);
-  border: 3rpx solid rgba(99, 102, 241, 0.1);
-  transition: all 300ms ease-out;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
+  transition: all 200ms ease-out;
 }
 
 .card:active {
   transform: scale(0.98);
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.2),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1rpx 8rpx rgba(74, 158, 204, 0.12);
 }
 
-/* 玻璃卡片变体 */
 .card-glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20rpx);
-  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 20rpx;
   padding: 32rpx;
-  margin-bottom: 24rpx;
-  box-shadow:
-    8rpx 8rpx 20rpx rgba(99, 102, 241, 0.12),
-    inset 0 0 0 1rpx rgba(255, 255, 255, 0.5);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
-/* 强调卡片 */
 .card-accent {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  border-radius: 24rpx;
+  background: #4A9ECC;
+  border-radius: 20rpx;
   padding: 32rpx;
-  margin-bottom: 24rpx;
-  box-shadow:
-    8rpx 8rpx 24rpx rgba(99, 102, 241, 0.35),
-    -4rpx -4rpx 12rpx rgba(139, 92, 246, 0.2);
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(74, 158, 204, 0.3);
   color: #FFFFFF;
 }
 
 /* ============================================
-   Claymorphism 按钮样式
+   按钮样式
    ============================================ */
 .btn-primary {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background: #4A9ECC;
   color: #FFFFFF;
   border: none;
   border-radius: 50rpx;
   padding: 24rpx 48rpx;
   font-size: 30rpx;
   font-weight: 600;
-  box-shadow:
-    6rpx 6rpx 16rpx rgba(99, 102, 241, 0.4),
-    -3rpx -3rpx 10rpx rgba(255, 255, 255, 0.3);
-  transition: all 250ms ease-out;
+  box-shadow: 0 4rpx 16rpx rgba(74, 158, 204, 0.35);
+  transition: all 200ms ease-out;
 }
 
 .btn-primary:active {
   transform: translateY(2rpx);
-  box-shadow:
-    3rpx 3rpx 10rpx rgba(99, 102, 241, 0.5),
-    -2rpx -2rpx 6rpx rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2rpx 8rpx rgba(74, 158, 204, 0.35);
+  background: #3A8EBC;
 }
 
 .btn-secondary {
   background: #FFFFFF;
-  color: #6366F1;
-  border: 3rpx solid #6366F1;
+  color: #4A9ECC;
+  border: 2rpx solid #4A9ECC;
   border-radius: 50rpx;
   padding: 22rpx 46rpx;
   font-size: 30rpx;
   font-weight: 600;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.15),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.6);
-  transition: all 250ms ease-out;
+  transition: all 200ms ease-out;
 }
 
 .btn-secondary:active {
-  background: #EEF2FF;
+  background: #E8F4FB;
   transform: translateY(2rpx);
 }
 
-/* 小按钮 */
 .btn-small {
-  padding: 16rpx 32rpx;
+  padding: 14rpx 28rpx;
   font-size: 26rpx;
   border-radius: 40rpx;
 }
@@ -148,140 +106,71 @@ page {
 /* ============================================
    文本样式
    ============================================ */
-.text-center {
-  text-align: center;
-}
-
-.text-bold {
-  font-weight: 700;
-}
-
-.text-semibold {
-  font-weight: 600;
-}
-
-.text-gray {
-  color: #6B7280;
-}
-
-.text-muted {
-  color: #9CA3AF;
-}
-
-.text-primary {
-  color: #6366F1;
-}
-
-.text-small {
-  font-size: 24rpx;
-}
-
-.text-large {
-  font-size: 34rpx;
-}
-
-.text-title {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #1E1B4B;
-}
-
-.text-subtitle {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #312E81;
-}
+.text-center { text-align: center; }
+.text-bold { font-weight: 700; }
+.text-semibold { font-weight: 600; }
+.text-gray { color: #6A8099; }
+.text-muted { color: #A0B4C5; }
+.text-primary { color: #4A9ECC; }
+.text-small { font-size: 24rpx; }
+.text-large { font-size: 34rpx; }
+.text-title { font-size: 40rpx; font-weight: 700; color: #1A2E3D; }
+.text-subtitle { font-size: 32rpx; font-weight: 600; color: #1A2E3D; }
 
 /* ============================================
    Flex 布局
    ============================================ */
-.flex {
-  display: flex;
-}
-
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.flex-around {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
-.flex-1 {
-  flex: 1;
-}
+.flex { display: flex; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-around { display: flex; justify-content: space-around; align-items: center; }
+.flex-column { display: flex; flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
 
 /* ============================================
-   间距系统 (基于 8rpx)
+   间距系统
    ============================================ */
 .mt-8 { margin-top: 8rpx; }
 .mt-16 { margin-top: 16rpx; }
 .mt-20 { margin-top: 20rpx; }
 .mt-24 { margin-top: 24rpx; }
 .mt-32 { margin-top: 32rpx; }
-
 .mb-8 { margin-bottom: 8rpx; }
 .mb-16 { margin-bottom: 16rpx; }
 .mb-20 { margin-bottom: 20rpx; }
 .mb-24 { margin-bottom: 24rpx; }
 .mb-32 { margin-bottom: 32rpx; }
-
 .pt-16 { padding-top: 16rpx; }
 .pt-20 { padding-top: 20rpx; }
 .pt-24 { padding-top: 24rpx; }
-
 .pb-16 { padding-bottom: 16rpx; }
 .pb-20 { padding-bottom: 20rpx; }
 .pb-24 { padding-bottom: 24rpx; }
-
 .p-16 { padding: 16rpx; }
 .p-24 { padding: 24rpx; }
 .p-32 { padding: 32rpx; }
 
 /* ============================================
-   图标容器 (Claymorphism 风格)
+   图标容器
    ============================================ */
 .icon-wrapper {
   width: 96rpx;
   height: 96rpx;
   border-radius: 24rpx;
-  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  background: #E8F4FB;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.15),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.8);
 }
 
 .icon-wrapper-primary {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.3),
-    -2rpx -2rpx 8rpx rgba(139, 92, 246, 0.2);
+  background: #4A9ECC;
+  box-shadow: 0 4rpx 12rpx rgba(74, 158, 204, 0.35);
 }
 
 /* ============================================
-   标签/徽章样式
+   标签/徽章
    ============================================ */
 .tag {
   display: inline-block;
@@ -291,27 +180,16 @@ page {
   font-weight: 500;
 }
 
-.tag-primary {
-  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
-  color: #4F46E5;
-}
-
-.tag-accent {
-  background: linear-gradient(135deg, #6366F1, #8B5CF6);
-  color: #FFFFFF;
-}
-
-.tag-success {
-  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-  color: #059669;
-}
+.tag-primary { background: #E8F4FB; color: #4A9ECC; }
+.tag-accent { background: #4A9ECC; color: #FFFFFF; }
+.tag-success { background: #E6F4ED; color: #3A7A55; }
 
 /* ============================================
    分割线
    ============================================ */
 .divider {
-  height: 2rpx;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+  height: 1rpx;
+  background: #DFF0FA;
   margin: 24rpx 0;
 }
 
@@ -321,12 +199,12 @@ page {
 .empty-state {
   text-align: center;
   padding: 80rpx 40rpx;
-  color: #9CA3AF;
+  color: #A0B4C5;
 }
 
 .empty-state image {
   width: 200rpx;
   height: 200rpx;
-  opacity: 0.6;
+  opacity: 0.5;
   margin-bottom: 24rpx;
 }

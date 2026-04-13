@@ -1,0 +1,89 @@
+---
+consolidation_date: "2026-03-26"
+change_name: full-spec-gen
+review_round: 1
+domains: [CRS, PST]
+
+consolidated_verdict: PASS_WITH_WARNINGS
+verdict_reason: >
+  Security reviewer 标记 3 项 BLOCKING，经仲裁均降级为 WARNING：
+  (1) JWT 弱默认值为项目预有配置非本次变更引入；
+  (2) rich-text XSS 风险受限于管理员白名单 + 微信组件过滤；
+  (3) GlobalExceptionHandler 消息泄露为预有模式。
+  全部 6 位 reviewer 的发现去重后剩余 12 项独立问题（0 blocking, 8 warning, 4 info）。
+  可进入 L3_deliver。
+
+blocking_count: 0
+warning_count: 8
+info_count: 4
+action: proceed_to_deliver
+---
+
+# L3 Consolidated Review Report
+
+## Arbitration Decisions
+
+### SEC-001 (JWT Secret) — BLOCKING → WARNING
+
+**原因**: application.yml 中 `${JWT_SECRET:shuran-art-jwt-secret-key-...}` 和
+docker-compose.yml 中的弱默认值均为**项目预有配置**，非 CRS/PST 变更引入。
+所有涉及文件（application.yml, docker-compose.yml, JwtUtil.java）不在本次变更范围内。
+开发环境使用默认值是合理的，生产部署应通过环境变量覆盖。
+
+**记录**: 作为项目级安全改进建议保留，不阻塞本次交付。
+
+### SEC-002 (XSS via rich-text) — BLOCKING → WARNING
+
+**原因**: CRS 引入了 `<rich-text nodes="{{course.description}}">` 渲染管理员输入的 HTML。
+攻击向量受限：(1) 输入源仅限白名单管理员（AdminInterceptor），(2) 微信小程序 `<rich-text>`
+组件已过滤 `<script>` 等危险标签，(3) 课程描述目前仅在小程序端展示（非 WebView）。
+Jsoup 服务端净化作为防御纵深措施推荐实施，但不构成当前可利用漏洞。
+
+**记录**: 推荐 AdminService.saveCourse() 添加 Jsoup.clean() 净化。
+
+### SEC-003 (GlobalExceptionHandler) — BLOCKING → WARNING
+
+**原因**: GlobalExceptionHandler 的 `Result.error(e.getMessage())` 模式是**项目预有代码**。
+CRS/PST 的所有 `throw new RuntimeException("中文消息")` 均使用安全的中文业务提示，
+不会泄露内部细节。风险来自框架级异常（如 JSON 解析错误），但这是预有行为。
+
+**记录**: 推荐创建 BusinessException 类作为项目级改进。
+
+## Deduplicated Findings (12 unique)
+
+### WARNING (8)
+
+| # | ID | Source | Title | Scope |
+|---|-----|--------|-------|-------|
+| W1 | SEC-001 | Security | JWT 弱默认值 | 预有 |
+| W2 | SEC-002 | Security | rich-text XSS (defense-in-depth) | CRS |
+| W3 | SEC-003 | Security | GlobalExceptionHandler 消息泄露 | 预有 |
+| W4 | SEC-004+SEC-006 | Security | 日志级别 + 字段长度验证缺失 | PST+CRS |
+| W5 | SEC-005 | Security | Admin config 无 key 白名单 | 预有 |
+| W6 | ARCH-001=SPEC-001 | Arch+Spec | OpenAPI 401/403 code 示例不精确 | 文档 |
+| W7 | PERF-001+CrossA1 | Perf+Cross | RestTemplate 每次调用新建 | PST (预有模式) |
+| W8 | FUNC-001=CODE-001 | Func+Code | formatPrice 死代码 + B7 价格格式化 | CRS |
+
+### INFO (4)
+
+| # | ID | Source | Title |
+|---|-----|--------|-------|
+| I1 | PERF-002+CODE-003 | Perf+Code | synchronizedMap concurrency + 非原子操作 |
+| I2 | PERF-003+PERF-004 | Perf | 课程列表无分页 + 无索引（L2 设计决策） |
+| I3 | CODE-002+CrossA2 | Code+Cross | callWxacodeApi jsonParser 死代码 |
+| I4 | CrossB1+B2 | Cross | 验证模式/页面结构模式（反馈 specs）|
+
+## Recommendations by Priority
+
+### 推荐修复（本轮可选，不阻塞）:
+1. **W8**: 删除 courses.js formatPrice 死代码，或实现 WXS 格式化模块
+2. **I3**: 删除 ShareService.java line 352 未使用的 jsonParser 变量
+3. **W2**: AdminService.saveCourse() 添加 Jsoup.clean() 净化 description
+
+### 项目级改进（未来迭代）:
+4. **W1+W3**: 创建 BusinessException 类 + 移除 JWT 默认值
+5. **W5**: AdminController 添加 config key 白名单
+6. **W7**: 提取共享 RestTemplate @Bean
+
+### 无需操作:
+- I1, I2, I4: L2 设计决策或低并发场景下可接受

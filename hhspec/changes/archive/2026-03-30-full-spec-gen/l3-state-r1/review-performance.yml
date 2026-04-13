@@ -1,0 +1,334 @@
+---
+# L3 Performance Review Report
+# Template: plugins/pd/pd/lib/l3/review-report-template.md
+# Schema: lib/shared/report-schema.md
+
+reviewer: "l3_performance_reviewer"
+reviewer_layer: "craft"
+change_name: "full-spec-gen"
+review_date: "2026-03-26"
+review_round: 1
+domains_reviewed: [CRS, PST]
+verdict: "PASS"
+
+summary: >
+  Performance review of CRS (Course CRUD) and PST (Poster/Wxacode generation) domains.
+  Reviewed 9 implementation files (6 backend Java, 1 SQL migration, 2 frontend JS) across
+  all 8 PERF check items. No blocking performance issues found. Two warning-level findings
+  identified: (1) RestTemplate instantiated on every wxacode/token API call instead of
+  being reused, and (2) WxacodeCacheManager using synchronizedMap which holds a global lock
+  during LRU access reordering. Three info-level observations recorded for completeness.
+  Overall, the implementation follows appropriate patterns for the data volume
+  (< 50 courses, < 500 cached wxacodes) and usage profile (single-studio art school
+  mini program with low concurrency).
+
+blocking_count: 0
+warning_count: 2
+info_count: 3
+
+# ===========================================================================
+# Findings
+# ===========================================================================
+findings:
+
+  # --- WARNING findings ---
+
+  - id: "FND-PERF-001"
+    severity: "warning"
+    check_item: "PERF-06"
+    category: "Unnecessary object construction"
+    title: "RestTemplate + MappingJackson2HttpMessageConverter created per API call"
+    file: "backend/src/main/java/com/shuran/art/service/ShareService.java"
+    lines: "325-332"
+    evidence: >
+      ShareService.callWxacodeApi() at line 325 creates a new RestTemplate instance and
+      configures a MappingJackson2HttpMessageConverter with custom supported media types on
+      every invocation. The same pattern exists in WxAccessTokenManager.refreshAccessToken()
+      at line 82-89. callWxacodeApi may also recurse once for retry (line 366, 386), creating
+      a second RestTemplate in the same request path. Each RestTemplate construction allocates
+      a new list of ~7 default message converters plus the custom one.
+    impact: >
+      Per wxacode request (cache miss path): 2-4 RestTemplate instances created (1-2 in
+      callWxacodeApi + 1 in getAccessToken if token expired). Each construction allocates
+      approximately 8 HttpMessageConverter objects. At expected traffic volume (single studio,
+      < 100 daily active users), this adds ~2-5ms overhead and minor GC pressure per request.
+      Not a production risk at current scale but wasteful.
+    description: >
+      RestTemplate is a thread-safe, reusable HTTP client. The current pattern of creating a
+      new instance with custom converter configuration on every call wastes CPU cycles on
+      object allocation and converter list setup. This follows an existing pattern from
+      UserService (line 42), so it is a project-wide convention rather than a CRS/PST-specific
+      issue. However, PST introduces a higher-frequency usage path (wxacode generation)
+      compared to the existing login-only usage.
+    recommendation: >
+      Inject a pre-configured RestTemplate @Bean (or create it once as a class field in
+      each service) with the custom MappingJackson2HttpMessageConverter already added.
+      Both ShareService and WxAccessTokenManager can share the same bean. Example:
+      @Configuration class with @Bean RestTemplate wxRestTemplate() that adds the
+      text/plain + application/*+json media type support. This eliminates per-call
+      allocation of ~8 converter objects.
+    l2_trace: "PST-data-detail.md 2.3, 7.2"
+
+  - id: "FND-PERF-002"
+    severity: "warning"
+    check_item: "PERF-07"
+    category: "Cache concurrency model"
+    title: "WxacodeCacheManager synchronizedMap holds global lock on LRU get()"
+    file: "backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java"
+    lines: "45-53"
+    evidence: >
+      WxacodeCacheManager wraps a LinkedHashMap(accessOrder=true) with
+      Collections.synchronizedMap (line 53). When accessOrder=true, every get() call
+      mutates the internal linked list to move the accessed entry to the tail (LRU
+      reordering). synchronizedMap acquires a global mutex for every get() and put()
+      operation. Combined with the TTL expiry check in get() (lines 71-76) which calls
+      cache.remove(key), this means cache hit, cache miss, and cache expiry paths all
+      serialize under one lock.
+    impact: >
+      With current concurrency (single studio, < 100 DAU, wxacode requests are user-initiated
+      per-poster-generation), lock contention is negligible. However, if multiple users
+      generate posters concurrently (e.g., during a promotional event with 10-20 simultaneous
+      requests), all wxacode cache lookups serialize. The lock hold time is short (microseconds
+      for LinkedHashMap operations), so this will not cause visible latency at the expected
+      scale. Risk increases if cache size grows or access pattern becomes bursty.
+    description: >
+      L2 design (PST-data-detail.md 3.3) explicitly chose Collections.synchronizedMap for
+      simplicity over ConcurrentHashMap, noting "single instance low concurrency scenario
+      sufficient". This is a reasonable design-time trade-off. The warning is raised because
+      the combination of accessOrder=true (mutating reads) with synchronizedMap means even
+      read operations (cache hits) block each other, which is a subtlety worth documenting.
+    recommendation: >
+      For current scale, no code change needed -- document the concurrency limitation in a
+      code comment. If future load increases, consider replacing with Caffeine cache
+      (com.github.ben-manes.caffeine) which provides O(1) concurrent LRU with size-based
+      eviction and TTL support, eliminating the synchronizedMap bottleneck. Alternatively,
+      a ConcurrentHashMap with a custom LRU eviction thread would work but adds complexity.
+    l2_trace: "PST-data-detail.md 3.3"
+
+  # --- INFO findings ---
+
+  - id: "FND-PERF-003"
+    severity: "info"
+    check_item: "PERF-03"
+    category: "No pagination on course list"
+    title: "GET /api/course/list returns all active courses without pagination"
+    file: "backend/src/main/java/com/shuran/art/controller/CourseController.java"
+    lines: "31-41"
+    evidence: >
+      CourseController.getCourses() at line 41 calls courseMapper.selectList(queryWrapper)
+      with no LIMIT clause or page parameter. Returns all rows matching status=1 and optional
+      category filter. index.js loadHomeCourses() at line 137-142 also calls the same
+      endpoint and slices client-side to first 4 items.
+    impact: >
+      L2 CRS-data-detail.md Section 5.2 explicitly documents this as intentional: "course
+      data volume is extremely small (estimated < 50 records), full-table scan + filesort
+      performance is sufficient". At 50 records with ~11 columns of mostly VARCHAR data,
+      the response payload is approximately 5-15KB. The index.js client-side slice(0,4)
+      wastes bandwidth for at most ~46 unused records, which is negligible.
+    description: >
+      This is a conscious L2 design decision aligned with business reality (art studio with
+      5-20 courses). The existing Teacher list and Activity list endpoints follow the same
+      no-pagination pattern. No action needed at current scale. Noted for completeness only.
+    recommendation: >
+      No action needed. If course count exceeds 100 in the future, consider adding server-side
+      pagination or a dedicated /api/course/top endpoint with LIMIT for the homepage use case.
+    l2_trace: "CRS-data-detail.md 5.2, CRS-api-detail.md 2.2 STEP-03"
+
+  - id: "FND-PERF-004"
+    severity: "info"
+    check_item: "PERF-05"
+    category: "No secondary index on course table"
+    title: "course table has no index on (status, sort_order) or (category)"
+    file: "mysql/migration_v6_course.sql"
+    lines: "6-18"
+    evidence: >
+      The migration script creates the course table with only the primary key index (id
+      AUTO_INCREMENT). Query RM-001 (EP-01) uses WHERE status=1 AND category=? ORDER BY
+      sort_order ASC. No composite index on (status, sort_order) or (status, category,
+      sort_order) exists.
+    impact: >
+      L2 CRS-data-detail.md Section 5.1 explicitly decided against indexes: "Course data
+      volume is extremely small (estimated < 50 records), full-table scan + filesort
+      performance is sufficient. Reference: Teacher table has no business indexes (only PK),
+      runs well." At < 50 rows, a full table scan takes < 1ms on any modern database engine.
+      The absence of indexes is intentional and appropriate.
+    description: >
+      This is a deliberate L2 design decision (CRS-data-detail.md 5.1), not an oversight.
+      L2 notes a future expansion path: "If course count grows to 100+ with performance
+      issues, add composite index (status, sort_order)." This finding is recorded for
+      traceability only and does NOT indicate a gap.
+    recommendation: >
+      No action needed. The L2 decision is sound for current data volume. If course count
+      exceeds 100, add: CREATE INDEX idx_course_status_sort ON course(status, sort_order).
+    l2_trace: "CRS-data-detail.md 5.1"
+
+  - id: "FND-PERF-005"
+    severity: "info"
+    check_item: "PERF-03"
+    category: "In-memory cache memory footprint"
+    title: "WxacodeCacheManager stores up to 500 Base64 image strings in JVM heap"
+    file: "backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java"
+    lines: "23-26"
+    evidence: >
+      MAX_CAPACITY=500 entries. Each entry stores a Base64-encoded PNG image string. A 280px
+      wxacode PNG is typically 5-15KB binary, which becomes 7-20KB as Base64 string. At full
+      capacity: 500 * 7KB = 3.4MB minimum, 500 * 20KB = 9.8MB maximum.
+    impact: >
+      3.4-9.8 MB of JVM heap at full capacity. The application runs in Docker Compose (single
+      instance) with typical Spring Boot default heap of 256-512MB. This represents 2-4% of
+      heap at maximum cache fill. Memory is reclaimed via LRU eviction when capacity is exceeded
+      and via TTL expiry (24h) on access. This is well within safe bounds.
+    description: >
+      L2 design (PST-data-detail.md 3.2) specifies MAX_CAPACITY=500 based on REQ-PST-023.
+      The memory footprint is reasonable for the deployment model. Noted for operational
+      awareness -- if JVM heap is configured below 128MB, the cache could become a
+      significant fraction (up to ~8%). No action needed at standard heap sizes.
+    recommendation: >
+      No action needed. If memory-constrained deployments arise, consider reducing
+      MAX_CAPACITY or switching to file-based caching. Current sizing is appropriate for
+      the single-studio deployment model.
+    l2_trace: "PST-data-detail.md 3.2, REQ-PST-023"
+
+# ===========================================================================
+# Check items pass/fail summary
+# ===========================================================================
+findings_by_category:
+  PERF-01_N_plus_1_queries:
+    result: "PASS"
+    evidence: >
+      All CRS queries are single-shot (selectList, selectById) with no loops containing DB
+      calls. PST getWxacode performs a single selectById for activity validation. No N+1
+      patterns detected in any of the 9 reviewed files.
+  PERF-02_algorithm_complexity:
+    result: "PASS"
+    evidence: >
+      CRS has no nested loops or recursion. PST callWxacodeApi uses bounded recursion
+      (alreadyRetried boolean flag, max depth 1). AdminService.getStudioConfig has a
+      for-loop over config list (line 34) but this is existing code, not new -- and it
+      performs no DB calls inside the loop (iterates in-memory list). No O(n^2) or
+      unbounded recursion patterns in new code.
+  PERF-03_large_dataset_memory:
+    result: "PASS"
+    notes: >
+      Two info-level observations: (1) course list without pagination -- intentional per L2
+      for < 50 records (FND-PERF-003), (2) wxacode cache memory 3-10MB at capacity --
+      within safe bounds (FND-PERF-005). No blocking or warning level issues.
+  PERF-04_resource_connection_leak:
+    result: "PASS"
+    evidence: >
+      RestTemplate (used in ShareService and WxAccessTokenManager) does not hold persistent
+      connections -- it uses HttpURLConnection per request which auto-closes. No file handles,
+      streams, or database connections are manually opened in the new code. MyBatis Plus
+      manages DB connection lifecycle via connection pool. FileSystemManager.writeFileSync
+      in activity.js is synchronous and does not leak handles.
+  PERF-05_missing_index:
+    result: "PASS"
+    notes: >
+      course table has no secondary indexes. L2 CRS-data-detail.md 5.1 explicitly designed
+      this for < 50 records. This is a conscious L2 decision, not a code gap (FND-PERF-004).
+      No queries on non-indexed columns that L2 failed to consider.
+  PERF-06_unnecessary_serialization:
+    result: "WARNING"
+    notes: >
+      One warning: RestTemplate + converters created per call (FND-PERF-001). No redundant
+      JSON serialize/deserialize round-trips in data flow.
+  PERF-07_cache_missing:
+    result: "WARNING"
+    notes: >
+      Both caching layers (WxAccessTokenManager, WxacodeCacheManager) are implemented as
+      designed. One warning about synchronizedMap concurrency model (FND-PERF-002). No
+      hot-path data is missing cache coverage.
+  PERF-08_query_efficiency:
+    result: "PASS"
+    evidence: >
+      All MyBatis Plus queries use LambdaQueryWrapper with specific WHERE conditions.
+      CourseController uses .eq(status, 1) + .orderByAsc(sortOrder) + optional .eq(category).
+      selectById uses PK lookup. No SELECT * with unnecessary columns (MyBatis Plus maps
+      all entity columns by default, which is the standard ORM pattern; Course entity has
+      11 columns, all relevant to the API response). No missing LIMIT on large result sets
+      (course table < 50 rows).
+
+# ===========================================================================
+# Fix Verification (N/A for round 1)
+# ===========================================================================
+fix_verification: null
+
+# ===========================================================================
+# Uncertainties
+# ===========================================================================
+uncertainties:
+  - id: "UNC-PERF-001"
+    description: >
+      Exact wxacode PNG file size is unknown without calling the real WeChat API. The memory
+      estimate for WxacodeCacheManager (3.4-9.8 MB) is based on typical 280px PNG sizes.
+      If WeChat returns larger images (e.g., with alpha channel or higher color depth), the
+      per-entry size could increase. However, even at 50KB per entry (2.5x the upper estimate),
+      total memory would be ~25MB, still within safe bounds.
+    affected_findings: ["FND-PERF-005"]
+
+  - id: "UNC-PERF-002"
+    description: >
+      Production JVM heap size is not specified in the reviewed code. Docker Compose
+      configuration was not reviewed for memory limits. If the container is configured with
+      very low memory (< 128MB heap), the wxacode cache and RestTemplate allocations become
+      more significant proportionally. This uncertainty does not change any finding severity.
+    affected_findings: ["FND-PERF-001", "FND-PERF-005"]
+
+# ===========================================================================
+# Self-check execution
+# ===========================================================================
+self_check:
+  # --- Coverage completeness ---
+  all_check_items_reviewed: true
+  check_items_reviewed: ["PERF-01", "PERF-02", "PERF-03", "PERF-04", "PERF-05", "PERF-06", "PERF-07", "PERF-08"]
+  all_pass_items_have_evidence: true
+  all_fail_items_have_findings: true
+  yaml_structure_complete: true
+  all_implementer_code_read: true
+
+  # --- Performance review completeness ---
+  all_db_query_patterns_checked: true
+  all_loop_patterns_checked: true
+  all_resource_acquisition_points_checked: true
+
+  # --- Finding quality ---
+  all_blocking_have_quantified_impact: "N/A (no blocking findings)"
+  perf01_findings_have_call_chain: "N/A (no PERF-01 findings)"
+  perf02_findings_have_complexity_comparison: "N/A (no PERF-02 findings)"
+  perf05_findings_distinguish_l2_vs_code: true
+  severity_references_data_volume: true
+
+  # --- Fairness and actionability ---
+  no_framework_standard_patterns_flagged: true
+  no_premature_optimization_for_mvp: true
+  no_blocking_without_data_volume_estimate: true
+  no_l2_defined_but_unimplemented_index_flagged: true
+  no_specific_middleware_recommended: true
+
+# ===========================================================================
+# Files reviewed
+# ===========================================================================
+files_reviewed:
+  backend:
+    - path: "backend/src/main/java/com/shuran/art/controller/CourseController.java"
+      checks: ["PERF-01", "PERF-02", "PERF-03", "PERF-05", "PERF-08"]
+    - path: "backend/src/main/java/com/shuran/art/service/AdminService.java"
+      checks: ["PERF-01", "PERF-02", "PERF-03", "PERF-04", "PERF-06"]
+    - path: "backend/src/main/java/com/shuran/art/service/ShareService.java"
+      checks: ["PERF-01", "PERF-02", "PERF-03", "PERF-04", "PERF-06", "PERF-07"]
+    - path: "backend/src/main/java/com/shuran/art/service/WxAccessTokenManager.java"
+      checks: ["PERF-02", "PERF-04", "PERF-06", "PERF-07"]
+    - path: "backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java"
+      checks: ["PERF-02", "PERF-03", "PERF-04", "PERF-07"]
+    - path: "backend/src/main/java/com/shuran/art/mapper/CourseMapper.java"
+      checks: ["PERF-01", "PERF-08"]
+  sql:
+    - path: "mysql/migration_v6_course.sql"
+      checks: ["PERF-05", "PERF-08"]
+  frontend:
+    - path: "miniprogram/pages/courses/courses.js"
+      checks: ["PERF-01", "PERF-02", "PERF-03"]
+    - path: "miniprogram/pages/activity/activity.js"
+      checks: ["PERF-01", "PERF-02", "PERF-03", "PERF-04"]
+    - path: "miniprogram/pages/index/index.js"
+      checks: ["PERF-01", "PERF-02", "PERF-03"]

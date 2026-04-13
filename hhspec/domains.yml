@@ -1,0 +1,97 @@
+# 领域划分 - 舒然画室小程序
+# 逆向生成自代码分析
+
+domains:
+  - code: USR
+    name: 用户管理
+    description: 微信用户认证、个人资料管理、积分余额
+    owner: backend
+    bounded_context: 用户上下文
+    key_entities:
+      - User
+    api_prefix: /api/user
+
+  - code: ACT
+    name: 活动管理
+    description: 营销活动创建、配置、生命周期管理
+    owner: backend
+    bounded_context: 活动上下文
+    key_entities:
+      - Activity
+      - ActivityVisit
+    api_prefix: /api/activity
+
+  - code: LOT
+    name: 抽奖系统
+    description: 九宫格抽奖、奖品池配置、概率控制、保底机制、奖品领取
+    owner: backend
+    bounded_context: 抽奖上下文
+    key_entities:
+      - Prize
+      - LotteryRecord
+    api_prefix: /api/lottery
+
+  - code: SHR
+    name: 分享裂变
+    description: 分享码生成、访客确认、抽奖机会发放、防刷控制
+    owner: backend
+    bounded_context: 分享上下文
+    key_entities:
+      - ShareRecord
+    api_prefix: /api/share
+
+  - code: TCH
+    name: 师资管理
+    description: 教师信息、作品展示、排序管理
+    owner: backend
+    bounded_context: 画室上下文
+    key_entities:
+      - Teacher
+    api_prefix: /api/teacher
+
+  - code: STU
+    name: 画室配置
+    description: 画室基础信息、地址位置、轮播图、二维码、分享模板
+    owner: backend
+    bounded_context: 画室上下文
+    key_entities:
+      - StudioConfig
+    api_prefix: /api/studio
+
+  - code: EXC
+    name: 积分兑换
+    description: 积分商城、兑换商品管理、兑换记录（已有Schema未实现API）
+    owner: backend
+    bounded_context: 兑换上下文
+    key_entities:
+      - ExchangeItem
+      - ExchangeRecord
+    api_prefix: /api/exchange
+    status: schema_only
+
+  - code: CRS
+    name: 课程管理
+    description: 课程体系展示、课程CRUD管理、课程详情
+    owner: backend
+    bounded_context: 画室上下文
+    key_entities:
+      - Course
+    api_prefix: /api/course
+    status: planned
+
+  - code: PST
+    name: 分享海报
+    description: 前端Canvas生成分享海报，含活动图片+标题+小程序码
+    owner: miniprogram
+    bounded_context: 分享上下文
+    key_entities: []
+    status: planned
+
+  - code: ADM
+    name: 管理后台
+    description: 管理员权限控制、画室配置管理、教师/活动/奖品CRUD
+    owner: miniprogram
+    bounded_context: 管理上下文
+    key_entities:
+      - AdminWhitelist
+    api_prefix: /api/admin

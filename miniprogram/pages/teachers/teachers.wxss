@@ -1,165 +1,75 @@
 /* ============================================
-   师资页 - Claymorphism 蓝紫色系
+   师资页 - 晴空蓝·明朗欢快
    ============================================ */
 
-.teachers-page {
-  min-height: 100vh;
-}
+.teachers-page { min-height: 100vh; background: #F0F7FF; }
 
-/* ============================================
-   页面头部
-   ============================================ */
 .page-header {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
-  padding: 72rpx 32rpx;
+  background: #4A9ECC;
+  padding: 60rpx 32rpx 48rpx;
   text-align: center;
-  position: relative;
-  overflow: hidden;
 }
 
-.page-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-  animation: shimmer 8s infinite linear;
-}
+.header-title { font-size: 42rpx; font-weight: 700; color: #fff; margin-bottom: 10rpx; }
+.header-desc { font-size: 26rpx; color: rgba(255,255,255,0.88); }
 
-@keyframes shimmer {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+.teacher-list { padding: 20rpx 24rpx 24rpx; }
 
-.header-title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 12rpx;
-  position: relative;
-  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-}
-
-.header-desc {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
-  position: relative;
-}
-
-/* ============================================
-   教师列表
-   ============================================ */
-.teacher-list {
-  padding: 24rpx;
-  margin-top: -32rpx;
-  position: relative;
-  z-index: 1;
-}
-
-/* ============================================
-   教师卡片 - Claymorphism
-   ============================================ */
 .teacher-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 28rpx;
-  padding: 32rpx;
-  margin-bottom: 24rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
-  transition: all 250ms ease-out;
+  background: #FFFFFF;
+  border-radius: 18rpx;
+  padding: 28rpx;
+  margin-bottom: 18rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
+  transition: all 200ms ease-out;
 }
 
-.teacher-card:active {
-  transform: scale(0.98);
-  box-shadow:
-    6rpx 6rpx 20rpx rgba(99, 102, 241, 0.2),
-    -3rpx -3rpx 12rpx rgba(255, 255, 255, 0.7);
-}
+.teacher-card:active { transform: scale(0.98); }
 
 .teacher-avatar {
-  width: 160rpx;
-  height: 160rpx;
+  width: 150rpx;
+  height: 150rpx;
   border-radius: 50%;
   float: left;
-  margin-right: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow:
-    6rpx 6rpx 16rpx rgba(99, 102, 241, 0.2),
-    -3rpx -3rpx 10rpx rgba(255, 255, 255, 0.8);
-  border: 4rpx solid rgba(99, 102, 241, 0.15);
+  margin-right: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 3rpx 12rpx rgba(74,158,204,0.15);
+  border: 3rpx solid #DFF0FA;
 }
 
-.teacher-info {
-  overflow: hidden;
-  min-height: 160rpx;
-}
-
-.teacher-name {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #1E1B4B;
-  margin-bottom: 10rpx;
-}
+.teacher-info { overflow: hidden; min-height: 150rpx; }
+.teacher-name { font-size: 34rpx; font-weight: 700; color: #1A2E3D; margin-bottom: 10rpx; }
 
 .teacher-title {
-  font-size: 26rpx;
-  color: #8B5CF6;
-  margin-bottom: 14rpx;
-  font-weight: 600;
+  font-size: 24rpx;
+  color: #4A9ECC;
+  margin-bottom: 12rpx;
+  font-weight: 500;
   display: inline-block;
-  padding: 6rpx 16rpx;
-  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+  padding: 5rpx 14rpx;
+  background: #E8F4FB;
   border-radius: 20rpx;
 }
 
-.teacher-intro {
-  font-size: 26rpx;
-  color: #6B7280;
-  line-height: 1.7;
-}
+.teacher-intro { font-size: 26rpx; color: #6A8099; line-height: 1.7; }
 
-/* ============================================
-   教师作品
-   ============================================ */
 .teacher-works {
   clear: both;
-  margin-top: 24rpx;
-  padding-top: 24rpx;
-  border-top: 2rpx solid rgba(99, 102, 241, 0.1);
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #EEF6FC;
 }
 
-.works-title {
-  font-size: 26rpx;
-  color: #6B7280;
-  margin-bottom: 18rpx;
-  font-weight: 500;
-}
-
-.works-scroll {
-  white-space: nowrap;
-}
+.works-title { font-size: 26rpx; color: #A0B4C5; margin-bottom: 14rpx; font-weight: 500; }
+.works-scroll { white-space: nowrap; }
 
 .work-img {
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 16rpx;
-  margin-right: 16rpx;
+  width: 190rpx;
+  height: 190rpx;
+  border-radius: 12rpx;
+  margin-right: 14rpx;
   display: inline-block;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.15),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2rpx 10rpx rgba(74,158,204,0.1);
 }
 
-/* ============================================
-   空状态
-   ============================================ */
-.empty-tip {
-  text-align: center;
-  padding: 120rpx 0;
-  color: #9CA3AF;
-  font-size: 28rpx;
-}
+.empty-tip { text-align: center; padding: 120rpx 0; color: #A0B4C5; font-size: 28rpx; }

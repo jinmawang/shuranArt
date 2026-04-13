@@ -1,0 +1,399 @@
+review_report:
+  reviewer: l3_architectural_reviewer
+  reviewer_layer: compliance
+  title: "架构合规性审查报告"
+  change_name: full-spec-gen
+  review_round: 1
+  date: "2026-03-26"
+  verdict: PASS
+  verdict_reason: >
+    CRS 和 PST 两个领域的实现代码在模块依赖方向、领域边界、接口契约、数据流路径、
+    错误码体系、分层架构等方面均符合 L1 架构约束。未发现 blocking 级别违规。
+    存在 1 项 warning 级别问题（OpenAPI 文档中 401/403 错误码示例与实际拦截器行为
+    存在数值差异），属于文档精度问题，不影响系统运行。
+
+  summary:
+    total_checks: 8
+    passed: 7
+    failed: 0
+    warning: 1
+    not_applicable: 1
+    blocking_count: 0
+    warning_count: 1
+
+  # ============================================================
+  # 逐项检查结果
+  # ============================================================
+  check_results:
+
+    - check_id: ARCH-01
+      check_name: "模块依赖方向"
+      result: PASS
+      evidence: |
+        对全部 CRS/PST 相关代码文件的 import 语句进行了逐条分析：
+
+        1. Course.java: 仅 import MyBatis Plus 注解和 lombok，无跨域依赖。
+        2. CourseMapper.java: import Course（CRS 域内），符合预期。
+        3. CourseController.java: import CourseMapper + Course（CRS 域内）+ Result（共享 DTO），符合预期。
+        4. AdminController.java: import Activity, Course, Prize, Teacher + AdminService，
+           属于 ADM 上下文，L1 依赖矩阵允许 ADM -> ACT/CRS/LOT/STU/TCH。
+        5. AdminService.java: import entity.* + mapper.*（通配符），包含
+           AdminWhitelist, StudioConfig, Teacher, Activity, Prize, Course 及对应 Mapper。
+           ADM 上下文依赖所有业务实体，符合 L1 依赖矩阵。
+        6. ShareController.java: import ShareService + WxacodeData + Result，
+           SHR 域内依赖，符合预期。
+        7. ShareService.java: import Activity, ShareRecord, User + ActivityMapper,
+           ShareRecordMapper, UserMapper + WxAccessTokenManager, WxacodeCacheManager。
+           SHR -> USR/ACT 均在 L1 依赖矩阵允许范围内。
+        8. WxAccessTokenManager.java: 无域内 import，仅 Spring/Lombok 框架依赖。
+        9. WxacodeCacheManager.java: 无域内 import，仅 JDK/Lombok 依赖。
+        10. WxacodeData.java: 仅 lombok 依赖。
+        11. WebMvcConfig.java: import AuthInterceptor + AdminInterceptor（基础设施层），合规。
+
+        全部 import 语句的依赖方向均在 L1 依赖矩阵允许范围内，未发现逆向依赖。
+
+    - check_id: ARCH-02
+      check_name: "无跨聚合直接引用"
+      result: PASS
+      evidence: |
+        基于 L1 domain-model.md 定义的聚合边界，检查跨聚合内部实体引用：
+
+        1. CRS 聚合根 Course 的内部实体：Course 本身为聚合根，无子实体。
+           使用 Grep 搜索 ShareService/ShareController 中是否引用 Course：
+           结果为零匹配，PST/SHR 代码未引用任何 CRS 内部类型。
+
+        2. PST 复用 SHR 上下文的 ShareController/ShareService（设计决策 3），
+           PST 新增的 getWxacode 方法在 ShareService 中，通过 activityMapper.selectById()
+           访问 Activity 实体。这是通过 Mapper 接口（公开数据访问层）读取，
+           属于 SHR -> ACT 的允许依赖方向，非跨聚合内部实体直接引用。
+
+        3. AdminService 操作 Course 实体属于 ADM 上下文管理职责（L1 4.3: "管理后台对
+           所有业务实体执行 CRUD"），通过 CourseMapper 公开接口访问，合规。
+
+    - check_id: ARCH-03
+      check_name: "接口契约匹配"
+      result: PASS
+      evidence: |
+        逐端点比对 OpenAPI 契约与实际代码实现：
+
+        === CRS 域 ===
+
+        EP-01: GET /api/course/list
+        - OpenAPI: GET /api/course/list, query param category (optional, string)
+        - 代码: CourseController.java:24 @GetMapping("/list") + @RequestParam(required=false) String category
+        - 响应 Schema: CourseListResult {code:int, msg:string, data:Course[]}
+        - 代码返回: Result.success(courses) -> {code:0, msg:"success", data:[...]}
+        - Course 字段比对: id(Long), name(String), category(String), description(String nullable),
+          price(Integer), duration(String), suitableFor(String), coverImg(String nullable),
+          sortOrder(Integer), status(Integer), createdAt(LocalDateTime)
+        - OpenAPI Course Schema 字段: id(int64), name(string), category(string),
+          description(string nullable), price(integer), duration(string), suitableFor(string),
+          coverImg(string nullable), sortOrder(integer), status(integer enum[0,1]),
+          createdAt(date-time)
+        - 结论: 完全匹配。
+
+        EP-02: GET /api/course/{id}
+        - OpenAPI: GET /api/course/{id}, path param id (int64, required)
+        - 代码: CourseController.java:50 @GetMapping("/{id}") + @PathVariable Long id
+        - 响应: CourseDetailResult {code:int, msg:string, data:Course|null}
+        - 代码: Result.success(course) -- course 可能为 null
+        - 结论: 完全匹配。
+
+        EP-03: GET /api/admin/courses
+        - OpenAPI: GET /api/admin/courses, security: bearerAuth
+        - 代码: AdminController.java:92 @GetMapping("/courses")
+        - 路由: /api/admin/** 被 AdminInterceptor 拦截，合规
+        - 响应: CourseListResult
+        - 代码: Result.success(adminService.getCourses()) 返回全部课程含下架
+        - 结论: 完全匹配。
+
+        EP-04: POST /api/admin/course
+        - OpenAPI: POST /api/admin/course, body: CourseInput schema
+        - 代码: AdminController.java:98 @PostMapping("/course") + @RequestBody Course course
+        - CourseInput required fields: name, category, price, duration, suitableFor
+        - 代码验证: AdminService.saveCourse() 校验 name/category/price/duration/suitableFor 非空
+        - 响应: VoidResult {code:0, msg:"success", data:null}
+        - 代码: Result.success()
+        - 结论: 完全匹配。
+
+        EP-05: DELETE /api/admin/course/{id}
+        - OpenAPI: DELETE /api/admin/course/{id}, path param id (int64)
+        - 代码: AdminController.java:105 @DeleteMapping("/course/{id}") + @PathVariable Long id
+        - 响应: VoidResult
+        - 结论: 完全匹配。
+
+        EP-06: PUT /api/admin/course/{id}/status
+        - OpenAPI: PUT /api/admin/course/{id}/status, body: {status: enum[0,1]}
+        - 代码: AdminController.java:112 @PutMapping("/course/{id}/status")
+          + @RequestBody Map<String,Integer> body, body.get("status")
+        - AdminService.updateCourseStatus() 校验 status 为 0 或 1
+        - 响应: VoidResult
+        - 结论: 完全匹配。
+
+        === PST 域 ===
+
+        EP-01: GET /api/share/wxacode
+        - OpenAPI: GET /api/share/wxacode, query param activityId (int64, required), security: bearerAuth
+        - 代码: ShareController.java:64 @GetMapping("/wxacode")
+          + @RequestParam Long activityId + HttpServletRequest (userId from attribute)
+        - 认证: /api/share/wxacode 不在 excludePathPatterns 中，AuthInterceptor 拦截，合规
+        - 响应 Schema: WxacodeResult {code:int, msg:string, data:WxacodeData|null}
+        - WxacodeData Schema: {wxacodeBase64: string}
+        - 代码 WxacodeData.java: 单字段 wxacodeBase64 (String)
+        - 成功: Result.success(wxacodeData) -> {code:0, msg:"success", data:{wxacodeBase64:"..."}}
+        - 活动不存在: Result.error("活动不存在") -> {code:-1, msg:"活动不存在", data:null}
+        - 微信 API 失败: RuntimeException("小程序码生成失败，请稍后重试")
+          -> GlobalExceptionHandler -> Result.error("小程序码生成失败，请稍后重试")
+          -> {code:-1, msg:"小程序码生成失败，请稍后重试", data:null}
+        - 结论: 完全匹配。
+
+    - check_id: ARCH-04
+      check_name: "数据流路径一致"
+      result: PASS
+      evidence: |
+        逐条追踪 L1 data-flow.md 中每个序列图的实际代码调用链：
+
+        === CRS 1.1 课程列表查询 ===
+        L1 序列图: U -> CourseController -> CourseMapper -> DB
+        实际代码: CourseController.getCourses() 直接调用 courseMapper.selectList(queryWrapper)
+        queryWrapper 条件: eq(status, 1) + orderByAsc(sortOrder) + 可选 eq(category, ?)
+        结论: 匹配。
+
+        === CRS 1.2 课程详情查询 ===
+        L1 序列图: U -> CourseController -> CourseMapper -> DB
+        实际代码: CourseController.getCourse() 直接调用 courseMapper.selectById(id)
+        结论: 匹配。
+
+        === CRS 1.3 课程 CRUD（管理端）===
+        L1 序列图: A -> Auth/Admin Interceptors -> AdminController -> AdminService -> CourseMapper -> DB
+        实际代码:
+        - GET /api/admin/courses: AdminController.getCourses() -> AdminService.getCourses()
+          -> courseMapper.selectList(orderByAsc sortOrder)
+        - POST /api/admin/course: AdminController.saveCourse() -> AdminService.saveCourse()
+          -> courseMapper.insert() 或 courseMapper.updateById()
+        - PUT /api/admin/course/{id}/status: AdminController.updateCourseStatus()
+          -> AdminService.updateCourseStatus() -> courseMapper.selectById() + courseMapper.updateById()
+        - DELETE /api/admin/course/{id}: AdminController.deleteCourse()
+          -> AdminService.deleteCourse() -> courseMapper.deleteById()
+        结论: 完全匹配。
+
+        === PST 2.1 海报生成流（小程序码）===
+        L1 序列图: U -> ShareController -> ShareService -> {TokenCache, WxacodeCache, WeChat API, DB}
+        实际代码: ShareController.getWxacode() -> shareService.getWxacode(userId, activityId)
+        ShareService.getWxacode() 内部流程:
+        1. activityMapper.selectById(activityId) -- 验证活动存在 (对应 SS->DB)
+        2. wxacodeCacheManager.get(cacheKey) -- 检查缓存 (对应 SS->WC)
+        3. wxAccessTokenManager.getAccessToken() -- 获取 token (对应 SS->TC)
+        4. callWxacodeApi() via RestTemplate -- 调用微信 API (对应 SS->WX)
+        5. wxacodeCacheManager.put() -- 缓存结果 (对应 SS->WC)
+        结论: 完全匹配。
+
+        === PST 2.2 access_token 管理流 ===
+        L1 序列图: ShareService -> TokenCache -> WeChat API
+        实际代码: WxAccessTokenManager.getAccessToken()
+        1. 检查 cachedToken + expireTime (对应 SS->TC 缓存检查)
+        2. 若过期: refreshAccessToken() 调用微信 API (对应 TC->WX)
+        3. 存储 token + 计算过期时间 (提前 300s，对应 TC->TC 缓存)
+        结论: 完全匹配。
+
+    - check_id: ARCH-05
+      check_name: "错误码体系一致"
+      result: PASS
+      evidence: |
+        L1 error-strategy.md 定义的错误码体系：
+        - code=0: 成功
+        - code=-1: 业务失败（Result.error(msg)）
+        - code=401: 未认证（AuthInterceptor/AdminInterceptor 直接写 HTTP 401）
+        - code=403: 无权限（AdminInterceptor 直接写 HTTP 403）
+
+        CRS 域使用的错误码：
+        - Result.success(courses) -> code=0 [匹配]
+        - throw RuntimeException("课程名称不能为空") -> GlobalExceptionHandler -> Result.error(msg) -> code=-1 [匹配]
+        - throw RuntimeException("课程不存在") -> code=-1 [匹配]
+        - throw RuntimeException("状态值无效") -> code=-1 [匹配]
+        - 拦截器 401/403 由框架处理 [匹配]
+
+        PST 域使用的错误码：
+        - Result.success(wxacodeData) -> code=0 [匹配]
+        - Result.error("活动不存在") -> code=-1 [匹配]
+        - throw RuntimeException("小程序码生成失败，请稍后重试") -> code=-1 [匹配]
+        - throw RuntimeException("微信 access_token 获取失败") -> code=-1 [匹配]
+
+        全部错误码均在 L1 错误码体系定义范围内。
+
+    - check_id: ARCH-06
+      check_name: "无循环依赖"
+      result: PASS
+      evidence: |
+        基于全部 import 语句构建的模块依赖有向图：
+
+        CRS 域依赖图:
+        Course -> (无域内依赖)
+        CourseMapper -> Course
+        CourseController -> {CourseMapper, Course, Result}
+        AdminController -> {AdminService, Activity, Course, Prize, Teacher, Result}
+        AdminService -> {CourseMapper, TeacherMapper, ActivityMapper, PrizeMapper,
+                         AdminWhitelistMapper, StudioConfigMapper,
+                         Course, Teacher, Activity, Prize, AdminWhitelist, StudioConfig}
+
+        PST 域依赖图:
+        WxacodeData -> (无域内依赖)
+        WxAccessTokenManager -> (无域内依赖)
+        WxacodeCacheManager -> (无域内依赖)
+        ShareController -> {ShareService, WxacodeData, Result, ShareRequest}
+        ShareService -> {WxAccessTokenManager, WxacodeCacheManager,
+                         ActivityMapper, ShareRecordMapper, UserMapper,
+                         Activity, ShareRecord, User, WxacodeData, ShareRequest}
+
+        跨域边:
+        ShareService -> ActivityMapper (SHR -> ACT, 允许)
+        ShareService -> UserMapper (SHR -> USR, 允许)
+        AdminService -> CourseMapper (ADM -> CRS, 允许)
+
+        遍历检测: 无环路。全部依赖方向为单向（Controller -> Service -> Mapper -> Entity），
+        基础设施组件（WxAccessTokenManager, WxacodeCacheManager）无反向依赖。
+
+    - check_id: ARCH-07
+      check_name: "分层架构遵守"
+      result: PASS
+      evidence: |
+        分层调用方向检查：
+
+        CRS 公开端点:
+        - CourseController 直接注入 CourseMapper（Controller -> Repository）。
+          这是项目已建立的架构模式：TeacherController 同样直接注入 TeacherMapper，
+          ActivityController 直接注入 ActivityMapper/UserMapper。
+          L2 设计文档明确记载："参照 TeacherController.getTeachers() 模式，
+          Controller 直接注入 CourseMapper，无 Service 层中转（简单查询场景）"。
+          项目的分层约定对简单只读公开端点允许 Controller -> Mapper 直接调用。
+
+        CRS 管理端点:
+        - AdminController -> AdminService -> CourseMapper（Controller -> Service -> Repository）。
+          严格遵循三层架构。
+
+        PST 域:
+        - ShareController -> ShareService -> {ActivityMapper, WxAccessTokenManager, WxacodeCacheManager}
+          （Controller -> Service -> Repository/Infrastructure）。
+          严格遵循三层架构。
+
+        反向依赖检查:
+        - 使用 Grep 搜索全部 Mapper 文件是否 import Service 类型: 无匹配。
+        - 使用 Grep 搜索全部 Service 文件是否 import Controller 类型: 无匹配。
+        结论: 无反向调用，分层合规。
+
+    - check_id: ARCH-08
+      check_name: "共享契约遵循"
+      result: NOT_APPLICABLE
+      evidence: |
+        项目中不存在 shared-contracts.yml 文件（使用 Glob 搜索 hhspec/shared-contracts.yml
+        返回零结果）。该检查项不适用于当前项目。
+
+  # ============================================================
+  # 发现列表
+  # ============================================================
+  findings:
+
+    - finding_id: FND-ARCH-001
+      check_item: ARCH-03
+      category: api_contract
+      severity: warning
+      title: "OpenAPI 401/403 响应示例中 code 字段值与实际拦截器行为不一致"
+      description: |
+        CRS.openapi.yml 和 PST.openapi.yml 中定义的 401 和 403 错误响应使用了
+        ErrorResult schema，其 code 字段示例值为 -1（如 {code:-1, msg:"未登录"}）。
+        然而，实际的 AuthInterceptor（AuthInterceptor.java:31）直接写入
+        {code:401, msg:"未登录或登录已过期"}，AdminInterceptor（AdminInterceptor.java:48）
+        直接写入 {code:403, msg:"无管理员权限"}。
+
+        即：OpenAPI 文档声称 code=-1，但拦截器实际返回 code=401/403。
+
+        L1 error-strategy.md（Section 1.2）正确记录了拦截器的实际行为
+        （code=401 和 code=403），所以这是 OpenAPI 文档与系统实际行为之间的不一致，
+        不是实现偏离架构约束。
+      evidence:
+        - file: "hhspec/changes/full-spec-gen/specs/architecture/api-contracts/CRS.openapi.yml"
+          lines: "196-198, 622-624"
+          detail: "401 响应示例 code:-1, msg:'未登录'; 403 响应示例 code:-1, msg:'无管理员权限'"
+        - file: "hhspec/changes/full-spec-gen/specs/architecture/api-contracts/PST.openapi.yml"
+          lines: "128-132"
+          detail: "401 响应示例 code:-1, msg:'未登录'"
+        - file: "backend/src/main/java/com/shuran/art/interceptor/AuthInterceptor.java"
+          lines: "29-32"
+          detail: "实际输出: {code:401, msg:'未登录或登录已过期'}"
+        - file: "backend/src/main/java/com/shuran/art/interceptor/AdminInterceptor.java"
+          lines: "44-48"
+          detail: "实际输出: code=401 (未登录) 或 code=403 (非管理员)"
+        - file: "hhspec/changes/full-spec-gen/specs/architecture/error-strategy.md"
+          lines: "24-28"
+          detail: "L1 error-strategy 正确记录了 code=401 和 code=403 的实际行为"
+      recommendation: |
+        建议更新 CRS.openapi.yml 和 PST.openapi.yml 中的 401/403 响应示例，
+        将 code 字段值从 -1 修改为 401（未认证）和 403（无权限），
+        并将 msg 字段值与拦截器实际输出对齐（如"未登录或登录已过期"而非"未登录"）。
+        这样 OpenAPI 文档才能准确反映系统行为。
+
+        注意：此问题属于 OpenAPI 文档精度问题（warning），不影响系统正常运行。
+        拦截器的实现与 L1 error-strategy.md 的定义是一致的。
+
+  # ============================================================
+  # 不确定项
+  # ============================================================
+  uncertainties: []
+
+  # ============================================================
+  # 分类统计
+  # ============================================================
+  findings_by_category:
+    dependency_direction: 0
+    aggregate_boundary: 0
+    api_contract: 1
+    data_flow: 0
+    error_code_system: 0
+    circular_dependency: 0
+    layered_architecture: 0
+    shared_contract: 0
+
+  # ============================================================
+  # 修复验证（round 1 不适用）
+  # ============================================================
+  fix_verification: null
+
+  # ============================================================
+  # 自检清单
+  # ============================================================
+  self_check:
+    common_checks:
+      - item: "全部 8 个检查项（ARCH-01 ~ ARCH-08）均已逐条审查"
+        status: DONE
+      - item: "每个 PASS 检查项有判定依据"
+        status: DONE
+      - item: "每个非 PASS 检查项有完整的问题记录"
+        status: DONE
+        note: "FND-ARCH-001 包含 evidence + description + recommendation"
+      - item: "审查报告 YAML 结构完整，无遗漏字段"
+        status: DONE
+      - item: "全部实现代码已完整阅读"
+        status: DONE
+        note: "11 个 Java 文件全部逐行阅读"
+
+    role_specific_checks:
+      - item: "全部代码文件的 import/require 语句已分析"
+        status: DONE
+        note: "11 个文件的 import 语句逐条分析并比对"
+      - item: "依赖矩阵中的每个允许/禁止方向都有对应的检查结果"
+        status: DONE
+        note: "CRS, PST, SHR, ADM 四个涉及上下文的依赖方向全部验证"
+      - item: "每个 OpenAPI 端点已逐字段比对"
+        status: DONE
+        note: "CRS 6 个端点 + PST 1 个端点，路径/方法/请求Schema/响应Schema 全部比对"
+      - item: "调用链追踪覆盖了 L1 data-flow.md 中的全部序列图"
+        status: DONE
+        note: "5 个序列图（CRS 1.1/1.2/1.3, PST 2.1/2.2）全部追踪"
+      - item: "循环依赖检测基于完整的模块依赖图"
+        status: DONE
+        note: "11 个文件的完整依赖有向图构建并遍历检测"
+      - item: "分层违规检查覆盖了全部 Controller/Service/Repository 文件"
+        status: DONE
+        note: "CourseController, AdminController, ShareController (Controller层),"
+              "AdminService, ShareService, WxAccessTokenManager, WxacodeCacheManager (Service/Infra层),"
+              "CourseMapper (Repository层) 全部检查"

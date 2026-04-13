@@ -1,100 +1,56 @@
 /* ============================================
-   分享页 - Claymorphism 蓝紫色系
+   分享页 - 晴空蓝·明朗欢快
    ============================================ */
 
-.share-page {
-  min-height: 100vh;
-  padding-bottom: 220rpx;
-}
+.share-page { min-height: 100vh; background: #F0F7FF; padding-bottom: 200rpx; }
 
-/* ============================================
-   活动头部
-   ============================================ */
-.activity-header {
-  position: relative;
-  height: 420rpx;
-  overflow: hidden;
-}
-
-.activity-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.activity-header { position: relative; height: 400rpx; overflow: hidden; }
+.activity-bg { width: 100%; height: 100%; object-fit: cover; }
 
 .activity-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 48rpx 32rpx;
-  background: linear-gradient(transparent, rgba(30, 27, 75, 0.85));
+  bottom: 0; left: 0; right: 0;
+  padding: 44rpx 28rpx;
+  background: linear-gradient(transparent, rgba(26,46,61,0.55));
   color: #fff;
 }
 
-.activity-title {
-  font-size: 38rpx;
-  font-weight: 700;
-  margin-bottom: 12rpx;
-  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
-}
+.activity-title { font-size: 36rpx; font-weight: 700; margin-bottom: 10rpx; }
+.activity-desc { font-size: 26rpx; opacity: 0.9; line-height: 1.5; }
 
-.activity-desc {
-  font-size: 26rpx;
-  opacity: 0.95;
-  line-height: 1.5;
-}
-
-/* ============================================
-   分享规则卡片 - Claymorphism
-   ============================================ */
 .share-info {
-  margin: 24rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 28rpx;
-  padding: 32rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  margin: 20rpx 24rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 700;
-  color: #1E1B4B;
-  margin-bottom: 24rpx;
+  color: #1A2E3D;
+  margin-bottom: 20rpx;
   display: flex;
   align-items: center;
 }
 
 .section-title::before {
   content: '';
-  width: 8rpx;
-  height: 32rpx;
-  background: linear-gradient(180deg, #6366F1, #8B5CF6);
-  border-radius: 4rpx;
-  margin-right: 16rpx;
+  width: 6rpx; height: 28rpx;
+  background: #4A9ECC;
+  border-radius: 3rpx;
+  margin-right: 14rpx;
 }
 
-.rules {
-  padding: 12rpx 0;
-}
+.rules { padding: 8rpx 0; }
 
-.rule-item {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 28rpx;
-}
-
-.rule-item:last-child {
-  margin-bottom: 0;
-}
+.rule-item { display: flex; align-items: flex-start; margin-bottom: 24rpx; }
+.rule-item:last-child { margin-bottom: 0; }
 
 .rule-num {
-  width: 48rpx;
-  height: 48rpx;
-  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  width: 44rpx; height: 44rpx;
+  background: #4A9ECC;
   color: #fff;
   border-radius: 50%;
   display: flex;
@@ -102,90 +58,43 @@
   align-items: center;
   font-size: 24rpx;
   font-weight: 700;
-  margin-right: 18rpx;
+  margin-right: 16rpx;
   flex-shrink: 0;
-  box-shadow:
-    4rpx 4rpx 10rpx rgba(99, 102, 241, 0.3),
-    -2rpx -2rpx 6rpx rgba(139, 92, 246, 0.2);
 }
 
-.rule-item text {
-  font-size: 28rpx;
-  color: #4B5563;
-  line-height: 48rpx;
-}
+.rule-item text { font-size: 28rpx; color: #4A5E6D; line-height: 44rpx; }
 
-/* ============================================
-   我的邀请卡片 - Claymorphism
-   ============================================ */
 .my-invite {
-  margin: 24rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 28rpx;
-  padding: 32rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  margin: 0 24rpx 20rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
 }
 
-.invite-stat {
-  display: flex;
-  justify-content: center;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 24rpx 64rpx;
-}
-
-.stat-num {
-  font-size: 60rpx;
-  font-weight: 700;
-  background: linear-gradient(135deg, #6366F1, #A855F7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.stat-label {
-  font-size: 26rpx;
-  color: #6B7280;
-  margin-top: 12rpx;
-  font-weight: 500;
-}
-
-.stat-divider {
-  width: 2rpx;
-  height: 80rpx;
-  background: rgba(99, 102, 241, 0.2);
-  align-self: center;
-}
+.invite-stat { display: flex; justify-content: center; }
+.stat-item { text-align: center; padding: 20rpx 56rpx; }
+.stat-num { font-size: 56rpx; font-weight: 700; color: #4A9ECC; }
+.stat-label { font-size: 26rpx; color: #6A8099; margin-top: 10rpx; font-weight: 500; }
+.stat-divider { width: 1rpx; height: 72rpx; background: #DFF0FA; align-self: center; }
 
 .invite-tip {
   text-align: center;
   font-size: 26rpx;
-  color: #D97706;
-  margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: 2rpx solid rgba(99, 102, 241, 0.08);
+  color: #C08000;
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid #EEF6FC;
 }
 
-/* ============================================
-   分享按钮区 - Claymorphism
-   ============================================ */
 .share-action {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 32rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20rpx);
-  box-shadow:
-    0 -8rpx 24rpx rgba(99, 102, 241, 0.1);
-  border-top: 2rpx solid rgba(99, 102, 241, 0.08);
+  bottom: 0; left: 0; right: 0;
+  padding: 24rpx 28rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 -1rpx 12rpx rgba(74,158,204,0.12);
+  border-top: 1rpx solid #DFF0FA;
 }
 
 .share-btn {
@@ -193,36 +102,17 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 96rpx;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  height: 92rpx;
+  background: #4A9ECC;
   color: #fff;
-  border-radius: 48rpx;
+  border-radius: 46rpx;
   font-size: 32rpx;
   font-weight: 600;
-  box-shadow:
-    8rpx 8rpx 24rpx rgba(99, 102, 241, 0.4),
-    -4rpx -4rpx 16rpx rgba(255, 255, 255, 0.3);
-  transition: all 250ms ease-out;
+  box-shadow: 0 4rpx 16rpx rgba(74,158,204,0.35);
+  transition: all 200ms ease-out;
 }
 
-.share-btn:active {
-  transform: scale(0.98);
-  box-shadow:
-    4rpx 4rpx 16rpx rgba(99, 102, 241, 0.5),
-    -2rpx -2rpx 10rpx rgba(255, 255, 255, 0.2);
-}
-
-.share-btn.disabled {
-  background: linear-gradient(135deg, #9CA3AF 0%, #D1D5DB 100%);
-  box-shadow: none;
-}
-
-.share-btn.disabled:active {
-  transform: none;
-}
-
-.share-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 12rpx;
-}
+.share-btn:active { transform: scale(0.98); background: #3A8EBC; }
+.share-btn.disabled { background: #CCCCCC; box-shadow: none; }
+.share-btn.disabled:active { transform: none; }
+.share-icon { width: 38rpx; height: 38rpx; margin-right: 12rpx; }

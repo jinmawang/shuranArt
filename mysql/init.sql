@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS `activity` (
     `start_time` DATETIME,
     `end_time` DATETIME,
     `daily_share_limit` INT DEFAULT 5,
-    `total_share_limit` INT DEFAULT 5 COMMENT '每人每个活动总分享次数限制',
+    `total_share_limit` INT DEFAULT 6 COMMENT '每人每个活动总分享次数限制',
+    `max_lottery_per_user` INT DEFAULT 6 COMMENT '每人每个活动最大抽奖次数',
     `share_title` VARCHAR(128) COMMENT '分享标题/文案',
     `share_image` VARCHAR(512) COMMENT '分享图片',
     `status` TINYINT DEFAULT 1,
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `prize` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(64) NOT NULL,
     `type` VARCHAR(20) NOT NULL,
+    `level` INT DEFAULT 4 COMMENT '奖品等级：1=一等奖，2=二等奖，3=三等奖，4=参与奖',
     `value` INT DEFAULT 0,
     `probability` INT DEFAULT 0,
     `stock` INT DEFAULT -1,
@@ -78,9 +80,11 @@ CREATE TABLE IF NOT EXISTS `share_record` (
 CREATE TABLE IF NOT EXISTS `lottery_record` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
     `user_id` BIGINT NOT NULL,
+    `activity_id` BIGINT COMMENT '活动ID',
     `prize_id` BIGINT NOT NULL,
     `prize_name` VARCHAR(64),
     `prize_type` VARCHAR(20),
+    `prize_level` INT DEFAULT 4 COMMENT '奖品等级',
     `prize_value` INT,
     `status` VARCHAR(20) DEFAULT 'pending',
     `claim_code` VARCHAR(16),
@@ -88,6 +92,7 @@ CREATE TABLE IF NOT EXISTS `lottery_record` (
     `claimed_at` DATETIME,
     `expire_at` DATETIME,
     INDEX `idx_user` (`user_id`, `created_at`),
+    INDEX `idx_user_activity` (`user_id`, `activity_id`),
     INDEX `idx_claim_code` (`claim_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -140,17 +145,17 @@ CREATE TABLE IF NOT EXISTS `studio_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 插入默认奖品数据
-INSERT INTO `prize` (`name`, `type`, `value`, `probability`, `stock`, `icon`, `need_claim`) VALUES
-('5积分', 'points', 5, 40, -1, '/images/prize-5.png', 0),
-('20积分', 'points', 20, 25, -1, '/images/prize-20.png', 0),
-('50积分', 'points', 50, 15, -1, '/images/prize-50.png', 0),
-('100积分', 'points', 100, 5, -1, '/images/prize-100.png', 0),
-('体验课', 'experience', 1, 10, 50, '/images/prize-exp.png', 1),
-('画材礼包', 'gift', 1, 5, 20, '/images/prize-gift.png', 1);
+INSERT INTO `prize` (`name`, `type`, `level`, `value`, `probability`, `stock`, `icon`, `need_claim`) VALUES
+('5积分', 'points', 4, 5, 40, -1, '/images/prize-5.png', 0),
+('20积分', 'points', 3, 20, 25, -1, '/images/prize-20.png', 0),
+('50积分', 'points', 3, 50, 15, -1, '/images/prize-50.png', 0),
+('100积分', 'points', 2, 100, 5, -1, '/images/prize-100.png', 0),
+('体验课', 'experience', 2, 1, 10, 50, '/images/prize-exp.png', 1),
+('画材礼包', 'gift', 1, 1, 5, 20, '/images/prize-gift.png', 1);
 
 -- 插入测试活动
 INSERT INTO `activity` (`title`, `description`, `cover_img`, `start_time`, `end_time`, `daily_share_limit`, `total_share_limit`, `share_title`, `share_image`) VALUES
-('暑期班报名优惠', '分享活动，抽取丰厚奖品！', '/images/activity-summer.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5, 5, '快来参与舒然画室暑期班活动', '/images/share-default.jpg');
+('暑期班报名优惠', '分享活动，抽取丰厚奖品！', '/images/activity-summer.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5, 6, '快来参与舒然画室暑期班活动', '/images/share-default.jpg');
 
 -- 插入默认画室配置
 INSERT INTO `studio_config` (`config_key`, `config_value`, `config_type`) VALUES
@@ -163,6 +168,7 @@ INSERT INTO `studio_config` (`config_key`, `config_value`, `config_type`) VALUES
 ('studio_latitude', '', 'text'),
 ('studio_longitude', '', 'text'),
 ('studio_qrcode', '', 'text'),
+('studio_wechat_id', '', 'text'),
 ('studio_intro', '', 'text'),
 ('studio_intro_images', '[]', 'json'),
 ('share_title_template', '【分享抽奖】{activity_title}', 'text'),

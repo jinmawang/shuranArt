@@ -1,0 +1,135 @@
+---
+reviewer: l3_spec_compliance_reviewer
+reviewer_layer: compliance
+change_name: full-spec-gen
+review_round: 1
+review_date: "2026-03-26"
+verdict: PASS
+verdict_reason: >
+  CRS 和 PST 两个领域的实现代码完全遵循 L2 设计模式和 specs 规范库定义。
+  所有验证规则（V-xxx）、业务逻辑步骤（STEP-xx）、Repository 方法（RM-xxx）
+  的实现均与 L2 伪代码一致。未发现 blocking 级别违规。1 项 warning
+  （OpenAPI 401/403 错误码示例不精确，与 architectural reviewer 重复发现），
+  1 项 info。
+
+summary:
+  blocking_count: 0
+  warning_count: 1
+  info_count: 1
+---
+
+# L3 Spec Compliance Review Report
+
+## L2 Design Spec Compliance
+
+### CRS Domain — CRS-api-detail.md Compliance
+
+| Endpoint | L2 Step | Implementation | Status |
+|----------|---------|----------------|--------|
+| EP-01 GET /api/course/list | STEP-01: 构建 status=1 + orderByAsc(sortOrder) | CourseController:31-33 LambdaQueryWrapper eq(status,1) orderByAsc(sortOrder) | MATCH |
+| EP-01 GET /api/course/list | STEP-02: 可选 category 筛选 | CourseController:36-38 if (category != null) queryWrapper.eq(category) | MATCH |
+| EP-01 GET /api/course/list | STEP-03: RM-001 执行查询 | CourseController:41 courseMapper.selectList(queryWrapper) | MATCH |
+| EP-01 GET /api/course/list | STEP-04: 空时返回空数组 | CourseController:44 Result.success(courses) | MATCH |
+| EP-01 GET /api/course/list | V-001: 空字符串视为不传 | CourseController:26-28 category.isBlank() → null | MATCH |
+| EP-02 GET /api/course/{id} | STEP-01: RM-002 selectById | CourseController:53 courseMapper.selectById(id) | MATCH |
+| EP-02 GET /api/course/{id} | V-002: id Long 类型自动转换 | CourseController:50 @PathVariable Long id | MATCH |
+| EP-03 GET /api/admin/courses | STEP-01: RM-003 全部课程 orderByAsc | AdminService:115-117 selectList orderByAsc(sortOrder) | MATCH |
+| EP-04 POST /api/admin/course | V-003~V-012: 全部验证规则 | AdminService:122-168 逐字段校验 | MATCH |
+| EP-04 POST /api/admin/course | STEP-02/03: id null 新增/编辑 | AdminService:164-168 id==null → insert, else → updateById | MATCH |
+| EP-05 DELETE /api/admin/course/{id} | STEP-01: RM-006 物理删除 | AdminService:172-174 deleteById(id) | MATCH |
+| EP-06 PUT /api/admin/course/{id}/status | V-014/V-015: 状态校验 | AdminService:178-197 status 非空/0或1/课程存在 | MATCH |
+
+### PST Domain — PST-api-detail.md Compliance
+
+| Endpoint | L2 Step | Implementation | Status |
+|----------|---------|----------------|--------|
+| EP-01 GET /api/share/wxacode | STEP-01: JWT userId 提取 | ShareController:66 request.getAttribute("userId") | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-02: 活动存在性验证 | ShareService:270-275 activityMapper.selectById | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-03: 缓存 key 构造 | ShareService: userId + "_" + activityId | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-04: 缓存命中检查 | ShareService: wxacodeCacheManager.get(cacheKey) | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-05: access_token 获取 | ShareService: wxAccessTokenManager.getAccessToken() | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-06: 微信 API 调用 | ShareService: callWxacodeApi POST getwxacodeunlimit | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-07-RETRY: 40001 重试 | ShareService:362-366 errcode==40001 && !alreadyRetried | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-08: Base64 编码 | ShareService: Base64.getEncoder().encodeToString(bytes) | MATCH |
+| EP-01 GET /api/share/wxacode | STEP-09: 缓存写入 | ShareService: wxacodeCacheManager.put(cacheKey, base64) | MATCH |
+
+### CRS Domain — CRS-data-detail.md Compliance
+
+| RM ID | L2 Design | Implementation | Status |
+|-------|-----------|----------------|--------|
+| RM-001 | selectList status=1 orderByAsc(sortOrder) + 可选 category | CourseController:31-41 | MATCH |
+| RM-002 | selectById(id) 无 status 过滤 | CourseController:53 | MATCH |
+| RM-003 | selectList orderByAsc(sortOrder) 含下架 | AdminService:115-117 | MATCH |
+| RM-004 | insert(course) | AdminService:165 | MATCH |
+| RM-005 | updateById(course) | AdminService:167, 197 | MATCH |
+| RM-006 | deleteById(id) 物理删除 | AdminService:173 | MATCH |
+
+### PST Domain — PST-data-detail.md Compliance
+
+| Section | L2 Design | Implementation | Status |
+|---------|-----------|----------------|--------|
+| 2.x WxAccessTokenManager | synchronized + volatile, 提前 300s 刷新 | WxAccessTokenManager:52-66 双重检查锁，ADVANCE_REFRESH_SECONDS=300 | MATCH |
+| 3.x WxacodeCacheManager | LinkedHashMap(accessOrder=true) + synchronizedMap, MAX_CAPACITY=500, TTL=24h | WxacodeCacheManager:22-53 | MATCH |
+| 3.4 get() | 检查 TTL 过期，过期 remove 返回 null | WxacodeCacheManager:63-80 | MATCH |
+| 3.4 put() | CacheEntry(value, now+TTL) | WxacodeCacheManager:88-92 | MATCH |
+| 4.1 wxacode API URL | POST getwxacodeunlimit + access_token | ShareService:308 | MATCH |
+| 4.2 请求体 | scene, page="pages/activity/activity", width=280, line_color RGB(99,102,241) | ShareService:311-321 | MATCH |
+| 4.4 token URL | GET cgi-bin/token?grant_type=client_credential | WxAccessTokenManager:78 | MATCH |
+
+## Error Strategy Compliance
+
+| Pattern | L2 error-strategy.md | Implementation | Status |
+|---------|---------------------|----------------|--------|
+| 成功响应 | code=0, Result.success() | 全部 endpoint | MATCH |
+| 业务失败 | code=-1, Result.error(msg) | AdminService throw RuntimeException → GlobalExceptionHandler | MATCH |
+| 认证拦截 | code=401 | AuthInterceptor.java:31 | MATCH |
+| 权限拦截 | code=403 | AdminInterceptor.java:48 | MATCH |
+
+## Findings
+
+- id: FND-SPEC-001
+  severity: warning
+  category: api_contract
+  title: "OpenAPI 401/403 响应示例中 code 值为 -1 而非实际的 401/403"
+  description: |
+    与 architectural reviewer FND-ARCH-001 相同发现。
+    CRS.openapi.yml 和 PST.openapi.yml 的 401/403 响应示例使用 code:-1，
+    但 AuthInterceptor 实际返回 code:401，AdminInterceptor 返回 code:403。
+    L1 error-strategy.md 正确记录了实际行为。属于文档精度问题。
+  evidence:
+    - file: "hhspec/changes/full-spec-gen/specs/architecture/api-contracts/CRS.openapi.yml"
+      detail: "401/403 response examples use code:-1"
+    - file: "backend/src/main/java/com/shuran/art/interceptor/AuthInterceptor.java"
+      detail: "Actual code: 401"
+  recommendation: |
+    更新 OpenAPI yml 中的 401/403 响应示例，code 值改为 401/403。
+
+- id: FND-SPEC-002
+  severity: info
+  category: code_pattern
+  title: "CRS CourseController 直接注入 Mapper 符合项目既定模式"
+  description: |
+    CourseController 直接注入 CourseMapper 而非通过 Service 层，
+    这与 TeacherController 直接注入 TeacherMapper 的既有模式一致。
+    L2 CRS-api-detail.md 明确记载此设计决策："参照 TeacherController.getTeachers()
+    模式，Controller 直接注入 CourseMapper，无 Service 层中转（简单查询场景）"。
+    符合项目对简单只读公开端点的分层约定。
+
+## Code Patterns Checked
+
+| Pattern File | Check | Status |
+|-------------|-------|--------|
+| Result wrapper | 全部端点使用 Result<T> 包装 | PASS |
+| MyBatis Plus BaseMapper | CourseMapper extends BaseMapper<Course> | PASS |
+| LambdaQueryWrapper | 全部查询使用类型安全查询 | PASS |
+| @RequiredArgsConstructor DI | CourseController, AdminService 均使用 | PASS |
+| @RestController + @RequestMapping | CourseController("/api/course") | PASS |
+| GlobalExceptionHandler | RuntimeException 统一捕获 | PASS |
+| @Slf4j logging | WxAccessTokenManager, WxacodeCacheManager 使用 | PASS |
+
+## Self Check
+
+all_l2_steps_checked: true
+all_l2_validation_rules_checked: true
+all_specs_patterns_verified: true
+yaml_structure_complete: true

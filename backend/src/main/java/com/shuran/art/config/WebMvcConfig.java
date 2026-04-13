@@ -32,7 +32,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/api/activity/list",
                     "/api/activity/*",
                     "/api/lottery/prizes",
-                    "/api/studio/config"
+                    "/api/studio/config",
+                    "/api/course/list",
+                    "/api/course/*",
+                    "/api/banner/list"
                 );
 
         // 管理员权限拦截器

@@ -10,9 +10,11 @@ public class LotteryRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
+    private Long activityId;
     private Long prizeId;
     private String prizeName;
     private String prizeType;
+    private Integer prizeLevel;  // 奖品等级
     private Integer prizeValue;
     private String status;
     private String claimCode;

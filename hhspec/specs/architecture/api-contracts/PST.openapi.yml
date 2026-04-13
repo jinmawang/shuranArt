@@ -1,0 +1,210 @@
+openapi: 3.0.3
+info:
+  title: PST - 分享海报 API
+  description: |
+    舒然画室小程序分享海报领域接口契约。
+
+    ## 需求来源
+    - REQ-PST-001: 分享海报生成功能
+
+    ## 设计依据
+    - 海报绘制由前端 Canvas 2D API 完成（决策 2），后端只提供小程序码生成接口
+    - 小程序码接口挂载在现有 ShareController `/api/share` 路径下（PST 属于分享上下文，决策 3）
+    - 需求文档 REQ-PST-009 明确接口路径为 `GET /api/share/wxacode`
+    - access_token 管理为后端内部实现，不暴露为 API（决策 5）
+    - 小程序码缓存为后端内部实现（REQ-PST-011, REQ-PST-023），不暴露为 API
+
+    ## 认证说明
+    - wxacode 端点需要 JWT 认证（需要 userId 生成 scene 参数）
+    - 该端点不在 WebMvcConfig excludePathPatterns 中，默认需要 AuthInterceptor 验证
+
+    ## 前端职责（不在此契约范围，仅供参考）
+    - Canvas 2D 绘制海报（REQ-PST-001 ~ REQ-PST-004）
+    - 海报保存到相册（REQ-PST-005 ~ REQ-PST-007）
+    - 海报分享给好友（REQ-PST-008）
+    - 扫码着陆页 scene 参数解析（REQ-PST-012, REQ-PST-013）
+    - 加载态/防重复点击控制（REQ-PST-014）
+  version: 1.0.0
+  contact:
+    name: ShuranArt Team
+
+servers:
+  - url: https://tianma.chat
+    description: 生产环境
+  - url: http://localhost:8080
+    description: 本地开发
+
+tags:
+  - name: poster-wxacode
+    description: 小程序码生成端点（需 JWT 认证）
+
+paths:
+  /api/share/wxacode:
+    get:
+      tags:
+        - poster-wxacode
+      summary: 生成活动小程序码
+      description: |
+        调用微信 `wxacode.getUnlimited` API 生成携带分享追踪参数的小程序码图片，
+        以 Base64 编码字符串返回给前端，前端将其绘制到 Canvas 海报中。
+
+        **需求来源**:
+        - REQ-PST-009: 生成小程序码并返回 Base64 编码
+        - REQ-PST-010: 小程序码跳转页面为 `pages/activity/activity`
+        - REQ-PST-011: 24 小时内相同用户+活动的请求返回缓存数据
+        - REQ-PST-023: 内存缓存，LRU 淘汰，上限 500 条
+
+        **代码参照**: ShareController 现有端点模式（`GET /api/share/status`）
+
+        **认证**: JWT Bearer Token（需要 userId 拼接 scene 参数）
+
+        **内部行为**（不暴露给前端）:
+        1. 从 JWT 中提取 userId
+        2. 检查缓存 key `{userId}_{activityId}` 是否命中且未过期（24h）
+        3. 未命中时：获取 access_token → 调用微信 wxacode.getUnlimited API
+        4. 微信 API 参数：
+           - scene: `s={userId}&a={activityId}`（缩写格式，确保不超 32 字节，BS-013）
+           - page: `pages/activity/activity`
+        5. 将返回的图片数据 Base64 编码后存入缓存
+        6. 返回 Base64 编码字符串
+
+        **性能要求**:
+        - 首次请求（含微信 API 调用）: < 3 秒（REQ-PST-022）
+        - 缓存命中: < 200 毫秒（REQ-PST-022）
+      operationId: getWxacode
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: activityId
+          in: query
+          required: true
+          description: |
+            活动 ID。必须对应已存在的活动记录。
+            活动无论状态（进行中/已结束/未开始）均可生成小程序码（BS-015, BS-016）。
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+      responses:
+        "200":
+          description: 成功返回小程序码 Base64 数据
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WxacodeResult"
+              examples:
+                success:
+                  summary: 成功生成小程序码
+                  value:
+                    code: 0
+                    msg: "success"
+                    data:
+                      wxacodeBase64: "iVBORw0KGgoAAAANSUhEUgAA..."
+                activityNotFound:
+                  summary: 活动不存在
+                  description: |
+                    活动 ID 对应的记录不存在。
+                    注意：现有系统惯例是在 code=0 的 Result 中通过 data 或 msg 传递业务错误，
+                    但小程序码接口应使用 Result.error() 模式（code=-1）返回明确错误。
+                  value:
+                    code: -1
+                    msg: "活动不存在"
+                    data: null
+                wxApiFailed:
+                  summary: 微信 API 调用失败
+                  description: |
+                    后端调用微信 wxacode.getUnlimited API 失败（网络异常、微信服务不可用等）。
+                    对应边界场景 BS-009。
+                  value:
+                    code: -1
+                    msg: "小程序码生成失败，请稍后重试"
+                    data: null
+        "401":
+          description: 未登录或 Token 无效
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              example:
+                code: -1
+                msg: "未登录"
+                data: null
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Token，通过 `POST /api/user/login` 微信登录获取。
+        在请求头中以 `Authorization: Bearer <token>` 形式传递。
+        由 AuthInterceptor 统一拦截验证，验证通过后 userId 存入 request.getAttribute("userId")。
+
+  schemas:
+    # ----------------------------------------
+    # 小程序码响应数据
+    # ----------------------------------------
+    WxacodeData:
+      type: object
+      description: |
+        小程序码响应数据。
+        前端收到后将 Base64 字符串转为临时图片文件，绘制到 Canvas 海报中。
+      properties:
+        wxacodeBase64:
+          type: string
+          description: |
+            小程序码图片的 Base64 编码字符串（PNG 格式）。
+            前端需要添加 `data:image/png;base64,` 前缀后使用，
+            或直接使用 wx.base64ToArrayBuffer + wx.fileSystemManager 写入临时文件。
+          example: "iVBORw0KGgoAAAANSUhEUgAA..."
+      required:
+        - wxacodeBase64
+
+    # ----------------------------------------
+    # 响应包装器（遵循现有 Result<T> 模式）
+    # ----------------------------------------
+    WxacodeResult:
+      type: object
+      description: |
+        小程序码生成响应，遵循 Result<WxacodeData> 格式。
+
+        成功时 code=0, data 包含 wxacodeBase64 字段。
+        失败时 code=-1, msg 包含错误原因, data 为 null。
+      properties:
+        code:
+          type: integer
+          description: "状态码：0=成功, -1=失败"
+          example: 0
+        msg:
+          type: string
+          description: 响应消息
+          example: "success"
+        data:
+          allOf:
+            - $ref: "#/components/schemas/WxacodeData"
+          nullable: true
+          description: 成功时包含小程序码数据，失败时为 null
+      required:
+        - code
+        - msg
+
+    ErrorResult:
+      type: object
+      description: "错误响应，遵循 Result.error() 格式"
+      properties:
+        code:
+          type: integer
+          description: "错误码：-1 为通用错误"
+          example: -1
+        msg:
+          type: string
+          description: 错误消息
+          example: "未登录"
+        data:
+          nullable: true
+          description: 错误时为 null
+      required:
+        - code
+        - msg

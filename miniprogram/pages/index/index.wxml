@@ -1,8 +1,19 @@
 <view class="index-page">
-  <!-- 顶部轮播 -->
-  <swiper class="banner-swiper" indicator-dots autoplay circular>
-    <swiper-item wx:for="{{banners}}" wx:key="index">
-      <image src="{{item}}" mode="aspectFill" class="banner-img"/>
+
+  <!-- 重力感应小球层（pointer-events:none，完全不影响下层交互） -->
+  <view class="gravity-layer">
+    <view wx:for="{{balls}}" wx:key="index"
+          class="gravity-ball gball-{{index}}"
+          style="left:{{item.x}}px;top:{{item.y}}px;">{{item.char}}</view>
+  </view>
+
+  <!-- 顶部轮播（本地图片兜底，始终显示） -->
+  <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" autoplay interval="3500" circular wx:if="{{banners.length > 0}}">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-item">
+        <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-img"/>
+        <view class="banner-desc" wx:if="{{item.description}}">{{item.description}}</view>
+      </view>
     </swiper-item>
   </swiper>
 
@@ -11,21 +22,82 @@
     <view class="studio-name">{{studioConfig.studio_name || '舒然画室'}}</view>
     <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
     <view class="studio-desc">{{studioConfig.studio_description}}</view>
-    <!-- 画室详细介绍 -->
     <view class="studio-intro-text" wx:if="{{studioConfig.studio_intro}}">
       {{studioConfig.studio_intro}}
+    </view>
+
+    <!-- 画室荣誉 -->
+    <view class="honors-section" wx:if="{{honors.length > 0}}">
+      <view class="honors-title">画室荣誉</view>
+      <scroll-view scroll-x class="honors-scroll">
+        <image wx:for="{{honors}}" wx:key="id" src="{{item.img}}" mode="aspectFit" class="honor-img" bindtap="previewHonor" data-index="{{index}}"/>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="feature-grid">
+    <view class="feature-item" bindtap="goToTeachers">
+      <view class="feature-icon-text shu">书</view>
+      <text>师资团队</text>
+    </view>
+    <view class="feature-item" bindtap="goToCourses">
+      <view class="feature-icon-text ke">课</view>
+      <text>课程介绍</text>
+    </view>
+    <view class="feature-item" bindtap="goToActivity">
+      <view class="feature-icon-text ran">染</view>
+      <text>活动详情</text>
+    </view>
+    <view class="feature-item" bindtap="goToLottery">
+      <view class="feature-icon-text mei">美</view>
+      <text>幸运抽奖</text>
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="section">
+    <view class="section-title">热门活动</view>
+    <view class="activity-list">
+      <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}">
+        <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
+        <view class="activity-info">
+          <view class="activity-title">{{item.title}}</view>
+          <view class="activity-status-tag {{item.started ? 'active' : 'upcoming'}}" wx:if="{{!item.ended}}">
+            {{item.started ? '进行中' : '即将开始'}}
+          </view>
+          <view class="activity-time">{{item.startDate}} ~ {{item.endDate}}</view>
+        </view>
+      </view>
+      <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无活动</view>
+    </view>
+  </view>
+
+  <!-- 学生作品瀑布流 -->
+  <view class="section">
+    <view class="section-title">学生作品</view>
+    <view class="works-waterfall">
+      <view class="works-col">
+        <image wx:for="{{worksLeft}}" wx:key="index"
+               src="{{item}}" mode="widthFix" class="works-img"
+               bindtap="previewWork" data-all="{{worksAll}}" data-src="{{item}}"/>
+      </view>
+      <view class="works-col">
+        <image wx:for="{{worksRight}}" wx:key="index"
+               src="{{item}}" mode="widthFix" class="works-img"
+               bindtap="previewWork" data-all="{{worksAll}}" data-src="{{item}}"/>
+      </view>
     </view>
   </view>
 
   <!-- 画室地址 -->
   <view class="card studio-location" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
     <view class="location-header">
-      <image src="/images/icon-location.png" class="location-icon"/>
-      <text class="location-title">画室地址</text>
-      <text class="location-nav">导航</text>
+      <image src="/images/icon-location.png" class="location-icon" wx:if="{{false}}"/>
+      <text class="location-title">📍 画室地址</text>
+      <text class="location-nav">导航前往</text>
     </view>
     <view class="location-address">{{studioConfig.studio_address}}</view>
-    <!-- 地图 -->
     <map wx:if="{{latitude && longitude}}"
          class="studio-map"
          latitude="{{latitude}}"
@@ -44,41 +116,4 @@
     </view>
   </view>
 
-  <!-- 功能入口 -->
-  <view class="feature-grid">
-    <view class="feature-item" bindtap="goToTeachers">
-      <image src="/images/icon-teacher.png" class="feature-icon"/>
-      <text>师资团队</text>
-    </view>
-    <view class="feature-item" bindtap="goToActivity">
-      <image src="/images/icon-activity.png" class="feature-icon"/>
-      <text>活动详情</text>
-    </view>
-    <view class="feature-item" bindtap="goToLottery">
-      <image src="/images/icon-lottery.png" class="feature-icon"/>
-      <text>幸运抽奖</text>
-    </view>
-    <view class="feature-item" bindtap="goToShare">
-      <image src="/images/icon-share.png" class="feature-icon"/>
-      <text>分享助力</text>
-    </view>
-  </view>
-
-  <!-- 活动列表 -->
-  <view class="section">
-    <view class="section-title">热门活动</view>
-    <view class="activity-list">
-      <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}">
-        <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
-        <view class="activity-info">
-          <view class="activity-title">{{item.title}}</view>
-          <view class="activity-status-tag {{item.started ? 'active' : 'upcoming'}}" wx:if="{{!item.ended}}">
-            {{item.started ? '进行中' : '即将开始'}}
-          </view>
-          <view class="activity-time">{{item.startTime}} ~ {{item.endTime}}</view>
-        </view>
-      </view>
-      <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无活动</view>
-    </view>
-  </view>
 </view>

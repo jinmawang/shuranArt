@@ -11,7 +11,7 @@
       </view>
       <view class="activity-time">
         <image src="/images/icon-time.png" class="time-icon"/>
-        <text>{{activity.startTime}} - {{activity.endTime}}</text>
+        <text>{{startDate}} - {{endDate}}</text>
       </view>
     </view>
 
@@ -23,10 +23,28 @@
     <view class="activity-rules">
       <view class="section-title">活动规则</view>
       <view class="rules-list">
-        <view class="rule-item">1. 分享活动链接给好友</view>
-        <view class="rule-item">2. 好友点击链接访问后，您可获得1次抽奖机会</view>
-        <view class="rule-item">3. 每个活动最多可获得{{activity.totalShareLimit || 5}}次抽奖机会</view>
+        <view class="rule-item">1. 进入活动详情页可获得1次抽奖机会</view>
+        <view class="rule-item">2. 分享活动给好友，好友点击后可获得抽奖机会</view>
+        <view class="rule-item">3. 分享越多，中奖概率越大</view>
         <view class="rule-item">4. 抽中实物奖品请到店凭兑换码领取</view>
+      </view>
+    </view>
+
+    <!-- 联系老师 -->
+    <view class="contact-card" wx:if="{{studioWechatId || studioQrcode}}">
+      <view class="section-title">联系老师</view>
+      <view class="contact-body">
+        <view class="wechat-id-row" wx:if="{{studioWechatId}}" bindtap="copyWechatId">
+          <view class="wechat-info">
+            <text class="wechat-label">老师微信号</text>
+            <text class="wechat-id">{{studioWechatId}}</text>
+          </view>
+          <view class="copy-btn">复制</view>
+        </view>
+        <view class="qrcode-row" wx:if="{{studioQrcode}}" bindtap="previewQrcode">
+          <image src="{{studioQrcode}}" mode="aspectFit" class="qrcode-img"/>
+          <text class="qrcode-tip">长按识别二维码添加老师微信</text>
+        </view>
       </view>
     </view>
   </view>
@@ -36,9 +54,32 @@
       <image src="/images/icon-share-white.png" class="btn-icon"/>
       分享活动
     </button>
+    <!-- PST: 生成海报按钮（REQ-PST-001, REQ-PST-014） -->
+    <button class="btn-poster {{isPosterGenerating ? 'disabled' : ''}}" bindtap="generatePoster" disabled="{{isPosterGenerating}}">
+      生成海报
+    </button>
     <button class="btn-lottery" bindtap="goToLottery">
       <image src="/images/icon-lottery-white.png" class="btn-icon"/>
       立即抽奖
     </button>
+  </view>
+
+  <!-- PST: Canvas 2D 离屏绘制（决策 2: Canvas 2D API） -->
+  <!-- 使用定位移出可视区域，保持 Canvas node 可用 -->
+  <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+
+  <!-- PST: 海报预览弹窗（REQ-PST-004, BS-014） -->
+  <view class="poster-modal" wx:if="{{showPosterModal}}" bindtap="closePosterModal">
+    <view class="poster-modal-content" catchtap="">
+      <!-- 关闭按钮 -->
+      <view class="poster-close" bindtap="closePosterModal">X</view>
+      <!-- 海报图片 -->
+      <image src="{{posterImagePath}}" mode="aspectFit" class="poster-image"/>
+      <!-- 操作按钮 -->
+      <view class="poster-actions">
+        <button class="poster-btn poster-btn-save" bindtap="savePosterToAlbum">保存到相册</button>
+        <button class="poster-btn poster-btn-share" bindtap="sharePosterToFriend">分享给好友</button>
+      </view>
+    </view>
   </view>
 </view>

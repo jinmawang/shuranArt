@@ -1,0 +1,545 @@
+# L3 Security Review Report
+# Change: full-spec-gen (CRS + PST domains)
+# Generated: 2026-03-26
+
+reviewer: l3_security_reviewer
+reviewer_layer: craft
+change_name: full-spec-gen
+review_round: 1
+review_date: "2026-03-26"
+
+# =============================================================================
+# VERDICT
+# =============================================================================
+verdict: FAIL
+verdict_reason: >
+  3 blocking findings identified: (1) hardcoded JWT secret with weak default
+  in application.yml and docker-compose.yml (SEC-05), (2) stored XSS via
+  rich-text rendering of admin-supplied HTML course descriptions without
+  sanitization (SEC-02), (3) RuntimeException messages propagated verbatim
+  to API responses via GlobalExceptionHandler exposing internal error details
+  (SEC-06). These must be remediated before delivery.
+
+# =============================================================================
+# FINDINGS SUMMARY
+# =============================================================================
+findings_summary:
+  total: 7
+  blocking: 3
+  warning: 3
+  info: 1
+
+# =============================================================================
+# FINDINGS BY CATEGORY
+# =============================================================================
+findings_by_category:
+  SEC-01_sql_injection:
+    status: PASS
+    evidence: >
+      All database access uses MyBatis-Plus LambdaQueryWrapper or BaseMapper
+      built-in methods (selectList, selectById, insert, updateById, deleteById).
+      The three @Select annotations in ShareRecordMapper.java (lines 12, 15, 18)
+      all use MyBatis #{param} parameterized placeholders, not ${} string
+      interpolation. No raw SQL string concatenation found anywhere in codebase.
+      CourseMapper.java extends BaseMapper<Course> with zero custom SQL.
+
+  SEC-02_xss:
+    status: FAIL
+    finding_count: 1
+
+  SEC-03_csrf:
+    status: PASS
+    evidence: >
+      This is a WeChat Mini Program backend. Authentication uses JWT Bearer
+      tokens in the Authorization header, not cookies. The frontend (app.js
+      line 124-125) explicitly sets header['Authorization'] = 'Bearer ' + token.
+      Since authentication is not cookie-based, CSRF attacks are not applicable.
+      The CORS wildcard config (CorsConfig.java line 15: addAllowedOriginPattern("*"))
+      combined with allowCredentials=true is noted as a warning separately but
+      does not create a CSRF vector because no session cookies are used.
+
+  SEC-04_privilege_escalation:
+    status: PASS
+    evidence: >
+      Admin endpoints (/api/admin/**) are protected by AdminInterceptor which:
+      (1) validates JWT token (line 33), (2) resolves userId (line 40),
+      (3) loads User entity (line 41), (4) checks openid against
+      admin_whitelist table via AdminService.isAdmin() (line 43).
+      Returns 403 if not admin. Public endpoints (/api/course/list,
+      /api/course/*) are correctly excluded from AuthInterceptor
+      (WebMvcConfig.java lines 36-37). Authenticated endpoints
+      (/api/share/*) extract userId from JWT via request.getAttribute("userId")
+      set by AuthInterceptor, preventing user-ID spoofing. No horizontal
+      privilege escalation vectors found -- share operations use JWT-derived
+      userId, not user-supplied userId parameters.
+
+  SEC-05_hardcoded_secrets:
+    status: FAIL
+    finding_count: 1
+
+  SEC-06_sensitive_data_exposure:
+    status: FAIL
+    finding_count: 2
+
+  SEC-07_insecure_deserialization:
+    status: PASS
+    evidence: >
+      All external input deserialization uses Spring MVC's Jackson
+      @RequestBody with typed entities (Course, Teacher, Activity, Prize,
+      Map<String,String>, Map<String,Integer>, ShareRequest). No pickle,
+      ObjectInputStream, yaml.load, or untyped deserialization found.
+      The WxAccessTokenManager and ShareService parse WeChat API JSON
+      responses via RestTemplate/ObjectMapper with Map.class target,
+      but these are server-to-server responses from api.weixin.qq.com,
+      not untrusted user input.
+
+  SEC-08_dependency_security:
+    status: PASS
+    evidence: >
+      Dependencies in scope: Spring Boot 3.2.0, MyBatis-Plus 3.5.5,
+      jjwt 0.12.3, Lombok 1.18.38, MySQL Connector (managed by Spring Boot
+      parent). No new dependencies introduced specifically for this change
+      beyond the existing project baseline. Spring Boot 3.2.0 is a recent
+      stable release. jjwt 0.12.3 has no known high-severity CVEs.
+
+  SEC-09_auth_session:
+    status: PASS
+    evidence: >
+      JWT generation uses jjwt library with HMAC-SHA key (JwtUtil.java
+      line 27-32). Key derived via Keys.hmacShaKeyFor() from configured
+      secret. Token validation uses parseSignedClaims() which rejects
+      algorithm:none attacks. Token expiration is set (604800000ms = 7 days).
+      Frontend stores token in wx.setStorageSync (app.js line 104), which
+      is WeChat Mini Program secure storage, not browser localStorage.
+      The JWT secret strength concern is addressed under SEC-05.
+
+  SEC-10_input_validation:
+    status: PASS
+    evidence: >
+      Course CRUD: AdminService.saveCourse() validates name (non-blank),
+      category (non-blank), price (non-null, >= 0), duration (non-blank),
+      suitableFor (non-blank), status (0 or 1). updateCourseStatus()
+      validates status (non-null, 0 or 1) and course existence. Path
+      variables use Long type with Spring auto-conversion (invalid format
+      returns 400). CourseController.getCourses() handles blank category
+      parameter. ShareController endpoints extract userId from JWT
+      attribute. The @RequestParam activityId is required by default.
+      LoginRequest uses @NotBlank on code field. Input length limits are
+      enforced at database column level (VARCHAR constraints).
+
+# =============================================================================
+# DETAILED FINDINGS
+# =============================================================================
+findings:
+
+  - id: FND-SEC-001
+    check_item: SEC-05
+    category: hardcoded_secrets
+    severity: blocking
+    title: "Hardcoded JWT secret with weak default value in application.yml"
+    file: "backend/src/main/resources/application.yml"
+    line: 36
+    evidence:
+      code_snippet: |
+        jwt:
+          secret: ${JWT_SECRET:shuran-art-jwt-secret-key-2026-very-long-secret}
+      supporting_evidence: |
+        docker-compose.yml line 26 also provides a weak default:
+          JWT_SECRET=${JWT_SECRET:-shuran-art-jwt-secret}
+        If the environment variable JWT_SECRET is not explicitly set in
+        production, the application falls back to a predictable, publicly
+        visible secret string. The same pattern exists for DB_PASSWORD
+        (default: shuran123 in docker-compose.yml line 22, default: 123456
+        in application.yml line 13).
+      attack_vector: >
+        An attacker who reads this source code (e.g., from a public
+        repository or leaked deployment artifacts) can obtain the default
+        JWT secret. With this secret, they can forge valid JWT tokens for
+        any userId, including admin users, granting full unauthorized access
+        to all API endpoints including admin operations (create/delete
+        courses, modify studio config, manage prizes). Forging a JWT
+        requires only: (1) the secret string, (2) a valid userId (IDs
+        are sequential starting from 1). The attacker can then call
+        POST /api/admin/course, DELETE /api/admin/course/{id}, etc.
+    root_cause: case_b_design_gap
+    remediation: >
+      1. Remove all default values from secret configurations. Change
+      application.yml to: jwt.secret: ${JWT_SECRET} (no default).
+      2. Remove default values from docker-compose.yml for JWT_SECRET
+      and DB_PASSWORD. Make them required environment variables.
+      3. Generate a cryptographically random secret of at least 256 bits
+      for production. Use a command like: openssl rand -base64 32.
+      4. Document in deployment guide that JWT_SECRET must be set via
+      environment variable and must not be committed to source control.
+      5. Consider adding startup validation that fails fast if
+      JWT_SECRET equals the known default string.
+
+  - id: FND-SEC-002
+    check_item: SEC-02
+    category: xss
+    severity: blocking
+    title: "Stored XSS via rich-text rendering of unsanitized course description HTML"
+    file: "miniprogram/pages/course-detail/course-detail.wxml"
+    line: 34
+    evidence:
+      code_snippet: |
+        <rich-text nodes="{{course.description}}" class="detail-description"></rich-text>
+      supporting_evidence: |
+        1. Course entity (Course.java line 18): description field is
+           defined as "课程详细描述（富文本HTML）TEXT nullable".
+        2. AdminService.saveCourse() (AdminService.java lines 122-168):
+           No sanitization or HTML filtering on the description field.
+           The value from @RequestBody is persisted directly to database.
+        3. CourseController.getCourse() (line 53): Returns course entity
+           with raw description to any user (public endpoint, no auth).
+        4. course-detail.wxml line 34: Renders description via <rich-text>
+           which interprets HTML nodes including potentially dangerous tags.
+        5. migration_v6_course.sql lines 22-24 confirm seed data uses
+           HTML: '<p>零基础入门素描课程...</p>'.
+        6. Admin course form (courses.wxml line 75) has placeholder text
+           "请输入课程详细描述（支持HTML）" explicitly inviting HTML input.
+      attack_vector: >
+        A compromised admin account or a malicious actor with admin access
+        can inject malicious HTML/JavaScript into a course description via
+        POST /api/admin/course. For example, a description containing
+        '<img src=x onerror="javascript:...">' or script-equivalent
+        rich-text nodes. WeChat Mini Program's <rich-text> component does
+        filter <script> tags but allows event handlers on certain elements
+        in some versions. More critically, if the course description is
+        ever rendered in a WebView or H5 page (future expansion), the
+        stored XSS payload activates. The attack surface is: any user
+        viewing the public course detail page receives the malicious HTML.
+        Even within Mini Program constraints, injected content can include
+        phishing UI elements (fake login forms, misleading links via
+        <a> tags) that could deceive end users.
+    root_cause: case_a_impl_bug
+    remediation: >
+      1. Add server-side HTML sanitization in AdminService.saveCourse()
+      before persisting the description field. Use a whitelist-based
+      sanitizer like OWASP Java HTML Sanitizer or Jsoup.clean() to
+      allow only safe tags (<p>, <br>, <strong>, <em>, <ul>, <li>, <h1>-<h6>)
+      and strip all event handlers and dangerous attributes.
+      2. Example: course.setDescription(Jsoup.clean(course.getDescription(),
+      Whitelist.relaxed())) before the insert/update call.
+      3. Alternatively, use Markdown instead of raw HTML for descriptions
+      and render via a Markdown-to-safe-HTML converter.
+
+  - id: FND-SEC-003
+    check_item: SEC-06
+    category: sensitive_data_exposure
+    severity: blocking
+    title: "GlobalExceptionHandler exposes internal RuntimeException messages in API responses"
+    file: "backend/src/main/java/com/shuran/art/config/GlobalExceptionHandler.java"
+    line: 13-15
+    evidence:
+      code_snippet: |
+        @ExceptionHandler(RuntimeException.class)
+        public Result<Void> handleRuntimeException(RuntimeException e) {
+            log.error("运行时异常: ", e);
+            return Result.error(e.getMessage());
+        }
+      supporting_evidence: |
+        This handler returns e.getMessage() verbatim to the client for ALL
+        RuntimeExceptions. While the application's own RuntimeExceptions
+        use Chinese business messages (e.g., "课程名称不能为空"), framework
+        and library exceptions can leak internal details. Examples:
+        - MyBatis SQL exceptions: could reveal table names, column names,
+          SQL syntax details.
+        - NullPointerException: reveals internal class/method names in message.
+        - Jackson deserialization errors: reveals internal class structure.
+        - Spring framework exceptions: reveals internal configuration.
+        The log.error("运行时异常: ", e) correctly logs the full stack trace
+        server-side, but the response should not mirror exception messages.
+      attack_vector: >
+        An attacker sends malformed requests (invalid JSON body, unexpected
+        types, oversized payloads) to trigger unhandled RuntimeExceptions
+        from framework/library code. The exception messages returned in the
+        API response reveal internal implementation details: database table
+        and column names, Java class names, SQL query fragments, library
+        versions. This information aids further attacks (SQL injection
+        crafting, class deserialization attacks). For example, sending a
+        request body with {"price": "not_a_number"} to POST /api/admin/course
+        could trigger a Jackson NumberFormatException whose message reveals
+        the field type and expected format.
+    root_cause: case_a_impl_bug
+    remediation: >
+      1. Distinguish between business exceptions (intentional throws with
+      user-safe messages) and unexpected exceptions. Create a custom
+      BusinessException class extending RuntimeException.
+      2. Convert all intentional throw new RuntimeException("中文消息")
+      to throw new BusinessException("中文消息").
+      3. In GlobalExceptionHandler, handle BusinessException separately
+      and return its message. For all other RuntimeException/Exception,
+      return a generic message: Result.error("系统异常，请稍后重试")
+      without exposing e.getMessage().
+      4. Example:
+         @ExceptionHandler(BusinessException.class)
+         public Result<Void> handleBusiness(BusinessException e) {
+             return Result.error(e.getMessage());
+         }
+         @ExceptionHandler(RuntimeException.class)
+         public Result<Void> handleRuntime(RuntimeException e) {
+             log.error("Unexpected runtime exception: ", e);
+             return Result.error("系统异常，请稍后重试");
+         }
+
+  - id: FND-SEC-004
+    check_item: SEC-06
+    category: sensitive_data_exposure
+    severity: warning
+    title: "Access token success/failure details logged at inappropriate levels"
+    file: "backend/src/main/java/com/shuran/art/service/WxAccessTokenManager.java"
+    line: 99
+    evidence:
+      code_snippet: |
+        log.info("access_token 刷新成功，有效期 {}s", expiresIn);
+        ...
+        log.error("access_token 获取失败: errcode={}, errmsg={}", errcode, errmsg);
+      supporting_evidence: |
+        Line 99 logs at INFO level that access_token refresh succeeded.
+        While the token value itself is not logged directly, the log
+        message confirms token refresh timing. Lines 104 and 348/360
+        in ShareService.java log WeChat API error responses which may
+        contain internal WeChat error details. The access_token value
+        is stored in a volatile field but never logged directly, which
+        is correct.
+      attack_vector: >
+        If log files are accessible to unauthorized parties (misconfigured
+        log aggregation, shared hosting, exposed log endpoints), the
+        timing information of token refreshes can be used to predict
+        when a fresh token is available. This is a low-severity
+        information disclosure. The WeChat error messages logged could
+        reveal appid configuration issues.
+    root_cause: case_a_impl_bug
+    remediation: >
+      1. Change access_token refresh success log from INFO to DEBUG level
+      to reduce exposure in production log configurations.
+      2. Ensure production logging is configured to exclude DEBUG level
+      for this class, or mask any token-related timing information.
+      3. This is a low-priority improvement; the current implementation
+      does not log the actual token value, which is the key concern.
+
+  - id: FND-SEC-005
+    check_item: SEC-04
+    category: privilege_escalation
+    severity: warning
+    title: "Admin config update endpoint accepts arbitrary key-value pairs without key whitelist"
+    file: "backend/src/main/java/com/shuran/art/controller/AdminController.java"
+    line: 29-31
+    evidence:
+      code_snippet: |
+        @PostMapping("/config")
+        public Result<Void> updateStudioConfig(@RequestBody Map<String, String> config) {
+            config.forEach(adminService::updateStudioConfig);
+            return Result.success();
+        }
+      supporting_evidence: |
+        AdminService.updateStudioConfig() (line 40-53) accepts any string
+        key and creates a new config entry if it does not exist. There is
+        no whitelist of allowed config keys. An admin user can create
+        arbitrary config entries in the studio_config table. The endpoint
+        is protected by AdminInterceptor (requires admin whitelist), so
+        only authenticated admins can call it.
+      attack_vector: >
+        A compromised admin account could insert arbitrary config keys
+        that may be consumed by future code or overwrite system-critical
+        config entries if the application evolves to read additional
+        config keys. Currently the attack surface is limited because
+        (1) only whitelisted admins can access this endpoint, and
+        (2) the config values are only used for display purposes
+        (studio name, address, etc.). However, if application code
+        is added that reads config keys for security-sensitive
+        decisions (e.g., feature flags, API keys), this becomes a
+        privilege escalation vector. Rated as warning because the
+        current admin-only restriction limits exploitability.
+    root_cause: case_b_design_gap
+    remediation: >
+      1. Add a whitelist of allowed config keys in AdminService.
+      2. Reject any key not in the whitelist with an appropriate error.
+      3. Example: private static final Set<String> ALLOWED_KEYS =
+         Set.of("studio_name", "studio_slogan", "studio_description", ...);
+         Then check: if (!ALLOWED_KEYS.contains(key)) throw new RuntimeException("无效的配置项");
+
+  - id: FND-SEC-006
+    check_item: SEC-10
+    category: input_validation
+    severity: warning
+    title: "Admin entity save endpoints lack field length validation matching database constraints"
+    file: "backend/src/main/java/com/shuran/art/service/AdminService.java"
+    line: 122-168
+    evidence:
+      code_snippet: |
+        // saveCourse validates non-blank but not max length
+        if (course.getName() == null || course.getName().isBlank()) {
+            throw new RuntimeException("课程名称不能为空");
+        }
+        // No length check against VARCHAR(64) constraint
+      supporting_evidence: |
+        Database schema (migration_v6_course.sql) defines:
+        - name VARCHAR(64), category VARCHAR(32), duration VARCHAR(32),
+          suitable_for VARCHAR(64), cover_img VARCHAR(512).
+        AdminService.saveCourse() validates non-blank fields but does not
+        enforce maximum length constraints. Oversized input will cause a
+        MySQL DataTruncation exception which is caught by
+        GlobalExceptionHandler and its message returned to the client
+        (links to FND-SEC-003). The same pattern applies to Teacher and
+        Activity save endpoints (saveTeacher, saveActivity) which have
+        no validation at all.
+      attack_vector: >
+        An admin user submits a course name exceeding 64 characters.
+        MySQL throws a DataTruncation/SQLDataException. The
+        GlobalExceptionHandler returns the SQL error message to the
+        client, potentially revealing table structure and column
+        details (linked to FND-SEC-003). Additionally, without
+        length validation, extremely large payloads could stress
+        application memory during processing.
+    root_cause: case_a_impl_bug
+    remediation: >
+      1. Add length validation in AdminService.saveCourse() for all
+      string fields matching their database column sizes.
+      2. Example: if (course.getName().length() > 64)
+         throw new RuntimeException("课程名称不能超过64个字符");
+      3. Consider using Bean Validation annotations (@Size, @NotBlank)
+      on the Course entity or a dedicated request DTO with @Valid
+      on the controller parameter.
+      4. Apply the same pattern to saveTeacher() and saveActivity().
+
+  - id: FND-SEC-007
+    check_item: SEC-03
+    category: csrf
+    severity: info
+    title: "CORS configuration allows all origins with credentials -- unnecessarily permissive"
+    file: "backend/src/main/java/com/shuran/art/config/CorsConfig.java"
+    line: 15-18
+    evidence:
+      code_snippet: |
+        config.addAllowedOriginPattern("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+      supporting_evidence: |
+        The CORS configuration allows requests from any origin with
+        credentials. For a WeChat Mini Program backend, CORS is largely
+        irrelevant because wx.request() does not use browser CORS
+        mechanisms. However, if the backend is also accessed from a
+        web admin panel or future web clients, this configuration
+        would allow any website to make authenticated cross-origin
+        requests.
+      attack_vector: >
+        Currently not exploitable because the only client is a WeChat
+        Mini Program which uses JWT in Authorization header (not cookies).
+        If a web-based admin panel is added in the future that uses
+        cookie-based sessions, this CORS configuration would enable
+        cross-site request forgery from any website. Rated as info
+        because no current attack vector exists.
+    root_cause: case_b_design_gap
+    remediation: >
+      1. Restrict allowed origins to known domains. If only the Mini
+      Program backend is needed, CORS can be disabled entirely.
+      2. If a web admin panel exists, specify its exact origin:
+         config.addAllowedOrigin("https://admin.example.com");
+      3. This is a defense-in-depth improvement, not a current vulnerability.
+
+# =============================================================================
+# CHECKS PASSED (no findings)
+# =============================================================================
+checks_passed:
+  - check_item: SEC-01
+    title: SQL Injection
+    notes: >
+      All queries use MyBatis-Plus LambdaQueryWrapper or BaseMapper methods.
+      @Select annotations in ShareRecordMapper use #{} parameterized placeholders.
+      No string concatenation SQL anywhere in codebase.
+
+  - check_item: SEC-07
+    title: Insecure Deserialization
+    notes: >
+      All external input handled via Spring MVC typed @RequestBody deserialization.
+      Server-to-server WeChat API responses parsed with typed Map.class target.
+      No pickle, ObjectInputStream, unsafe yaml.load, or eval() usage found.
+
+  - check_item: SEC-08
+    title: Dependency Security
+    notes: >
+      Spring Boot 3.2.0, MyBatis-Plus 3.5.5, jjwt 0.12.3 -- no known
+      high-severity CVEs for these versions. No new dependencies added
+      specifically for this change.
+
+  - check_item: SEC-09
+    title: Authentication/Session Management
+    notes: >
+      JWT using HMAC-SHA via jjwt library. parseSignedClaims() prevents
+      algorithm:none attacks. 7-day expiration configured. Token stored
+      in WeChat Mini Program secure storage. Secret strength issue
+      covered under FND-SEC-001.
+
+# =============================================================================
+# UNCERTAINTIES
+# =============================================================================
+uncertainties:
+  - id: UNC-SEC-001
+    description: >
+      Cannot verify at code review time whether the production deployment
+      actually sets JWT_SECRET, WX_SECRET, and DB_PASSWORD environment
+      variables to strong, unique values. The code supports this via
+      ${ENV_VAR:default} patterns, but actual production configuration
+      is outside code review scope. FND-SEC-001 addresses the code-level
+      concern (weak defaults).
+
+  - id: UNC-SEC-002
+    description: >
+      The WeChat Mini Program <rich-text> component's XSS filtering
+      behavior varies across WeChat versions and platforms. While current
+      versions strip <script> tags, the exact set of allowed/blocked
+      HTML attributes (e.g., onerror, onclick) is not fully documented
+      by WeChat. The FND-SEC-002 finding recommends server-side sanitization
+      as defense-in-depth regardless of client-side filtering behavior.
+
+  - id: UNC-SEC-003
+    description: >
+      The Nginx reverse proxy configuration (nginx/nginx.conf) was not
+      reviewed as it is outside the specified implementation scope. Nginx
+      security headers (X-Frame-Options, Content-Security-Policy,
+      Strict-Transport-Security) may or may not be configured. This
+      affects defense-in-depth but is infrastructure-level, not
+      application-code-level.
+
+# =============================================================================
+# SELF-CHECK RESULTS
+# =============================================================================
+self_check:
+  coverage_completeness:
+    - item: "SEC-01 through SEC-10 all reviewed"
+      status: PASS
+    - item: "Every PASS check has evidence"
+      status: PASS
+    - item: "Every FAIL check has complete finding record"
+      status: PASS
+    - item: "YAML structure complete"
+      status: PASS
+    - item: "All implementation code fully read"
+      status: PASS
+
+  security_audit_completeness:
+    - item: "SEC-01 SQL injection covers all DB interaction code"
+      status: PASS
+    - item: "SEC-02 XSS covers all frontend rendering and API responses"
+      status: PASS
+    - item: "SEC-04 privilege escalation covers all resource-ID endpoints"
+      status: PASS
+    - item: "SEC-05 hardcoded secrets covers code and config files"
+      status: PASS
+    - item: "SEC-06 sensitive data exposure covers logs, errors, API responses"
+      status: PASS
+    - item: "SEC-10 input validation covers all external input points"
+      status: PASS
+
+  finding_quality:
+    - item: "Every blocking finding has attack vector description"
+      status: PASS
+    - item: "SEC-02 XSS finding has malicious input example"
+      status: PASS
+    - item: "Every blocking finding has code-level remediation"
+      status: PASS
+    - item: "Severity considers attack surface and impact"
+      status: PASS

@@ -3,7 +3,6 @@ const app = getApp();
 Page({
   data: {
     config: {},
-    studioImages: [],
     markers: []
   },
 
@@ -15,16 +14,6 @@ Page({
     app.request({
       url: '/admin/config'
     }).then(data => {
-      // 解析轮播图
-      let studioImages = [];
-      if (data.studio_images) {
-        try {
-          studioImages = JSON.parse(data.studio_images);
-        } catch (e) {
-          studioImages = [];
-        }
-      }
-
       // 设置地图标记
       const markers = [];
       if (data.studio_latitude && data.studio_longitude) {
@@ -41,7 +30,6 @@ Page({
 
       this.setData({
         config: data || {},
-        studioImages: studioImages,
         markers: markers
       });
     });
@@ -107,43 +95,8 @@ Page({
     });
   },
 
-  // 添加轮播图
-  addStudioImage() {
-    const remaining = 9 - this.data.studioImages.length;
-    wx.chooseMedia({
-      count: remaining,
-      mediaType: ['image'],
-      success: (res) => {
-        const newImages = res.tempFiles.map(f => f.tempFilePath);
-        const studioImages = [...this.data.studioImages, ...newImages];
-        this.setData({ studioImages });
-        wx.showToast({ title: '已添加', icon: 'success' });
-      }
-    });
-  },
-
-  // 删除轮播图
-  deleteImage(e) {
-    const index = e.currentTarget.dataset.index;
-    wx.showModal({
-      title: '确认删除',
-      content: '确定要删除这张图片吗？',
-      success: (res) => {
-        if (res.confirm) {
-          const studioImages = [...this.data.studioImages];
-          studioImages.splice(index, 1);
-          this.setData({ studioImages });
-        }
-      }
-    });
-  },
-
   saveConfig() {
-    // 将轮播图数组转为JSON字符串
-    const configData = {
-      ...this.data.config,
-      studio_images: JSON.stringify(this.data.studioImages)
-    };
+    const configData = { ...this.data.config };
 
     wx.showLoading({ title: '保存中...' });
 

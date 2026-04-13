@@ -37,7 +37,15 @@ Page({
     wx.navigateTo({ url: '/pages/admin/activities/activities' });
   },
 
+  goToCourses() {
+    wx.navigateTo({ url: '/pages/admin/courses/courses' });
+  },
+
   goToPrizes() {
     wx.navigateTo({ url: '/pages/admin/prizes/prizes' });
+  },
+
+  goToBanners() {
+    wx.navigateTo({ url: '/pages/admin/banners/banners' });
   }
 });

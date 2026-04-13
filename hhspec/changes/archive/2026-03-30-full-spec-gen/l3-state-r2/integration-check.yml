@@ -1,0 +1,65 @@
+---
+check_date: "2026-03-26"
+implementer_count: 2
+units: [CRS, PST]
+verdict: PASS
+blocking: 0
+warning: 0
+info: 2
+---
+
+# L3 Integration Check Report
+
+## Verdict: PASS
+
+No cross-unit conflicts detected between CRS and PST implementations.
+
+## Shared File Analysis
+
+### app.json
+- CRS added: pages/courses/courses, pages/course-detail/course-detail, pages/admin/courses/courses
+- PST: No page route changes
+- Status: No conflict
+
+### AdminController.java / AdminService.java
+- CRS added: getCourses, saveCourse, deleteCourse, updateCourseStatus
+- PST: No changes to admin endpoints
+- Status: No conflict
+
+### WebMvcConfig.java
+- CRS added: /api/course/list, /api/course/* to excludePathPatterns
+- PST: No changes to interceptor config
+- Status: No conflict
+
+### ShareController.java
+- PST added: GET /api/share/wxacode endpoint
+- CRS: No changes to share endpoints
+- Status: No conflict
+
+### index.js / index.wxml / index.wxss
+- CRS added: loadHomeCourses(), course entry grid, course list section
+- PST: No changes to index page
+- Status: No conflict
+
+### app.js
+- PST added: handleSceneLaunch(), parseQueryString(), loadStudioConfig(), onShow()
+- CRS: No changes to app.js
+- Status: No conflict
+
+## Consistency Checks
+
+| Check | Result |
+|-------|--------|
+| Data format (Result wrapper) | PASS - Both use Result<T> consistently |
+| Error codes (0/-1) | PASS - Both follow code=0/code=-1 pattern |
+| Auth patterns | PASS - CRS public excluded, PST wxacode requires JWT |
+| Shared model (Activity) | PASS - PST references Activity for validation only |
+| Naming conventions | PASS - Both follow existing camelCase/kebab-case patterns |
+| Import conflicts | PASS - No duplicate or conflicting imports |
+
+## Info Items
+
+| # | Item |
+|---|------|
+| I1 | CRS and PST have no direct inter-domain dependency - clean separation |
+| I2 | Both domains reuse existing patterns (Result, BaseMapper, LambdaQueryWrapper) |

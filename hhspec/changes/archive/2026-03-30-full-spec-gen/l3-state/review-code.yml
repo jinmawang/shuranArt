@@ -1,0 +1,156 @@
+---
+reviewer: l3_code_reviewer
+reviewer_layer: craft
+change_name: full-spec-gen
+review_round: 1
+review_date: "2026-03-26"
+verdict: PASS
+verdict_reason: >
+  CRS 和 PST 两个领域的代码质量总体良好，遵循项目现有编码模式。
+  未发现 blocking 级别问题。3 项 warning 级别发现（死代码 formatPrice、
+  死代码 jsonParser RestTemplate、WxacodeCacheManager 的 get+remove 非原子操作），
+  2 项 info 级别发现。
+
+summary:
+  blocking_count: 0
+  warning_count: 3
+  info_count: 2
+---
+
+# L3 Code Review Report
+
+## Findings
+
+### WARNING
+
+- id: FND-CODE-001
+  severity: warning
+  category: dead_code
+  title: "courses.js formatPrice 方法定义但从未被调用"
+  file: "miniprogram/pages/courses/courses.js"
+  lines: "50-53"
+  description: |
+    formatPrice(price) 方法在 Page({}) 内定义，实现了 price=0 返回"免费"以及
+    toLocaleString() 千分位格式化。但 WXML 模板使用 `¥{{item.price}}`
+    直接插值，不调用 JS 方法。WeChat 小程序的 WXML 模板不支持直接调用
+    Page 方法进行数据转换（需使用 WXS 模块）。此方法为死代码。
+  recommendation: |
+    删除 formatPrice 方法，改为在 loadCourses 的数据处理中添加 formattedPrice
+    字段。或创建 WXS 模块暴露格式化函数供 WXML 使用。
+
+- id: FND-CODE-002
+  severity: warning
+  category: dead_code
+  title: "callWxacodeApi 中创建了未使用的 jsonParser RestTemplate"
+  file: "backend/src/main/java/com/shuran/art/service/ShareService.java"
+  lines: "352"
+  description: |
+    在错误解析代码块中，line 352 创建了 `RestTemplate jsonParser = new RestTemplate();`
+    但后续使用 Jackson ObjectMapper 直接解析 JSON 字符串（line 354），
+    jsonParser 变量从未被使用。这是开发过程中的遗留代码。
+  recommendation: |
+    删除 line 352: `RestTemplate jsonParser = new RestTemplate();`
+
+- id: FND-CODE-003
+  severity: warning
+  category: thread_safety
+  title: "WxacodeCacheManager.get() 中 get+remove 操作非原子"
+  file: "backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java"
+  lines: "63-80"
+  description: |
+    get() 方法中先调用 cache.get(key)（line 64），然后检查 TTL 后调用
+    cache.remove(key)（line 73）。虽然 cache 是 synchronizedMap，但 get 和
+    remove 是两次独立的同步操作，中间可能被其他线程插入操作。
+
+    具体场景：线程 A 执行 get(key) 获取到 entry，在检查 TTL 过期前，
+    线程 B 对同一 key 执行 put() 写入新值。然后线程 A 的 remove(key)
+    会删除线程 B 刚写入的新值。
+
+    在当前业务场景（单画室，低并发，同一 key 不会被并发更新）中
+    此问题概率极低且影响有限（下次请求会重新获取小程序码）。
+    但作为代码质量问题值得记录。
+  recommendation: |
+    方案 A（推荐，当前规模）：添加代码注释说明此 race condition 及其
+    在低并发场景下可接受。
+    方案 B（未来规模）：使用 ConcurrentHashMap + computeIfPresent 实现
+    原子化的过期检查与移除。
+
+### INFO
+
+- id: FND-CODE-004
+  severity: info
+  category: consistency
+  title: "AdminService 中新旧领域的验证模式一致性良好"
+  file: "backend/src/main/java/com/shuran/art/service/AdminService.java"
+  lines: "111-198"
+  description: |
+    CRS 新增的 saveCourse/deleteCourse/updateCourseStatus 方法遵循了
+    项目现有的编码模式：
+    - saveTeacher/saveActivity 使用 id == null 判断新增/编辑（无验证）
+    - saveCourse 同样使用 id == null 判断，但增加了完整的字段验证
+    - deleteCourse/deleteTeacher/deleteActivity 均使用 deleteById（物理删除）
+
+    CRS 的验证逻辑比既有领域更完善（Teacher/Activity 无保存验证），
+    这是正向改进而非不一致。新旧代码风格（命名、缩进、注解）保持一致。
+
+- id: FND-CODE-005
+  severity: info
+  category: consistency
+  title: "PST 组件遵循单职责原则，拆分合理"
+  file: "backend/src/main/java/com/shuran/art/service/"
+  description: |
+    PST 将小程序码生成拆分为三个独立组件：
+    - WxAccessTokenManager：负责 access_token 缓存和刷新
+    - WxacodeCacheManager：负责小程序码 Base64 缓存
+    - ShareService.getWxacode()：组装业务流程
+
+    各组件职责边界清晰，WxAccessTokenManager 和 WxacodeCacheManager
+    不依赖任何业务实体，可独立测试。这符合项目的组件设计模式。
+
+## Check Summary
+
+| Check Item | Result |
+|-----------|--------|
+| 逻辑错误 | PASS - 无条件分支错误或变量误用 |
+| 边界条件遗漏 | PASS - null/空/0 边界均有处理 |
+| 代码可读性 | PASS - 方法命名清晰，注释标注 L2 设计追溯 |
+| 命名质量 | PASS - 遵循项目 camelCase 规范 |
+| 错误处理完整性 | PASS - try-catch 覆盖网络调用，RuntimeException 有业务消息 |
+| 资源管理 | PASS - RestTemplate 无需手动关闭，MyBatis 连接池管理 |
+| 死代码 | WARNING - 2 处死代码（FND-CODE-001, FND-CODE-002） |
+| 线程安全 | WARNING - 1 处非原子操作（FND-CODE-003） |
+
+## Files Reviewed
+
+backend:
+  - backend/src/main/java/com/shuran/art/controller/CourseController.java
+  - backend/src/main/java/com/shuran/art/controller/AdminController.java
+  - backend/src/main/java/com/shuran/art/controller/ShareController.java
+  - backend/src/main/java/com/shuran/art/service/AdminService.java
+  - backend/src/main/java/com/shuran/art/service/ShareService.java
+  - backend/src/main/java/com/shuran/art/service/WxAccessTokenManager.java
+  - backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java
+  - backend/src/main/java/com/shuran/art/entity/Course.java
+  - backend/src/main/java/com/shuran/art/mapper/CourseMapper.java
+  - backend/src/main/java/com/shuran/art/dto/WxacodeData.java
+
+frontend:
+  - miniprogram/pages/courses/courses.js
+  - miniprogram/pages/courses/courses.wxml
+  - miniprogram/pages/course-detail/course-detail.js
+  - miniprogram/pages/course-detail/course-detail.wxml
+  - miniprogram/pages/admin/courses/courses.js
+  - miniprogram/pages/admin/courses/courses.wxml
+  - miniprogram/pages/index/index.js
+  - miniprogram/pages/index/index.wxml
+  - miniprogram/pages/activity/activity.js
+
+sql:
+  - mysql/migration_v6_course.sql
+
+## Self Check
+
+all_implementation_code_read: true
+all_check_items_reviewed: true
+all_pass_items_have_evidence: true
+yaml_structure_complete: true

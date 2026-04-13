@@ -3,15 +3,19 @@ package com.shuran.art.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shuran.art.dto.Result;
 import com.shuran.art.entity.Activity;
+import com.shuran.art.entity.ActivityVisit;
+import com.shuran.art.entity.User;
 import com.shuran.art.mapper.ActivityMapper;
+import com.shuran.art.mapper.ActivityVisitMapper;
+import com.shuran.art.mapper.UserMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/activity")
@@ -19,6 +23,8 @@ import java.util.List;
 public class ActivityController {
 
     private final ActivityMapper activityMapper;
+    private final ActivityVisitMapper activityVisitMapper;
+    private final UserMapper userMapper;
 
     @GetMapping("/list")
     public Result<List<Activity>> getActivities() {
@@ -49,5 +55,63 @@ public class ActivityController {
             activity.setEnded(activity.getEndTime() != null && activity.getEndTime().isBefore(now));
         }
         return Result.success(activity);
+    }
+
+    /**
+     * 记录用户访问活动，首次访问自动获得1次抽奖机会
+     */
+    @PostMapping("/visit")
+    public Result<Map<String, Object>> visitActivity(
+            HttpServletRequest httpRequest,
+            @RequestBody Map<String, Long> request) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        Long activityId = request.get("activityId");
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (activityId == null) {
+            result.put("success", false);
+            result.put("msg", "活动ID不能为空");
+            return Result.success(result);
+        }
+
+        // 检查活动是否存在
+        Activity activity = activityMapper.selectById(activityId);
+        if (activity == null || activity.getStatus() != 1) {
+            result.put("success", false);
+            result.put("msg", "活动不存在");
+            return Result.success(result);
+        }
+
+        // 检查是否已访问过
+        ActivityVisit existingVisit = activityVisitMapper.selectOne(
+            new LambdaQueryWrapper<ActivityVisit>()
+                .eq(ActivityVisit::getUserId, userId)
+                .eq(ActivityVisit::getActivityId, activityId)
+        );
+
+        if (existingVisit != null) {
+            result.put("success", true);
+            result.put("lotteryAdded", false);
+            result.put("msg", "已访问过该活动");
+            return Result.success(result);
+        }
+
+        // 记录首次访问
+        ActivityVisit visit = new ActivityVisit();
+        visit.setUserId(userId);
+        visit.setActivityId(activityId);
+        visit.setLotteryGranted(1);
+        activityVisitMapper.insert(visit);
+
+        // 增加抽奖机会
+        User user = userMapper.selectById(userId);
+        user.setLotteryChances(user.getLotteryChances() + 1);
+        userMapper.updateById(user);
+
+        result.put("success", true);
+        result.put("lotteryAdded", true);
+        result.put("msg", "获得1次抽奖机会");
+        return Result.success(result);
     }
 }

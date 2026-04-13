@@ -1,0 +1,72 @@
+/* ============================================
+   课程详情页 - 晴空蓝·明朗欢快
+   ============================================ */
+
+.detail-page { min-height: 100vh; background: #F0F7FF; padding-bottom: 40rpx; }
+.detail-cover { width: 100%; height: 420rpx; }
+
+.detail-card {
+  margin: 20rpx 24rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
+}
+
+.detail-name { font-size: 38rpx; font-weight: 700; color: #1A2E3D; margin-bottom: 14rpx; line-height: 1.4; }
+
+.detail-category-tag {
+  display: inline-block;
+  font-size: 24rpx;
+  color: #4A9ECC;
+  padding: 5rpx 16rpx;
+  background: #E8F4FB;
+  border-radius: 20rpx;
+  font-weight: 500;
+  margin-bottom: 18rpx;
+}
+
+.detail-price { margin-bottom: 20rpx; }
+.price-amount { font-size: 42rpx; font-weight: 700; color: #F5A820; }
+.price-free { font-size: 34rpx; font-weight: 700; color: #4A9ECC; }
+
+.detail-tags { display: flex; gap: 16rpx; }
+
+.detail-tag {
+  flex: 1;
+  background: #F0F7FF;
+  border-radius: 16rpx;
+  padding: 18rpx;
+  text-align: center;
+}
+
+.tag-label { display: block; font-size: 22rpx; color: #A0B4C5; margin-bottom: 8rpx; font-weight: 500; }
+.tag-value { display: block; font-size: 26rpx; color: #1A2E3D; font-weight: 600; }
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.card-title::before {
+  content: '';
+  width: 6rpx; height: 28rpx;
+  background: #4A9ECC;
+  border-radius: 3rpx;
+  margin-right: 14rpx;
+}
+
+.detail-description { font-size: 28rpx; color: #4A5E6D; line-height: 1.8; }
+
+.empty-page, .loading-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.empty-text, .loading-text { font-size: 28rpx; color: #A0B4C5; }

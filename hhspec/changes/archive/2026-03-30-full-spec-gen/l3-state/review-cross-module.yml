@@ -1,0 +1,102 @@
+---
+reviewer: l3_cross_module_reviewer
+change_name: full-spec-gen
+review_date: "2026-03-26"
+review_round: 1
+domains_reviewed: [CRS, PST]
+implementer_count: 2
+
+verdict: PASS
+verdict_reason: >
+  Cross-module reuse analysis of CRS and PST domains identified 2 class-A
+  (fix now) and 2 class-B (feedback to specs) reuse opportunities.
+  No blocking issues. The class-A findings are RestTemplate creation
+  pattern duplication and admin CRUD save pattern inconsistency.
+---
+
+# L3 Cross-Module Reuse Review Report
+
+## Class-A Findings (Fix This Round)
+
+### A1: RestTemplate 创建模式重复
+
+**重复位置**:
+1. `WxAccessTokenManager.refreshAccessToken()` (lines 82-89)
+2. `ShareService.callWxacodeApi()` (lines 324-332)
+3. `UserService.login()` (existing code, lines ~40-48)
+
+**重复内容**:
+每处都创建新 RestTemplate + 添加 MappingJackson2HttpMessageConverter 支持 text/plain：
+```java
+RestTemplate restTemplate = new RestTemplate();
+MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+converter.setSupportedMediaTypes(Arrays.asList(
+    MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,
+    new MediaType("application", "*+json")
+));
+restTemplate.getMessageConverters().add(0, converter);
+```
+
+**提取建议**:
+创建共享 RestTemplate @Bean 或工具方法。由于 RestTemplate 是线程安全的，
+可以注入为 Spring Bean，所有 Service 共用。
+
+**优先级**: 推荐但不阻塞。PST 新增 2 处调用点使总数达到 3 处，
+值得在本轮修复中提取，但当前规模下性能影响可忽略（参见 PERF review FND-PERF-001）。
+
+**修复方式**: 仅需 Code Reviewer 轻量复核（无需全量重新审查）。
+
+### A2: callWxacodeApi 中未使用的 jsonParser 变量
+
+**位置**: `ShareService.java` line 352
+
+**问题**:
+```java
+RestTemplate jsonParser = new RestTemplate();
+```
+创建后从未使用，后续使用 ObjectMapper 解析 JSON。这是 A1 模式的副产品——
+开发者可能最初打算用 RestTemplate 解析但改用了 ObjectMapper。
+
+**修复方式**: 直接删除该行即可。
+
+## Class-B Findings (Feedback to Specs)
+
+### B1: Admin CRUD 保存方法验证一致性模式
+
+**观察**:
+- `AdminService.saveCourse()`: 完整字段验证（name/category/price/duration/suitableFor/status/sortOrder）
+- `AdminService.saveTeacher()`: 无任何验证，直接 insert/updateById
+- `AdminService.saveActivity()`: 无任何验证，直接 insert/updateById
+- `AdminService.savePrize()`: 无任何验证，直接 insert/updateById
+
+**建议**: CRS 的验证模式是正向改进。建议在 specs/ 中记录此模式为推荐实践，
+后续领域（EXC 等）应遵循 CRS 的验证标准。不阻塞当前交付。
+
+### B2: 前端页面结构模式可抽取为组件
+
+**观察**:
+- `courses/courses.wxml` 和 `teachers/teachers.wxml` 共享几乎相同的页面骨架：
+  page-header → list-content → 空态提示 → 编辑弹窗
+- `admin/courses/courses.wxml` 和 `admin/teachers/teachers.wxml` 同样结构相似
+
+**建议**: 在 specs/ 中记录"列表页标准结构"和"管理后台列表页标准结构"模式，
+后续领域开发时可参考复用。不阻塞当前交付（微信小程序不支持跨页面组件继承）。
+
+## No-Reuse Confirmation
+
+以下领域之间不存在可提取的重复逻辑，确认为正确的独立实现：
+
+| 模块对 | 独立原因 |
+|--------|---------|
+| CourseController vs ShareController | 不同业务逻辑，无共享查询 |
+| WxAccessTokenManager vs WxacodeCacheManager | 职责完全独立（token vs 图片缓存） |
+| CRS 前端 vs PST 前端 | CRS 是列表/详情页，PST 是 Canvas 海报生成，无共享组件 |
+| Course entity vs Activity entity | 不同领域实体，字段不同 |
+
+## Summary
+
+| Category | Count | Items |
+|----------|-------|-------|
+| Class-A (fix now) | 2 | A1 (RestTemplate duplication), A2 (dead code) |
+| Class-B (feedback specs) | 2 | B1 (validation pattern), B2 (page structure) |
+| No reuse needed | 4 | 确认独立 |

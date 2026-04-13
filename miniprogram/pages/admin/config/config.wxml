@@ -56,6 +56,11 @@
     <view class="section-title">联系方式</view>
 
     <view class="form-item">
+      <text class="label">老师微信号</text>
+      <input class="input" value="{{config.studio_wechat_id}}" data-key="studio_wechat_id" bindinput="onInput" placeholder="请输入老师的微信号"/>
+    </view>
+
+    <view class="form-item">
       <text class="label">老师微信二维码</text>
       <view class="image-upload" bindtap="chooseQrcode">
         <image wx:if="{{config.studio_qrcode}}" src="{{config.studio_qrcode}}" mode="aspectFit" class="upload-preview qrcode"/>
@@ -65,22 +70,6 @@
         </view>
       </view>
     </view>
-  </view>
-
-  <view class="form-section">
-    <view class="section-title">画室图片（轮播图）</view>
-
-    <view class="images-grid">
-      <view class="image-item" wx:for="{{studioImages}}" wx:key="index">
-        <image src="{{item}}" mode="aspectFill" class="grid-image"/>
-        <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
-      </view>
-      <view class="image-item add" bindtap="addStudioImage" wx:if="{{studioImages.length < 9}}">
-        <text class="add-icon">+</text>
-        <text class="add-text">添加图片</text>
-      </view>
-    </view>
-    <view class="tip">最多可上传9张图片，用于首页轮播展示</view>
   </view>
 
   <view class="form-section">

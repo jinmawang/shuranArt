@@ -16,6 +16,7 @@ public class Activity {
     private LocalDateTime endTime;
     private Integer dailyShareLimit;
     private Integer totalShareLimit;
+    private Integer maxLotteryPerUser;  // 每人每活动最大抽奖次数
     private String shareTitle;
     private String shareImage;
     private Integer status;

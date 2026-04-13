@@ -1,0 +1,634 @@
+openapi: 3.0.3
+info:
+  title: CRS - 课程管理 API
+  description: |
+    舒然画室小程序课程管理领域接口契约。
+
+    ## 需求来源
+    - REQ-CRS-001: 课程介绍系统
+
+    ## 设计依据
+    - 公开端点参照 TeacherController (`GET /api/teacher/list`) 模式
+    - 管理端点参照 AdminController 中 Teacher CRUD 模式 (`GET /api/admin/teachers`, `POST /api/admin/teacher`, `DELETE /api/admin/teacher/{id}`)
+    - 响应格式使用现有 Result 包装器 (code/msg/data)
+    - 新增 `PUT /api/admin/course/{id}/status` 端点用于上下架切换（EARS-CRS-005 明确要求，现有 Teacher 无此需求但 Course 有上下架场景）
+
+    ## 认证说明
+    - 公开端点：无需认证（需在 WebMvcConfig excludePathPatterns 中注册）
+    - 管理端点：JWT Bearer Token + 管理员白名单（AdminInterceptor 拦截 /api/admin/**）
+  version: 1.0.0
+  contact:
+    name: ShuranArt Team
+
+servers:
+  - url: https://tianma.chat
+    description: 生产环境
+  - url: http://localhost:8080
+    description: 本地开发
+
+tags:
+  - name: course-public
+    description: 课程公开端点（无需认证）
+  - name: course-admin
+    description: 课程管理端点（需 JWT + 管理员白名单）
+
+paths:
+  # ============================================================
+  # 公开端点
+  # ============================================================
+
+  /api/course/list:
+    get:
+      tags:
+        - course-public
+      summary: 获取课程列表
+      description: |
+        获取所有上架状态（status=1）的课程，按 sort_order 升序排列。
+        支持可选的 category 筛选参数。
+
+        **需求来源**: EARS-CRS-001（课程列表）、EARS-CRS-002（分类筛选）、EARS-CRS-004（首页课程入口）
+        **代码参照**: TeacherController.getTeachers() — `GET /api/teacher/list`
+        **认证**: 无需认证（excludePathPatterns: `/api/course/list`）
+      operationId: getCourseList
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: |
+            课程类别筛选。传入时仅返回该类别下的课程；不传或传空值时返回全部课程。
+            类别值由前端硬编码（决策 6），常见值：素描、水彩、油画、国画 等。
+          schema:
+            type: string
+            example: "素描"
+      responses:
+        "200":
+          description: 成功返回课程列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseListResult"
+              examples:
+                withCourses:
+                  summary: 有课程数据
+                  value:
+                    code: 0
+                    msg: "success"
+                    data:
+                      - id: 1
+                        name: "素描基础班"
+                        category: "素描"
+                        description: "<p>零基础入门素描课程...</p>"
+                        price: 2000
+                        duration: "3个月"
+                        suitableFor: "零基础学员"
+                        coverImg: "https://tianma.chat/uploads/course-sketch.jpg"
+                        sortOrder: 1
+                        status: 1
+                        createdAt: "2026-03-01T10:00:00"
+                      - id: 2
+                        name: "水彩提高班"
+                        category: "水彩"
+                        description: "<p>水彩进阶技法...</p>"
+                        price: 3000
+                        duration: "2个月"
+                        suitableFor: "有绘画基础学员"
+                        coverImg: "https://tianma.chat/uploads/course-watercolor.jpg"
+                        sortOrder: 2
+                        status: 1
+                        createdAt: "2026-03-01T10:00:00"
+                emptyList:
+                  summary: 无课程数据（全部下架或筛选无结果）
+                  value:
+                    code: 0
+                    msg: "success"
+                    data: []
+
+  /api/course/{id}:
+    get:
+      tags:
+        - course-public
+      summary: 获取课程详情
+      description: |
+        根据课程 ID 获取单个课程的完整信息。
+
+        **需求来源**: EARS-CRS-003（课程详情）
+        **代码参照**: ActivityController.getActivity() — `GET /api/activity/{id}`
+        **认证**: 无需认证（excludePathPatterns: `/api/course/*`）
+
+        注意：与 activity 端点类似，即使课程已下架（status=0），仍返回数据（用于管理端跳转详情场景）。
+        前端根据 status 字段判断是否展示。
+      operationId: getCourseDetail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 课程 ID
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+      responses:
+        "200":
+          description: 成功返回课程详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetailResult"
+              examples:
+                found:
+                  summary: 课程存在
+                  value:
+                    code: 0
+                    msg: "success"
+                    data:
+                      id: 1
+                      name: "素描基础班"
+                      category: "素描"
+                      description: "<p>零基础入门素描课程，从握笔姿势开始...</p>"
+                      price: 2000
+                      duration: "3个月"
+                      suitableFor: "零基础学员"
+                      coverImg: "https://tianma.chat/uploads/course-sketch.jpg"
+                      sortOrder: 1
+                      status: 1
+                      createdAt: "2026-03-01T10:00:00"
+                notFound:
+                  summary: 课程不存在
+                  value:
+                    code: 0
+                    msg: "success"
+                    data: null
+
+  # ============================================================
+  # 管理端点
+  # ============================================================
+
+  /api/admin/courses:
+    get:
+      tags:
+        - course-admin
+      summary: 管理员获取全部课程
+      description: |
+        获取所有课程（包含已下架），按 sort_order 升序排列。
+        管理端可查看所有状态的课程。
+
+        **需求来源**: EARS-CRS-005（管理后台CRUD）
+        **代码参照**: AdminController.getTeachers() — `GET /api/admin/teachers`
+        **认证**: JWT + 管理员白名单
+      operationId: adminGetCourses
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 成功返回全部课程列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseListResult"
+        "401":
+          description: 未登录或 Token 无效
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              example:
+                code: -1
+                msg: "未登录"
+                data: null
+        "403":
+          description: 非管理员账户
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              example:
+                code: -1
+                msg: "无管理员权限"
+                data: null
+
+  /api/admin/course:
+    post:
+      tags:
+        - course-admin
+      summary: 新增或编辑课程
+      description: |
+        新增或编辑课程信息。请求体中无 id 或 id 为 null 时为新增，有 id 时为编辑。
+        这是现有项目统一的 save/update 模式（参照 AdminController.saveTeacher）。
+
+        **需求来源**: EARS-CRS-005（管理后台CRUD — 新增课程、编辑课程信息）
+        **代码参照**: AdminController.saveTeacher() — `POST /api/admin/teacher`
+        **认证**: JWT + 管理员白名单
+
+        **字段说明**:
+        - name: 必填，课程名称
+        - category: 必填，课程类别
+        - price: 必填，课程价格（单位：元），0 表示免费体验课（边界场景 B1）
+        - duration: 必填，课程时长描述
+        - suitableFor: 必填，适合人群描述
+        - coverImg: 选填，课程封面图 URL
+        - description: 选填，课程详细描述（富文本 HTML）
+        - sortOrder: 选填，排序序号，默认 0
+        - status: 选填，状态（1=上架, 0=下架），新增时默认 1
+      operationId: adminSaveCourse
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+            examples:
+              createCourse:
+                summary: 新增课程
+                value:
+                  name: "国画入门班"
+                  category: "国画"
+                  description: "<p>国画入门课程...</p>"
+                  price: 2500
+                  duration: "2个月"
+                  suitableFor: "零基础"
+                  coverImg: "https://tianma.chat/uploads/course-guohua.jpg"
+                  sortOrder: 5
+              updateCourse:
+                summary: 编辑课程
+                value:
+                  id: 1
+                  name: "素描基础班（已更新）"
+                  category: "素描"
+                  description: "<p>零基础入门素描课程，全面改版...</p>"
+                  price: 2200
+                  duration: "3个月"
+                  suitableFor: "零基础学员"
+                  coverImg: "https://tianma.chat/uploads/course-sketch-v2.jpg"
+                  sortOrder: 1
+                  status: 1
+      responses:
+        "200":
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoidResult"
+              example:
+                code: 0
+                msg: "success"
+                data: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/admin/course/{id}:
+    delete:
+      tags:
+        - course-admin
+      summary: 删除课程
+      description: |
+        根据 ID 删除课程。物理删除。
+
+        **需求来源**: EARS-CRS-005（管理后台CRUD — 删除课程）
+        **代码参照**: AdminController.deleteTeacher() — `DELETE /api/admin/teacher/{id}`
+        **认证**: JWT + 管理员白名单
+
+        **边界场景**: B6 — 删除后列表刷新（前端处理）
+      operationId: adminDeleteCourse
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 课程 ID
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoidResult"
+              example:
+                code: 0
+                msg: "success"
+                data: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/admin/course/{id}/status:
+    put:
+      tags:
+        - course-admin
+      summary: 课程上下架切换
+      description: |
+        切换课程的上架/下架状态。这是 CRS 领域新增的端点，现有 Teacher 模式没有此操作，
+        因为 EARS-CRS-005 明确要求"上架/下架切换"功能。
+
+        **需求来源**: EARS-CRS-005（管理后台CRUD — 上架/下架切换）
+        **认证**: JWT + 管理员白名单
+
+        **行为**:
+        - status=1 → 上架，用户端课程列表可见
+        - status=0 → 下架，用户端课程列表不可见，管理端仍可见并标记为"已下架"（AC-CRS-004）
+      operationId: adminUpdateCourseStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 课程 ID
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: integer
+                  description: "课程状态：1=上架, 0=下架"
+                  enum: [0, 1]
+                  example: 0
+      responses:
+        "200":
+          description: 状态更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoidResult"
+              example:
+                code: 0
+                msg: "success"
+                data: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Token，通过 `POST /api/user/login` 微信登录获取。
+        在请求头中以 `Authorization: Bearer <token>` 形式传递。
+        由 AuthInterceptor 统一拦截验证。
+
+  schemas:
+    # ----------------------------------------
+    # 课程实体
+    # ----------------------------------------
+    Course:
+      type: object
+      description: |
+        课程实体，对应数据库 `course` 表。
+        参照 Teacher 实体模式设计（id, sortOrder, status, createdAt）。
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 课程 ID，自增主键
+          example: 1
+        name:
+          type: string
+          description: 课程名称
+          maxLength: 64
+          example: "素描基础班"
+        category:
+          type: string
+          description: |
+            课程类别。前端硬编码预设值（决策 6）。
+            常见值：素描、水彩、油画、国画 等。
+          maxLength: 32
+          example: "素描"
+        description:
+          type: string
+          description: 课程详细描述，支持富文本 HTML
+          nullable: true
+          example: "<p>零基础入门素描课程...</p>"
+        price:
+          type: integer
+          description: |
+            课程价格，单位：元。
+            0 表示免费体验课（边界场景 B1，前端显示"免费"）。
+          minimum: 0
+          example: 2000
+        duration:
+          type: string
+          description: 课程时长描述（文本格式，如"3个月"、"12课时"）
+          maxLength: 32
+          example: "3个月"
+        suitableFor:
+          type: string
+          description: 适合人群描述
+          maxLength: 64
+          example: "零基础学员"
+        coverImg:
+          type: string
+          description: 课程封面图 URL
+          nullable: true
+          maxLength: 512
+          example: "https://tianma.chat/uploads/course-sketch.jpg"
+        sortOrder:
+          type: integer
+          description: 排序序号，升序排列，值小的排在前面
+          default: 0
+          example: 1
+        status:
+          type: integer
+          description: "课程状态：1=上架（用户可见），0=下架（仅管理端可见）"
+          enum: [0, 1]
+          default: 1
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+          readOnly: true
+          example: "2026-03-01T10:00:00"
+
+    # ----------------------------------------
+    # 课程输入（新增/编辑）
+    # ----------------------------------------
+    CourseInput:
+      type: object
+      description: |
+        课程新增/编辑请求体。
+        id 为 null 或不传时为新增，有值时为编辑（参照 AdminController.saveTeacher 模式）。
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 课程 ID。新增时不传或传 null，编辑时传已有课程 ID。
+          nullable: true
+          example: null
+        name:
+          type: string
+          description: 课程名称
+          maxLength: 64
+          example: "素描基础班"
+        category:
+          type: string
+          description: 课程类别
+          maxLength: 32
+          example: "素描"
+        description:
+          type: string
+          description: 课程详细描述，支持富文本 HTML
+          nullable: true
+        price:
+          type: integer
+          description: 课程价格，单位：元。0 表示免费。
+          minimum: 0
+          example: 2000
+        duration:
+          type: string
+          description: 课程时长描述
+          maxLength: 32
+          example: "3个月"
+        suitableFor:
+          type: string
+          description: 适合人群描述
+          maxLength: 64
+          example: "零基础学员"
+        coverImg:
+          type: string
+          description: 课程封面图 URL
+          nullable: true
+          maxLength: 512
+        sortOrder:
+          type: integer
+          description: 排序序号
+          default: 0
+        status:
+          type: integer
+          description: "课程状态：1=上架, 0=下架。新增时默认 1。"
+          enum: [0, 1]
+          default: 1
+      required:
+        - name
+        - category
+        - price
+        - duration
+        - suitableFor
+
+    # ----------------------------------------
+    # 响应包装器（遵循现有 Result<T> 模式）
+    # ----------------------------------------
+    CourseListResult:
+      type: object
+      description: "课程列表响应，遵循 Result<List<Course>> 格式"
+      properties:
+        code:
+          type: integer
+          description: "状态码：0=成功, -1=失败"
+          example: 0
+        msg:
+          type: string
+          description: 响应消息
+          example: "success"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Course"
+          description: 课程列表，无数据时为空数组
+      required:
+        - code
+        - msg
+        - data
+
+    CourseDetailResult:
+      type: object
+      description: "课程详情响应，遵循 Result<Course> 格式"
+      properties:
+        code:
+          type: integer
+          description: "状态码：0=成功, -1=失败"
+          example: 0
+        msg:
+          type: string
+          description: 响应消息
+          example: "success"
+        data:
+          allOf:
+            - $ref: "#/components/schemas/Course"
+          nullable: true
+          description: 课程详情，不存在时为 null
+      required:
+        - code
+        - msg
+
+    VoidResult:
+      type: object
+      description: "无数据响应，遵循 Result<Void> 格式"
+      properties:
+        code:
+          type: integer
+          description: "状态码：0=成功, -1=失败"
+          example: 0
+        msg:
+          type: string
+          description: 响应消息
+          example: "success"
+        data:
+          nullable: true
+          description: 无数据时为 null
+      required:
+        - code
+        - msg
+
+    ErrorResult:
+      type: object
+      description: "错误响应，遵循 Result.error() 格式"
+      properties:
+        code:
+          type: integer
+          description: "错误码：-1 为通用错误"
+          example: -1
+        msg:
+          type: string
+          description: 错误消息
+          example: "未登录"
+        data:
+          nullable: true
+          description: 错误时为 null
+      required:
+        - code
+        - msg
+
+  responses:
+    Unauthorized:
+      description: 未登录或 Token 无效
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResult"
+          example:
+            code: -1
+            msg: "未登录"
+            data: null
+    Forbidden:
+      description: 非管理员账户
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResult"
+          example:
+            code: -1
+            msg: "无管理员权限"
+            data: null

@@ -1,0 +1,156 @@
+---
+report_date: "2026-03-26"
+change_name: full-spec-gen
+domains: [CRS, PST]
+implementation_scope:
+  - REQ-CRS-001
+  - REQ-PST-001
+excluded_scope:
+  - REQ-EXC-001
+
+l3_verdict: PASS_WITH_WARNINGS
+blocking_findings: 0
+warning_findings: 8
+info_findings: 4
+test_results:
+  total: 42
+  passed: 42
+  failed: 0
+  skipped: 0
+build_status: SUCCESS
+integration_check: PASS
+---
+
+# L3 Implementation Report — full-spec-gen
+
+## 1. Business Code (All Implementation Units)
+
+### CRS Domain Files:
+- backend/src/main/java/com/shuran/art/entity/Course.java (NEW)
+- backend/src/main/java/com/shuran/art/mapper/CourseMapper.java (NEW)
+- backend/src/main/java/com/shuran/art/controller/CourseController.java (NEW)
+- backend/src/main/java/com/shuran/art/service/AdminService.java (MODIFIED: +saveCourse/deleteCourse/updateCourseStatus/getCourses)
+- backend/src/main/java/com/shuran/art/controller/AdminController.java (MODIFIED: +course endpoints)
+- backend/src/main/java/com/shuran/art/config/WebMvcConfig.java (MODIFIED: +/api/course/* exclude)
+- miniprogram/pages/courses/courses.js (NEW)
+- miniprogram/pages/courses/courses.wxml (NEW)
+- miniprogram/pages/courses/courses.wxss (NEW)
+- miniprogram/pages/courses/courses.json (NEW)
+- miniprogram/pages/course-detail/course-detail.js (NEW)
+- miniprogram/pages/course-detail/course-detail.wxml (NEW)
+- miniprogram/pages/course-detail/course-detail.wxss (NEW)
+- miniprogram/pages/course-detail/course-detail.json (NEW)
+- miniprogram/pages/admin/courses/courses.js (NEW)
+- miniprogram/pages/admin/courses/courses.wxml (NEW)
+- miniprogram/pages/admin/courses/courses.wxss (NEW)
+- miniprogram/pages/admin/courses/courses.json (NEW)
+- miniprogram/pages/index/index.js (MODIFIED: +loadHomeCourses/goToCourses/goToCourseDetail)
+- miniprogram/pages/index/index.wxml (MODIFIED: +course section)
+- miniprogram/app.json (MODIFIED: +3 CRS page routes)
+
+### PST Domain Files:
+- backend/src/main/java/com/shuran/art/service/WxAccessTokenManager.java (NEW)
+- backend/src/main/java/com/shuran/art/service/WxacodeCacheManager.java (NEW)
+- backend/src/main/java/com/shuran/art/dto/WxacodeData.java (NEW)
+- backend/src/main/java/com/shuran/art/controller/ShareController.java (MODIFIED: +getWxacode endpoint)
+- backend/src/main/java/com/shuran/art/service/ShareService.java (MODIFIED: +getWxacode/callWxacodeApi)
+- miniprogram/pages/activity/activity.js (MODIFIED: +Canvas 2D poster generation)
+- miniprogram/pages/activity/activity.wxml (MODIFIED: +poster canvas/UI)
+
+## 2. Test Code
+
+- backend/src/test/java/com/shuran/art/service/AdminServiceCourseTest.java (NEW, 18 tests)
+- backend/src/test/java/com/shuran/art/controller/CourseControllerIntegrationTest.java (NEW, 8 tests)
+- backend/src/test/java/com/shuran/art/service/WxAccessTokenManagerTest.java (NEW, 5 tests)
+- backend/src/test/java/com/shuran/art/service/WxacodeCacheManagerTest.java (NEW, 5 tests)
+- backend/src/test/java/com/shuran/art/service/ShareServiceWxacodeTest.java (NEW, 6 tests)
+- backend/src/test/resources/application.yml (NEW, H2 test config)
+- backend/src/test/resources/application-test.yml (NEW)
+- backend/src/test/resources/schema-h2.sql (NEW, H2-compatible DDL)
+
+## 3. Traceability Map
+
+| L0 Constraint | Code Location | Test |
+|--------------|---------------|------|
+| EARS-CRS-001 | CourseController.getCourses() | CourseControllerIntegrationTest |
+| EARS-CRS-002 | CourseController category filter | CourseControllerIntegrationTest |
+| EARS-CRS-003 | CourseController.getCourse() + course-detail.wxml | CourseControllerIntegrationTest |
+| EARS-CRS-004 | index.js loadHomeCourses() | — (frontend) |
+| EARS-CRS-005 | AdminService.saveCourse/deleteCourse/updateCourseStatus | AdminServiceCourseTest |
+| AC-CRS-001~004 | courses.wxml + admin/courses.wxml | AdminServiceCourseTest |
+| V-003~V-015 | AdminService validation logic | AdminServiceCourseTest |
+| B1~B5,B7 | WXML conditional rendering | AdminServiceCourseTest (backend) |
+| REQ-PST-010 | ShareService.callWxacodeApi page param | ShareServiceWxacodeTest |
+| REQ-PST-011 | WxacodeCacheManager TTL_MILLIS | WxacodeCacheManagerTest |
+| REQ-PST-023 | WxacodeCacheManager MAX_CAPACITY | WxacodeCacheManagerTest |
+| BS-017 | ShareService activity validation | ShareServiceWxacodeTest |
+| BS-018 | WxacodeCacheManager LRU eviction | WxacodeCacheManagerTest |
+
+## 4. DB Migration Script
+
+- mysql/migration_v6_course.sql (NEW: CREATE TABLE course + seed data)
+
+## 5. Configuration Changes
+
+- backend/pom.xml (MODIFIED: +maven-surefire-plugin Java 24 flags, +byte-buddy/mockito version overrides)
+- No application.yml changes for CRS/PST (reuse existing wx.appid/wx.secret config)
+
+## 6. New Dependencies
+
+- No new Maven dependencies (uses existing Spring Boot + MyBatis Plus)
+- Test: byte-buddy 1.15.11, mockito 5.14.2 (version overrides for Java 24 compatibility)
+
+## 7. Change List (All Modified Files)
+
+### New Files (23):
+- Course.java, CourseMapper.java, CourseController.java
+- WxAccessTokenManager.java, WxacodeCacheManager.java, WxacodeData.java
+- courses/courses.{js,wxml,wxss,json} (public)
+- course-detail/course-detail.{js,wxml,wxss,json}
+- admin/courses/courses.{js,wxml,wxss,json}
+- migration_v6_course.sql
+- 5 test files + 3 test resource files
+
+### Modified Files (12):
+- AdminService.java, AdminController.java, WebMvcConfig.java
+- ShareController.java, ShareService.java
+- index.js, index.wxml, app.json
+- activity.js, activity.wxml
+- pom.xml
+
+## 8. Integration Check Report
+
+See: l3-state/integration-check.yml
+Verdict: PASS (0 blocking, 0 warning, 2 info)
+
+## 9. Test Execution Results
+
+See: l3-state/test-report.yml
+Results: 42/42 tests pass, BUILD SUCCESS
+
+## 10. Review Reports (6)
+
+| Reviewer | Verdict | Blocking | Warning | Info |
+|----------|---------|----------|---------|------|
+| Functional | PASS | 0 | 1 | 2 |
+| Architectural | PASS | 0 | 1 | 0 |
+| Spec Compliance | PASS | 0 | 1 | 1 |
+| Code | PASS | 0 | 3 | 2 |
+| Security | FAIL→PASS* | 3→0 | 3→6 | 1 |
+| Performance | PASS | 0 | 2 | 3 |
+
+*Security BLOCKING findings downgraded to WARNING after arbitration (pre-existing patterns).
+
+## 11. Cross-Module Reuse Report
+
+See: l3-state/review-cross-module.yml
+2 Class-A (recommended fix), 2 Class-B (feedback to specs)
+
+## 12. Consolidated Review Conclusion
+
+See: l3-state/consolidation.yml
+Consolidated verdict: PASS_WITH_WARNINGS (0 blocking, 8 warning, 4 info)
+
+## 13. L3 Comprehensive Report
+
+This document (l3-report.yml)

@@ -1,0 +1,62 @@
+<view class="list-page">
+  <view class="list-header">
+    <text class="header-title">轮播图管理</text>
+    <text class="header-count">{{banners.length}}/5</text>
+    <view class="add-btn" bindtap="addBanner">
+      <text>+ 添加</text>
+    </view>
+  </view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{banners}}" wx:key="id">
+      <image src="{{item.imageUrl}}" mode="aspectFill" class="item-cover"/>
+      <view class="item-info">
+        <view class="item-name">{{item.description || '(无描述)'}}</view>
+        <view class="item-meta">
+          <text class="item-sort">排序: {{item.sortOrder}}</text>
+          <view class="item-status {{item.status === 1 ? 'active' : ''}}">
+            {{item.status === 1 ? '显示中' : '已隐藏'}}
+          </view>
+        </view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn edit" bindtap="editBanner" data-item="{{item}}">编辑</view>
+        <view class="action-btn delete" bindtap="deleteBanner" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{banners.length === 0}}" class="empty-tip">暂无轮播图</view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <scroll-view scroll-y class="modal-content">
+      <view class="modal-title">{{editing.id ? '编辑轮播图' : '添加轮播图'}}</view>
+      <view class="form-item">
+        <text class="label">图片</text>
+        <view class="image-upload" bindtap="chooseImage">
+          <image wx:if="{{editing.imageUrl}}" src="{{editing.imageUrl}}" mode="aspectFill" class="upload-preview"/>
+          <view wx:else class="upload-placeholder">
+            <text>+ 选择图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label">描述文字（最多20字）</text>
+        <input class="input" value="{{editing.description}}" data-key="description" bindinput="onInput" maxlength="20" placeholder="请输入描述"/>
+      </view>
+      <view class="form-item">
+        <text class="label">排序（数字越小越靠前）</text>
+        <input class="input" type="number" value="{{editing.sortOrder}}" data-key="sortOrder" bindinput="onInput" placeholder="0"/>
+      </view>
+      <view class="form-item">
+        <text class="label">状态</text>
+        <switch checked="{{editing.status === 1}}" bindchange="onStatusChange"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeModal">取消</button>
+        <button class="btn-confirm" bindtap="saveBanner">保存</button>
+      </view>
+    </scroll-view>
+  </view>
+</view>

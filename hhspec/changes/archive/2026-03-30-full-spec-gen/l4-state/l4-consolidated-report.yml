@@ -1,0 +1,104 @@
+---
+consolidated_report:
+  title: "L4 Consolidated Verification Report"
+  date: "2026-03-26"
+  change_name: full-spec-gen
+  verification_round: 1
+  domains: [CRS, PST]
+  implementation_scope: [REQ-CRS-001, REQ-PST-001]
+  excluded_scope: [REQ-EXC-001]
+
+  activated_agents:
+    - l4_validator
+    - l4_security_tester
+    - l4_performance_tester
+
+  agent_verdicts:
+    l4_validator:
+      verdict: PASS
+      must_fix: 0
+      suggest: 3
+      l0_coverage_verified: true
+      completion_percentage: "100%"
+    l4_security_tester:
+      verdict: PASS
+      must_fix: 0
+      suggest: 4
+      pre_existing_findings: 3
+      new_findings: 1
+    l4_performance_tester:
+      verdict: PASS
+      must_fix: 0
+      suggest: 0
+      runtime_checks_skipped: 5
+      static_analysis_clean: true
+
+  consolidated_verdict: PASS
+  verdict_reason: >
+    All 3 activated L4 agents return PASS. Zero MUST_FIX issues across all agents.
+    Total 7 SUGGEST findings (non-blocking): 3 from validator (test coverage gap,
+    dead code, price formatting), 4 from security (all pre-existing or low-impact for
+    Mini Program architecture). Performance confirms all L3 findings accurate, no new issues.
+    L0 coverage 100% (2/2 requirements fully implemented). Implementation complete.
+
+  issues_summary:
+    total: 7
+    must_fix: 0
+    suggest: 7
+    by_source:
+      validator: 3
+      security: 4
+      performance: 0
+
+  all_suggest_issues:
+    - id: ISS-L4V-001
+      source: validator
+      title: "19/41 L2 test points not automated (admin auth chain, WeChat API, frontend)"
+      severity: SUGGEST
+    - id: ISS-L4V-002
+      source: validator
+      title: "Dead code: unused RestTemplate jsonParser in ShareService line 352"
+      severity: SUGGEST
+    - id: ISS-L4V-003
+      source: validator
+      title: "CRS price formatting shows raw integer (¥2000 vs ¥2,000)"
+      severity: SUGGEST
+    - id: ISS-L4S-001
+      source: security
+      title: "Admin-authored rich-text without server-side sanitization (admin-only + WeChat filter)"
+      severity: SUGGEST
+    - id: ISS-L4S-002
+      source: security
+      title: "JWT weak default (pre-existing, not CRS/PST)"
+      severity: SUGGEST
+    - id: ISS-L4S-003
+      source: security
+      title: "GlobalExceptionHandler message leak (pre-existing)"
+      severity: SUGGEST
+    - id: ISS-L4S-004
+      source: security
+      title: "Security headers absent (low impact for Mini Program API)"
+      severity: SUGGEST
+
+  human_spot_check:
+    triggered: false
+    trigger_reason: "No MUST_FIX issues, no rollbacks, all agents PASS"
+    checklist: []
+
+  rollback_needed: false
+  rollback_target: null
+
+  l0_coverage:
+    verified: true
+    total_constraints: 2
+    implemented: 2
+    blocked: 0
+    completion_percentage: "100%"
+
+  test_results:
+    total: 42
+    passed: 42
+    failed: 0
+    skipped: 0
+    build_status: SUCCESS
+---

@@ -33,7 +33,11 @@
   "condition": {},
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "suffix", "value": ".jpg" },
+      { "type": "suffix", "value": ".jpeg" },
+      { "type": "folder", "value": "images/_backup" }
+    ],
     "include": []
   },
   "editorSetting": {}

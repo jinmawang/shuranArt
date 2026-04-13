@@ -17,9 +17,17 @@
       <image src="/images/icon-activity.png" class="menu-icon"/>
       <text>活动管理</text>
     </view>
+    <view class="menu-item" bindtap="goToCourses">
+      <image src="/images/icon-course.png" class="menu-icon"/>
+      <text>课程管理</text>
+    </view>
     <view class="menu-item" bindtap="goToPrizes">
       <image src="/images/icon-prize.png" class="menu-icon"/>
       <text>奖品管理</text>
+    </view>
+    <view class="menu-item" bindtap="goToBanners">
+      <image src="/images/icon-config.png" class="menu-icon"/>
+      <text>轮播图管理</text>
     </view>
   </view>
 

@@ -1,0 +1,133 @@
+---
+reviewer: l3_functional_reviewer
+reviewer_layer: compliance
+change_name: full-spec-gen
+review_round: 1
+review_date: "2026-03-26"
+verdict: PASS
+verdict_reason: >
+  CRS 和 PST 两个领域的全部 L0 验收标准均已实现。1 项 warning 级别发现
+  （B7 边界场景大数值价格未使用千分位格式化），2 项 info 级别发现。
+  所有 EARS 需求、AC 验收场景和边界场景均已逐条核对。
+
+summary:
+  total_constraints: 28
+  covered: 28
+  missing: 0
+  blocking_count: 0
+  warning_count: 1
+  info_count: 2
+---
+
+# L3 Functional Review Report
+
+## Constraint Coverage Matrix
+
+### CRS Domain (REQ-CRS-001)
+
+| Constraint ID | Title | Status | Evidence |
+|---------------|-------|--------|----------|
+| EARS-CRS-001 | 课程列表展示 | PASS | CourseController.getCourses() 返回 status=1 课程列表，courses.wxml 展示课程卡片含 name/category/price/duration/suitableFor/coverImg |
+| EARS-CRS-002 | 分类筛选 | PASS | CourseController.getCourses(@RequestParam category) 支持可选分类过滤，courses.js onCategoryTap 切换分类，courses.wxml 分类栏含"全部/素描/水彩/油画/国画" |
+| EARS-CRS-003 | 课程详情 | PASS | CourseController.getCourse(@PathVariable id) 返回单课程，course-detail.wxml 展示 name/category/price/duration/suitableFor/description(rich-text)/coverImg |
+| EARS-CRS-004 | 首页课程入口 | PASS | index.js loadHomeCourses() 获取课程列表 slice(0,4) 前4项，index.wxml 展示课程缩略卡片，goToCourses() 跳转课程列表页 |
+| EARS-CRS-005 | 管理后台课程CRUD | PASS | AdminController 4个端点 (getCourses/saveCourse/deleteCourse/updateCourseStatus)，AdminService 完整验证逻辑 (V-003~V-015) |
+| AC-CRS-001 | 课程列表空态 | PASS | courses.wxml line 40-42: `wx:if="{{courses.length === 0}}"` 显示"暂无课程信息" |
+| AC-CRS-002 | 分类切换 | PASS | courses.js onCategoryTap 更新 currentCategory 后重新 loadCourses |
+| AC-CRS-003 | 详情页字段展示 | PASS | course-detail.wxml 展示全部字段（name/category/price/duration/suitableFor/description） |
+| AC-CRS-004 | 管理端上下架 | PASS | admin/courses.wxml toggleStatus 绑定，AdminService.updateCourseStatus 校验 status 0/1 |
+| B1 | price=0 免费 | PASS | courses.wxml line 33: `wx:if="{{item.price === 0}}" class="price-free">免费`，course-detail.wxml line 14: 同样处理 |
+| B2 | 描述为空隐藏 | PASS | course-detail.wxml line 32: `wx:if="{{course.description}}"` 条件渲染 |
+| B3 | 封面图加载失败 | PASS | courses.wxml line 23: `item.coverImg \|\| '/images/default-course.png'`，course-detail.wxml line 5 同样处理 |
+| B4 | 全部下架 | PASS | courses.wxml line 40-42 空列表提示，与 AC-CRS-001 共用 |
+| B5 | 筛选无结果 | PASS | courses.wxml line 41: `currentCategory !== '全部' ? '该类别暂无课程' : '暂无课程信息'` 区分提示 |
+| B7 | 大数值价格格式 | WARNING | 见 FND-FUNC-001 |
+| V-003~V-012 | 课程保存验证 | PASS | AdminService.saveCourse() 逐字段校验：name/category/price/duration/suitableFor 非空，price >= 0，status 0/1，sortOrder 默认 0 |
+| V-014~V-015 | 状态切换验证 | PASS | AdminService.updateCourseStatus() 校验 status 非空、0/1、课程存在 |
+
+### PST Domain (REQ-PST-001)
+
+| Constraint ID | Title | Status | Evidence |
+|---------------|-------|--------|----------|
+| REQ-PST-010 | 小程序码跳转活动页 | PASS | ShareService.callWxacodeApi() line 313: page="pages/activity/activity" |
+| REQ-PST-011 | 小程序码24h缓存 | PASS | WxacodeCacheManager TTL_MILLIS=86400000L (24h) |
+| REQ-PST-023 | LRU 500条容量 | PASS | WxacodeCacheManager MAX_CAPACITY=500，LinkedHashMap(accessOrder=true) + removeEldestEntry |
+| BS-017 | 已删除活动生码 | PASS | ShareService.getWxacode() 先 activityMapper.selectById 验证活动存在，不存在返回 Result.error("活动不存在") |
+| BS-018 | 缓存容量满 | PASS | LinkedHashMap removeEldestEntry 自动淘汰最久未使用条目 |
+| STEP-07-RETRY | token 过期重试 | PASS | callWxacodeApi errcode==40001 时 refreshAccessToken 并递归重试，alreadyRetried 限制最多 1 次 |
+| 网络异常重试 | 网络异常重试1次 | PASS | callWxacodeApi catch RuntimeException 中 !alreadyRetried 时递归重试 |
+| access_token 双重检查 | 并发安全 | PASS | WxAccessTokenManager synchronized + volatile 双重检查锁模式 |
+| access_token 提前刷新 | 避免边界过期 | PASS | ADVANCE_REFRESH_SECONDS=300，expireTime = now + (expiresIn - 300)*1000 |
+
+## Findings
+
+- id: FND-FUNC-001
+  check_item: B7
+  category: boundary_scenario
+  severity: warning
+  title: "B7 边界场景：大数值价格未使用千分位格式化"
+  description: |
+    courses.js 中定义了 formatPrice(price) 方法（line 50-53），当 price=0 返回"免费"，
+    否则使用 price.toLocaleString() 进行千分位格式化。
+    然而 courses.wxml（line 34）和 course-detail.wxml（line 15）中均直接使用
+    `¥{{item.price}}` / `¥{{course.price}}` 模板插值，并未调用 formatPrice。
+
+    因此当价格为 12800 时显示为"¥12800"而非"¥12,800"。
+    这不影响功能正确性（价格金额显示正确），但与 B7 边界场景
+    "大数值价格应正确格式化"的意图不完全吻合。
+
+    WXML 模板中不支持直接调用 JS 方法，需使用 WXS 模块或在 setData 时预处理。
+    courses.js formatPrice 方法在 WXML 中无法直接调用，属于死代码。
+  evidence:
+    - file: "miniprogram/pages/courses/courses.js"
+      lines: "50-53"
+      detail: "formatPrice 方法已定义但未被 WXML 调用"
+    - file: "miniprogram/pages/courses/courses.wxml"
+      lines: "33-35"
+      detail: "直接使用 ¥{{item.price}} 模板插值"
+    - file: "miniprogram/pages/course-detail/course-detail.wxml"
+      lines: "14-16"
+      detail: "直接使用 ¥{{course.price}} 模板插值"
+  recommendation: |
+    方案 A（推荐）：在 loadCourses 的 then 回调中预处理价格显示字符串，
+    添加 formattedPrice 字段到 data 中。
+    方案 B：使用 WXS 模块创建 formatPrice 过滤器在 WXML 中调用。
+    当前数据量（课程价格通常 < 10000）该问题影响极小，可后续优化。
+
+- id: FND-FUNC-002
+  check_item: EARS-CRS-004
+  category: functional
+  severity: info
+  title: "首页课程入口排序与课程列表页排序一致"
+  description: |
+    index.js loadHomeCourses() 调用 /api/course/list（无分类参数），
+    后端返回按 sortOrder ASC 排序的全部上架课程，前端 slice(0,4) 取前4项。
+    管理端课程列表按 sortOrder ASC 排序（AdminService.getCourses()）。
+    两端排序方式一致，管理员通过调整 sortOrder 可控制首页展示的课程。
+    此行为符合 EARS-CRS-004 "首页显示课程入口" 的需求意图。
+  evidence:
+    - file: "miniprogram/pages/index/index.js"
+      lines: "136-147"
+      detail: "loadHomeCourses → /course/list → slice(0,4)"
+
+- id: FND-FUNC-003
+  check_item: BS-017
+  category: boundary_scenario
+  severity: info
+  title: "已删除活动扫码访问返回合理错误提示"
+  description: |
+    ShareService.getWxacode() 先通过 activityMapper.selectById(activityId) 查询活动，
+    若活动不存在（已删除或 ID 无效）返回 Result.error("活动不存在")，code=-1。
+    小程序端应能正常处理此错误响应并显示提示。
+    已验证 BS-017 边界场景覆盖。
+  evidence:
+    - file: "backend/src/main/java/com/shuran/art/service/ShareService.java"
+      lines: "270-275"
+      detail: "Activity activity = activityMapper.selectById(activityId); if (activity == null) return Result.error('活动不存在')"
+
+## Self Check
+
+all_constraints_reviewed: true
+all_pass_have_evidence: true
+all_boundary_scenarios_checked: true
+coverage_rate: "28/28 (100%)"

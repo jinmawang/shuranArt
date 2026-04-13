@@ -1,186 +1,156 @@
 /* ============================================
-   首页 - Claymorphism 蓝紫色系
+   首页 - 晴空蓝·明朗欢快
    ============================================ */
 
 .index-page {
   padding-bottom: 40rpx;
+  background: #F0F7FF;
 }
 
-/* ============================================
-   轮播图 - 圆角阴影效果
-   ============================================ */
+/* 轮播图 */
 .banner-swiper {
   width: calc(100% - 48rpx);
   height: 380rpx;
   margin: 24rpx auto;
-  border-radius: 28rpx;
+  border-radius: 20rpx;
   overflow: hidden;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.2),
-    -5rpx -5rpx 15rpx rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4rpx 20rpx rgba(74, 158, 204, 0.15);
 }
 
-.banner-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 28rpx;
+.banner-img { width: 100%; height: 100%; border-radius: 20rpx; }
+
+.banner-item { position: relative; width: 100%; height: 100%; }
+
+.banner-desc {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(transparent, rgba(26, 46, 61, 0.5));
+  color: #fff;
+  font-size: 26rpx;
+  border-radius: 0 0 20rpx 20rpx;
 }
 
-/* ============================================
-   画室介绍 - Claymorphism 卡片
-   ============================================ */
+/* 画室介绍卡片 */
 .studio-intro {
-  margin: 24rpx;
+  margin: 0 24rpx 20rpx;
   text-align: center;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(238,242,255,0.8));
-  border-radius: 28rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
   padding: 40rpx 32rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 3rpx solid rgba(99, 102, 241, 0.1);
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
 .studio-name {
   font-size: 44rpx;
   font-weight: 700;
-  background: linear-gradient(135deg, #4F46E5, #7C3AED);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1A2E3D;
   letter-spacing: 2rpx;
 }
 
 .studio-slogan {
   font-size: 28rpx;
-  color: #8B5CF6;
-  margin: 16rpx 0;
+  color: #4A9ECC;
+  margin: 12rpx 0;
   font-weight: 500;
 }
 
 .studio-desc {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #6A8099;
   line-height: 1.7;
   margin-top: 16rpx;
 }
 
 .studio-intro-text {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #4A5E6D;
   line-height: 1.8;
   margin-top: 20rpx;
   padding-top: 20rpx;
-  border-top: 2rpx solid rgba(99, 102, 241, 0.1);
+  border-top: 1rpx solid #DFF0FA;
   text-align: left;
 }
 
-/* ============================================
-   画室地址 - 地图卡片
-   ============================================ */
+/* 画室地址 */
 .studio-location {
-  margin: 24rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 28rpx;
+  margin: 0 24rpx 20rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
   padding: 24rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
-.location-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.location-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 12rpx;
-}
+.location-header { display: flex; align-items: center; margin-bottom: 16rpx; }
+.location-icon { width: 36rpx; height: 36rpx; margin-right: 12rpx; }
 
 .location-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1E1B4B;
+  color: #1A2E3D;
   flex: 1;
 }
 
 .location-nav {
   font-size: 26rpx;
-  color: #8B5CF6;
+  color: #4A9ECC;
   padding: 8rpx 20rpx;
-  background: rgba(139, 92, 246, 0.1);
+  background: #E8F4FB;
   border-radius: 20rpx;
 }
 
-.location-address {
-  font-size: 26rpx;
-  color: #4B5563;
-  line-height: 1.6;
-  margin-bottom: 16rpx;
-}
+.location-address { font-size: 26rpx; color: #4A5E6D; line-height: 1.6; margin-bottom: 16rpx; }
 
-.studio-map {
-  width: 100%;
-  height: 300rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-}
+.studio-map { width: 100%; height: 300rpx; border-radius: 12rpx; overflow: hidden; }
 
-/* ============================================
-   联系我们 - 二维码卡片
-   ============================================ */
+/* 联系我们 */
 .contact-section {
-  margin: 24rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 28rpx;
-  padding: 24rpx;
-  box-shadow:
-    10rpx 10rpx 30rpx rgba(99, 102, 241, 0.15),
-    -5rpx -5rpx 20rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  margin: 0 24rpx 20rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
-.qrcode-wrapper {
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+  padding: 20rpx 0 16rpx;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 20rpx 0;
 }
+
+.section-title::before {
+  content: '';
+  width: 6rpx;
+  height: 32rpx;
+  background: #4A9ECC;
+  border-radius: 3rpx;
+  margin-right: 14rpx;
+}
+
+.qrcode-wrapper { display: flex; flex-direction: column; align-items: center; padding: 16rpx 0; }
 
 .qrcode-img {
-  width: 280rpx;
-  height: 280rpx;
-  border-radius: 16rpx;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.2),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.9);
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(74, 158, 204, 0.12);
 }
 
-.qrcode-tip {
-  font-size: 24rpx;
-  color: #6B7280;
-  margin-top: 16rpx;
-}
+.qrcode-tip { font-size: 24rpx; color: #A0B4C5; margin-top: 16rpx; }
 
-/* ============================================
-   功能入口 - 圆润图标网格
-   ============================================ */
+/* 功能入口网格 */
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24rpx;
-  padding: 32rpx 24rpx;
-  background: rgba(255, 255, 255, 0.8);
-  margin: 0 24rpx 24rpx;
-  border-radius: 28rpx;
-  box-shadow:
-    8rpx 8rpx 24rpx rgba(99, 102, 241, 0.12),
-    -4rpx -4rpx 16rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  gap: 8rpx;
+  padding: 28rpx 24rpx;
+  background: #FFFFFF;
+  margin: 0 24rpx 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
 .feature-item {
@@ -188,160 +158,241 @@
   flex-direction: column;
   align-items: center;
   padding: 16rpx 8rpx;
-  border-radius: 20rpx;
-  transition: all 250ms ease-out;
+  border-radius: 16rpx;
+  transition: all 200ms ease-out;
 }
 
-.feature-item:active {
-  transform: scale(0.95);
-  background: rgba(99, 102, 241, 0.08);
-}
+.feature-item:active { transform: scale(0.94); background: #F0F7FF; }
 
-.feature-icon {
+.feature-icon-text {
   width: 88rpx;
   height: 88rpx;
-  padding: 16rpx;
-  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-  border-radius: 24rpx;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.2),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.9);
-  margin-bottom: 12rpx;
-}
-
-.feature-item text {
-  font-size: 24rpx;
-  color: #4B5563;
-  font-weight: 500;
-}
-
-/* ============================================
-   区块标题
-   ============================================ */
-.section {
-  margin: 0 24rpx;
-}
-
-.section-title {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #1E1B4B;
-  padding: 24rpx 0 16rpx;
   display: flex;
+  justify-content: center;
   align-items: center;
+  font-size: 44rpx;
+  font-weight: 700;
+  border-radius: 22rpx;
+  margin-bottom: 12rpx;
+  transition: all 200ms ease-out;
 }
 
-.section-title::before {
-  content: '';
-  width: 8rpx;
-  height: 36rpx;
-  background: linear-gradient(180deg, #6366F1, #8B5CF6);
-  border-radius: 4rpx;
-  margin-right: 16rpx;
+.feature-icon-text.shu {
+  background: #E8F4FB;
+  color: #4A9ECC;
 }
 
-/* ============================================
-   活动列表 - Claymorphism 卡片
-   ============================================ */
+.feature-icon-text.ke {
+  background: #FEF8E7;
+  color: #D4A020;
+}
+
+.feature-icon-text.ran {
+  background: #E8F4FB;
+  color: #3A8EBC;
+}
+
+.feature-icon-text.mei {
+  background: #FFF0F5;
+  color: #E07090;
+}
+
+.feature-item:active .feature-icon-text { transform: scale(0.95); }
+.feature-item text { font-size: 24rpx; color: #4A5E6D; font-weight: 500; }
+
+/* 区块标题 */
+.section { margin: 0 24rpx 20rpx; }
+
+.section-more { font-size: 24rpx; color: #4A9ECC; font-weight: 400; margin-left: auto; }
+
+/* 活动列表 */
 .activity-list {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 28rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
   overflow: hidden;
-  box-shadow:
-    8rpx 8rpx 24rpx rgba(99, 102, 241, 0.12),
-    -4rpx -4rpx 16rpx rgba(255, 255, 255, 0.9);
-  border: 2rpx solid rgba(99, 102, 241, 0.08);
+  box-shadow: 0 2rpx 16rpx rgba(74, 158, 204, 0.1);
 }
 
 .activity-card {
   display: flex;
   padding: 24rpx;
-  border-bottom: 2rpx solid rgba(99, 102, 241, 0.08);
+  border-bottom: 1rpx solid #EEF6FC;
   transition: all 200ms ease-out;
 }
 
-.activity-card:last-child {
-  border-bottom: none;
-}
-
-.activity-card:active {
-  background: rgba(99, 102, 241, 0.05);
-}
+.activity-card:last-child { border-bottom: none; }
+.activity-card:active { background: #F7FBFF; }
 
 .activity-cover {
-  width: 200rpx;
-  height: 150rpx;
-  border-radius: 16rpx;
+  width: 190rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
   flex-shrink: 0;
-  box-shadow:
-    4rpx 4rpx 12rpx rgba(99, 102, 241, 0.15),
-    -2rpx -2rpx 8rpx rgba(255, 255, 255, 0.6);
 }
 
 .activity-info {
   flex: 1;
-  margin-left: 24rpx;
+  margin-left: 20rpx;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.activity-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1E1B4B;
-  margin-bottom: 12rpx;
-  line-height: 1.4;
-}
+.activity-title { font-size: 30rpx; font-weight: 600; color: #1A2E3D; margin-bottom: 12rpx; line-height: 1.4; }
 
 .activity-status-tag {
   display: inline-block;
   font-size: 22rpx;
   padding: 4rpx 16rpx;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   margin-bottom: 8rpx;
+  font-weight: 500;
 }
 
-.activity-status-tag.active {
-  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-  color: #059669;
-}
+.activity-status-tag.active { background: #E8F4FB; color: #4A9ECC; }
+.activity-status-tag.upcoming { background: #FEF8E7; color: #D4A020; }
 
-.activity-status-tag.upcoming {
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  color: #D97706;
-}
-
-.activity-time {
-  font-size: 24rpx;
-  color: #8B5CF6;
-  display: flex;
-  align-items: center;
-}
-
-.activity-time::before {
-  content: '';
-  width: 12rpx;
-  height: 12rpx;
-  background: #A855F7;
-  border-radius: 50%;
-  margin-right: 10rpx;
-}
+.activity-time { font-size: 24rpx; color: #A0B4C5; }
 
 /* ============================================
-   空状态提示
+   重力感应小球层
    ============================================ */
+.gravity-layer {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;   /* 所有触摸事件穿透到下层 */
+  z-index: 99;
+  overflow: hidden;
+}
+
+.gravity-ball {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  /* translate(-50%,-50%) 让 left/top 对应球心 */
+  transform: translate(-50%, -50%);
+  opacity: 0.82;
+  /* 内凹高光 + 外投影 模拟球体质感 */
+  box-shadow:
+    inset -4px -4px 8px rgba(0,0,0,0.18),
+    inset  4px  4px 8px rgba(255,255,255,0.28),
+    0 4px 14px rgba(0,0,0,0.18);
+}
+
+/* 四种球色 */
+.gball-0 { background: radial-gradient(circle at 36% 32%, #7dd8f7, #2a96c4); }
+.gball-1 { background: radial-gradient(circle at 36% 32%, #f7a87d, #d4602a); }
+.gball-2 { background: radial-gradient(circle at 36% 32%, #f77dba, #c42e6a); }
+.gball-3 { background: radial-gradient(circle at 36% 32%, #9df77d, #3ab825); }
+
+
+.course-card-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.course-card-row {
+  display: inline-flex;
+  padding: 4rpx 0 12rpx;
+  gap: 16rpx;
+}
+
+.course-card-item {
+  display: inline-flex;
+  flex-direction: column;
+  width: 220rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(74, 158, 204, 0.1);
+  flex-shrink: 0;
+  transition: all 200ms ease-out;
+}
+
+.course-card-item:active { transform: scale(0.96); }
+
+.course-card-img { width: 220rpx; height: 280rpx; }
+
+.course-card-tag {
+  font-size: 20rpx;
+  color: #4A9ECC;
+  background: #E8F4FB;
+  padding: 4rpx 12rpx;
+  font-weight: 500;
+  align-self: flex-start;
+  margin: 10rpx 12rpx 4rpx;
+  border-radius: 8rpx;
+}
+
+.course-card-name {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #1A2E3D;
+  padding: 0 12rpx 14rpx;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+/* 空状态 */
 .empty-tip {
   text-align: center;
   padding: 80rpx 0;
-  color: #9CA3AF;
+  color: #A0B4C5;
   font-size: 28rpx;
 }
 
-.empty-tip::before {
-  content: '暂无活动';
-  display: block;
-  font-size: 48rpx;
-  opacity: 0.3;
+/* 画室荣誉 */
+.honors-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #DFF0FA;
+}
+
+.honors-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A2E3D;
   margin-bottom: 16rpx;
+}
+
+.honors-scroll {
+  white-space: nowrap;
+}
+
+.honor-img {
+  width: 200rpx;
+  height: 280rpx;
+  margin-right: 16rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(74, 158, 204, 0.12);
+}
+
+/* ============================================
+   学生作品瀑布流
+   ============================================ */
+.works-waterfall {
+  display: flex;
+  gap: 12rpx;
+}
+
+.works-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.works-img {
+  width: 100%;
+  border-radius: 12rpx;
+  display: block;
+  box-shadow: 0 2rpx 10rpx rgba(26, 46, 61, 0.08);
 }
