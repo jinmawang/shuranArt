@@ -1,5 +1,4 @@
-/* CRS: 管理后台课程管理页样式 */
-/* 参照 admin/teachers/teachers.wxss */
+/* 管理后台课程管理页样式 */
 
 .list-page {
   min-height: 100vh;
@@ -74,7 +73,7 @@
   color: #8B5CF6;
 }
 
-.item-price {
+.item-suitable {
   font-size: 24rpx;
   color: #999;
 }

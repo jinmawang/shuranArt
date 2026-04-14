@@ -3,7 +3,7 @@
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
-      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      <view class="custom-nav-back" bindtap="goBack"></view>
       老师管理
     </view>
   </view>
@@ -21,6 +21,7 @@
       <view class="item-info">
         <view class="item-name">{{item.name}}</view>
         <view class="item-title">{{item.title}}</view>
+        <view class="item-works-count" wx:if="{{item.works && item.works.length}}">作品 {{item.works.length}} 张</view>
       </view>
       <view class="item-actions">
         <view class="action-btn edit" bindtap="editTeacher" data-item="{{item}}">编辑</view>
@@ -36,16 +37,16 @@
     <view class="modal-content">
       <view class="modal-title">{{editing.id ? '编辑老师' : '添加老师'}}</view>
       <view class="form-item">
-        <text class="label">姓名</text>
+        <text class="label">姓名 *</text>
         <input class="input" value="{{editing.name}}" data-key="name" bindinput="onInput" placeholder="请输入姓名"/>
       </view>
       <view class="form-item">
         <text class="label">职称</text>
-        <input class="input" value="{{editing.title}}" data-key="title" bindinput="onInput" placeholder="请输入职称"/>
+        <input class="input" value="{{editing.title}}" data-key="title" bindinput="onInput" placeholder="如：专业美术教师"/>
       </view>
       <view class="form-item">
         <text class="label">简介</text>
-        <textarea class="textarea" value="{{editing.intro}}" data-key="intro" bindinput="onInput" placeholder="请输入简介"/>
+        <textarea class="textarea" value="{{editing.intro}}" data-key="intro" bindinput="onInput" placeholder="请输入老师简介"/>
       </view>
       <view class="form-item">
         <text class="label">头像</text>
@@ -53,7 +54,20 @@
           <image wx:if="{{editing.avatar}}" src="{{editing.avatar}}" class="picker-preview" mode="aspectFill"/>
           <view wx:else class="picker-placeholder">
             <text class="picker-plus">+</text>
-            <text class="picker-tip">点击上传图片</text>
+            <text class="picker-tip">上传头像</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label">代表作品（最多9张）</text>
+        <view class="works-picker">
+          <view class="works-item" wx:for="{{editing.works}}" wx:key="index">
+            <image src="{{item}}" mode="aspectFill" class="works-preview"/>
+            <view class="works-delete" bindtap="removeWork" data-index="{{index}}">x</view>
+          </view>
+          <view class="works-add" bindtap="chooseWork" wx:if="{{!editing.works || editing.works.length < 9}}">
+            <text class="picker-plus">+</text>
+            <text class="picker-tip">添加</text>
           </view>
         </view>
       </view>

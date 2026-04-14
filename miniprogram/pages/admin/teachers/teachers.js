@@ -34,7 +34,7 @@ Page({
   addTeacher() {
     this.setData({
       showModal: true,
-      editing: { sortOrder: 0, status: 1 }
+      editing: { sortOrder: 0, status: 1, works: [] }
     });
   },
 
@@ -42,7 +42,7 @@ Page({
     const item = e.currentTarget.dataset.item;
     this.setData({
       showModal: true,
-      editing: { ...item }
+      editing: { ...item, works: item.works || [] }
     });
   },
 
@@ -74,6 +74,37 @@ Page({
     });
   },
 
+  chooseWork() {
+    const works = this.data.editing.works || [];
+    const remaining = 9 - works.length;
+    if (remaining <= 0) return;
+
+    wx.chooseMedia({
+      count: remaining,
+      mediaType: ['image'],
+      success: (res) => {
+        wx.showLoading({ title: '上传中...' });
+        const uploads = res.tempFiles.map(f => app.uploadImage(f.tempFilePath));
+        Promise.all(uploads).then(urls => {
+          wx.hideLoading();
+          const newWorks = works.concat(urls);
+          this.setData({ 'editing.works': newWorks });
+          wx.showToast({ title: '上传成功', icon: 'success' });
+        }).catch(() => {
+          wx.hideLoading();
+          wx.showToast({ title: '上传失败', icon: 'none' });
+        });
+      }
+    });
+  },
+
+  removeWork(e) {
+    const index = e.currentTarget.dataset.index;
+    const works = this.data.editing.works || [];
+    works.splice(index, 1);
+    this.setData({ 'editing.works': works });
+  },
+
   saveTeacher() {
     const { editing } = this.data;
     if (!editing.name) {
@@ -81,12 +112,17 @@ Page({
       return;
     }
 
+    const data = {
+      ...editing,
+      sortOrder: Number(editing.sortOrder) || 0
+    };
+
     wx.showLoading({ title: '保存中...' });
 
     app.request({
       url: '/admin/teacher',
       method: 'POST',
-      data: editing
+      data: data
     }).then(() => {
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });

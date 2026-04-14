@@ -1,6 +1,3 @@
-// CRS: 管理后台课程管理页
-// 需求来源: EARS-CRS-005, AC-CRS-004
-// 参照 admin/teachers/teachers.js 模式
 const app = getApp();
 
 Page({
@@ -26,7 +23,6 @@ Page({
     this.loadCourses();
   },
 
-  // EP-03: 加载全部课程（含已下架）(RM-003)
   loadCourses() {
     app.request({
       url: '/admin/courses'
@@ -35,7 +31,6 @@ Page({
     });
   },
 
-  // 添加课程 -- 打开空表单
   addCourse() {
     this.setData({
       showModal: true,
@@ -43,7 +38,6 @@ Page({
     });
   },
 
-  // 编辑课程 -- 打开预填表单
   editCourse(e) {
     const item = e.currentTarget.dataset.item;
     this.setData({
@@ -80,45 +74,24 @@ Page({
     });
   },
 
-  // EP-04: 保存课程（新增/编辑）(RM-004, RM-005)
-  // 前端校验: V-004 ~ V-008
   saveCourse() {
     const { editing } = this.data;
 
-    // V-004: name 必填
     if (!editing.name) {
       wx.showToast({ title: '请输入课程名称', icon: 'none' });
       return;
     }
-    // V-005: category 必填
     if (!editing.category) {
-      wx.showToast({ title: '请输入课程类别', icon: 'none' });
+      wx.showToast({ title: '请输入课程分类', icon: 'none' });
       return;
     }
-    // V-006: price 必填且 >= 0
-    if (editing.price === undefined || editing.price === '' || editing.price === null) {
-      wx.showToast({ title: '请输入课程价格', icon: 'none' });
-      return;
-    }
-    if (Number(editing.price) < 0) {
-      wx.showToast({ title: '课程价格不能为负数', icon: 'none' });
-      return;
-    }
-    // V-007: duration 必填
-    if (!editing.duration) {
-      wx.showToast({ title: '请输入课程时长', icon: 'none' });
-      return;
-    }
-    // V-008: suitableFor 必填
     if (!editing.suitableFor) {
-      wx.showToast({ title: '请输入适合人群', icon: 'none' });
+      wx.showToast({ title: '请输入适合年龄', icon: 'none' });
       return;
     }
 
-    // 确保数值类型正确
     const data = {
       ...editing,
-      price: Number(editing.price),
       sortOrder: Number(editing.sortOrder) || 0
     };
 
@@ -138,7 +111,6 @@ Page({
     });
   },
 
-  // EP-05: 删除课程 (RM-006, B6: 确认弹窗后删除)
   deleteCourse(e) {
     const id = e.currentTarget.dataset.id;
     wx.showModal({
@@ -158,7 +130,6 @@ Page({
     });
   },
 
-  // EP-06: 课程上下架切换 (AC-CRS-004)
   toggleStatus(e) {
     const item = e.currentTarget.dataset.item;
     const newStatus = item.status === 1 ? 0 : 1;

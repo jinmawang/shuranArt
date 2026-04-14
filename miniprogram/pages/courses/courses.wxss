@@ -1,6 +1,4 @@
-/* ============================================
-   课程列表页 - 晴空蓝·明朗欢快
-   ============================================ */
+/* 课程列表页 */
 
 .courses-page { min-height: 100vh; background: #F0F7FF; }
 
@@ -75,16 +73,16 @@
   margin-bottom: 14rpx;
 }
 
-.course-meta { display: flex; gap: 20rpx; margin-bottom: 14rpx; }
+.course-meta { display: flex; gap: 20rpx; margin-bottom: 10rpx; }
 
-.course-duration, .course-suitable {
+.course-suitable {
   font-size: 24rpx;
   color: #6A8099;
   display: flex;
   align-items: center;
 }
 
-.course-duration::before, .course-suitable::before {
+.course-suitable::before {
   content: '';
   width: 10rpx; height: 10rpx;
   background: #A0B4C5;
@@ -92,8 +90,14 @@
   margin-right: 8rpx;
 }
 
-.course-price { margin-top: 6rpx; }
-.price-amount { font-size: 34rpx; font-weight: 700; color: #F5A820; }
-.price-free { font-size: 30rpx; font-weight: 700; color: #4A9ECC; }
+.course-desc {
+  font-size: 24rpx;
+  color: #8899AA;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 
 .empty-tip { text-align: center; padding: 120rpx 0; color: #A0B4C5; font-size: 28rpx; }

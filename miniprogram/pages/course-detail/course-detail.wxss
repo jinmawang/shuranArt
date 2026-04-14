@@ -1,6 +1,4 @@
-/* ============================================
-   课程详情页 - 晴空蓝·明朗欢快
-   ============================================ */
+/* 课程详情页 */
 
 .detail-page { min-height: 100vh; background: #F0F7FF; padding-bottom: 40rpx; }
 .detail-cover { width: 100%; height: 420rpx; }
@@ -25,10 +23,6 @@
   font-weight: 500;
   margin-bottom: 18rpx;
 }
-
-.detail-price { margin-bottom: 20rpx; }
-.price-amount { font-size: 42rpx; font-weight: 700; color: #F5A820; }
-.price-free { font-size: 34rpx; font-weight: 700; color: #4A9ECC; }
 
 .detail-tags { display: flex; gap: 16rpx; }
 
