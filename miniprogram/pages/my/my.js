@@ -11,14 +11,23 @@ function getRandomAvatar(userId) {
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     userInfo: {},
     records: [],
     tempAvatarUrl: '',
     tempNickName: '',
-    defaultAvatar: ''
+    defaultAvatar: '',
+    isAdmin: false
   },
 
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadData();
   },
 
@@ -56,6 +65,13 @@ Page({
     }).then(data => {
       this.setData({ records: (data || []).slice(0, 5) });
     });
+
+    // 检查管理员权限
+    app.request({
+      url: '/user/is-admin'
+    }).then(data => {
+      this.setData({ isAdmin: data && data.isAdmin });
+    }).catch(() => {});
   },
 
   // 选择头像

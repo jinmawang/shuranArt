@@ -1,4 +1,13 @@
 <view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      轮播图管理
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
     <text class="header-title">轮播图管理</text>
     <text class="header-count">{{banners.length}}/5</text>

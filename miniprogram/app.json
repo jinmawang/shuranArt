@@ -19,8 +19,9 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#6366F1",
-    "navigationBarTitleText": "舒然画室",
-    "navigationBarTextStyle": "white"
+    "navigationBarTitleText": "书染美术",
+    "navigationBarTextStyle": "white",
+    "navigationStyle": "custom"
   },
   "tabBar": {
     "color": "#9CA3AF",

@@ -3,11 +3,11 @@
   <!-- 重力感应小球层（pointer-events:none，完全不影响下层交互） -->
   <view class="gravity-layer">
     <view wx:for="{{balls}}" wx:key="index"
-          class="gravity-ball gball-{{index}}"
+          class="gravity-ball gball-{{index}} {{item.hit ? 'gball-hit' : ''}}"
           style="left:{{item.x}}px;top:{{item.y}}px;">{{item.char}}</view>
   </view>
 
-  <!-- 顶部轮播（本地图片兜底，始终显示） -->
+  <!-- 顶部全屏轮播（沉浸式，延伸到状态栏） -->
   <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" autoplay interval="3500" circular wx:if="{{banners.length > 0}}">
     <swiper-item wx:for="{{banners}}" wx:key="id">
       <view class="banner-item">
@@ -19,7 +19,7 @@
 
   <!-- 画室介绍 -->
   <view class="card studio-intro">
-    <view class="studio-name">{{studioConfig.studio_name || '舒然画室'}}</view>
+    <view class="studio-name">{{studioConfig.studio_name || '书染美术'}}</view>
     <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
     <view class="studio-desc">{{studioConfig.studio_description}}</view>
     <view class="studio-intro-text" wx:if="{{studioConfig.studio_intro}}">
@@ -42,15 +42,15 @@
       <text>师资团队</text>
     </view>
     <view class="feature-item" bindtap="goToCourses">
-      <view class="feature-icon-text ke">课</view>
+      <view class="feature-icon-text ran">染</view>
       <text>课程介绍</text>
     </view>
     <view class="feature-item" bindtap="goToActivity">
-      <view class="feature-icon-text ran">染</view>
+      <view class="feature-icon-text mei">美</view>
       <text>活动详情</text>
     </view>
     <view class="feature-item" bindtap="goToLottery">
-      <view class="feature-icon-text mei">美</view>
+      <view class="feature-icon-text shu2">术</view>
       <text>幸运抽奖</text>
     </view>
   </view>

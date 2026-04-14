@@ -5,11 +5,23 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     course: null,
     loading: true
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad(options) {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     if (options.id) {
       this.loadCourse(options.id);
     }

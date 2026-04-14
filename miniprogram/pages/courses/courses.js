@@ -5,12 +5,24 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     courses: [],
     categories: ['全部', '素描', '水彩', '油画', '国画'],
     currentCategory: '全部'
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadCourses();
   },
 

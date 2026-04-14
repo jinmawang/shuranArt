@@ -1,4 +1,11 @@
 <view class="lottery-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px;">幸运抽奖</view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
   <!-- 活动信息 -->
   <view class="activity-bar" wx:if="{{activity}}">
     <text class="activity-name">{{activity.title}}</text>
@@ -60,7 +67,6 @@
         <view class="prize-level" wx:if="{{item.level <= 2}}">
           <text class="level-tag {{item.level === 1 ? 'first' : 'second'}}">{{item.level === 1 ? '一等奖' : '二等奖'}}</text>
         </view>
-        <text class="prize-prob">{{item.probability}}%</text>
       </view>
     </view>
     <view class="guarantee-info">

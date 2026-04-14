@@ -1,6 +1,15 @@
 <!-- CRS: 课程详情页 -->
 <!-- 需求来源: EARS-CRS-003, AC-CRS-003 -->
 <view class="detail-page" wx:if="{{course}}">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      课程详情
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <!-- 课程封面图 (B3: 加载失败显示占位图) -->
   <image src="{{course.coverImg || '/images/default-course.png'}}" mode="aspectFill" class="detail-cover" binderror="onImageError"/>
 

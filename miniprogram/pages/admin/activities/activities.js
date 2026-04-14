@@ -2,12 +2,24 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     activities: [],
     showModal: false,
     editing: {}
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadActivities();
   },
 
@@ -70,17 +82,21 @@ Page({
     this.chooseAndUploadImage('shareImage');
   },
 
-  // 选择并上传图片
+  // 选择并上传图片到服务器
   chooseAndUploadImage(key) {
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath;
-        // 这里简化处理，直接使用临时路径
-        // 实际项目中应该上传到云存储获取永久URL
-        this.setData({ [`editing.${key}`]: tempFilePath });
-        wx.showToast({ title: '图片已选择', icon: 'success' });
+        wx.showLoading({ title: '上传中...' });
+        app.uploadImage(tempFilePath).then(url => {
+          wx.hideLoading();
+          this.setData({ [`editing.${key}`]: url });
+          wx.showToast({ title: '上传成功', icon: 'success' });
+        }).catch(() => {
+          wx.hideLoading();
+        });
       }
     });
   },

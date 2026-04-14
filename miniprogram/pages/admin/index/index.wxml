@@ -1,7 +1,16 @@
 <view class="admin-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      管理后台
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="admin-header">
     <view class="header-title">管理后台</view>
-    <view class="header-desc">舒然画室</view>
+    <view class="header-desc">书染美术</view>
   </view>
 
   <view class="menu-grid">

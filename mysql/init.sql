@@ -155,11 +155,11 @@ INSERT INTO `prize` (`name`, `type`, `level`, `value`, `probability`, `stock`, `
 
 -- 插入测试活动
 INSERT INTO `activity` (`title`, `description`, `cover_img`, `start_time`, `end_time`, `daily_share_limit`, `total_share_limit`, `share_title`, `share_image`) VALUES
-('暑期班报名优惠', '分享活动，抽取丰厚奖品！', '/images/activity-summer.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5, 6, '快来参与舒然画室暑期班活动', '/images/share-default.jpg');
+('暑期班报名优惠', '分享活动，抽取丰厚奖品！', 'https://tianma.chat/images/banner-studio.jpg', '2026-06-01 00:00:00', '2026-08-31 23:59:59', 5, 6, '快来参与书染美术暑期班活动', 'https://tianma.chat/images/banner-studio.jpg');
 
 -- 插入默认画室配置
 INSERT INTO `studio_config` (`config_key`, `config_value`, `config_type`) VALUES
-('studio_name', '舒然画室', 'text'),
+('studio_name', '书染美术', 'text'),
 ('studio_slogan', '用艺术点亮生活', 'text'),
 ('studio_description', '专注美术教育10年，培养学员超过2000人', 'text'),
 ('studio_images', '[]', 'json'),

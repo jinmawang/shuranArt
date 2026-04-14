@@ -2,6 +2,9 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     userInfo: {},
     prizes: [],
     activityId: null,
@@ -17,6 +20,11 @@ Page({
   },
 
   onLoad(options) {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     if (options.activityId) {
       this.setData({ activityId: parseInt(options.activityId) });
     }

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 舒然画室 - 一键部署脚本
+# 书染美术 - 一键部署脚本
 # 用法: ./deploy.sh
 # 需要输入服务器密码（SSH）
 
@@ -10,7 +10,7 @@ REMOTE_DIR="/home/ubuntu/shuranArt"
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "========================================="
-echo "  舒然画室 部署脚本"
+echo "  书染美术 部署脚本"
 echo "  服务器: $SERVER"
 echo "  域名: tianma.chat"
 echo "========================================="

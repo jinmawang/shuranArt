@@ -1,5 +1,5 @@
 /* ============================================
-   舒然画室 - 晴空蓝·明朗欢快设计系统
+   书染美术 - 晴空蓝·明朗欢快设计系统
    Primary:    #4A9ECC (晴空蓝)
    Accent:     #F5C842 (明黄)
    Background: #F0F7FF (天空白)
@@ -14,6 +14,37 @@ page {
   color: #1A2E3D;
   line-height: 1.6;
   min-height: 100vh;
+}
+
+/* 自定义导航栏 */
+.custom-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #4A9ECC;
+}
+
+.custom-nav-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.custom-nav-back {
+  position: absolute;
+  left: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  font-size: 36rpx;
+  color: #fff;
 }
 
 /* 主题颜色 */

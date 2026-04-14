@@ -7,17 +7,14 @@
   background: #F0F7FF;
 }
 
-/* 轮播图 */
+/* 轮播图 - 沉浸式全屏到顶 */
 .banner-swiper {
-  width: calc(100% - 48rpx);
-  height: 380rpx;
-  margin: 24rpx auto;
-  border-radius: 20rpx;
+  width: 100%;
+  height: 560rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 20rpx rgba(74, 158, 204, 0.15);
 }
 
-.banner-img { width: 100%; height: 100%; border-radius: 20rpx; }
+.banner-img { width: 100%; height: 100%; }
 
 .banner-item { position: relative; width: 100%; height: 100%; }
 
@@ -182,19 +179,19 @@
   color: #4A9ECC;
 }
 
-.feature-icon-text.ke {
+.feature-icon-text.ran {
   background: #FEF8E7;
   color: #D4A020;
-}
-
-.feature-icon-text.ran {
-  background: #E8F4FB;
-  color: #3A8EBC;
 }
 
 .feature-icon-text.mei {
   background: #FFF0F5;
   color: #E07090;
+}
+
+.feature-icon-text.shu2 {
+  background: #E8FBE8;
+  color: #3AB825;
 }
 
 .feature-item:active .feature-icon-text { transform: scale(0.95); }
@@ -279,7 +276,7 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.35);
   /* translate(-50%,-50%) 让 left/top 对应球心 */
   transform: translate(-50%, -50%);
-  opacity: 0.82;
+  opacity: 0.5;
   /* 内凹高光 + 外投影 模拟球体质感 */
   box-shadow:
     inset -4px -4px 8px rgba(0,0,0,0.18),
@@ -292,6 +289,15 @@
 .gball-1 { background: radial-gradient(circle at 36% 32%, #f7a87d, #d4602a); }
 .gball-2 { background: radial-gradient(circle at 36% 32%, #f77dba, #c42e6a); }
 .gball-3 { background: radial-gradient(circle at 36% 32%, #9df77d, #3ab825); }
+
+/* 碰撞瞬间放大效果 */
+.gball-hit {
+  transform: translate(-50%, -50%) scale(1.25);
+  transition: transform 0.08s ease-out;
+}
+.gravity-ball:not(.gball-hit) {
+  transition: transform 0.15s ease-out;
+}
 
 
 .course-card-scroll {

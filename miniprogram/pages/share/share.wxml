@@ -1,4 +1,13 @@
 <view class="share-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      邀请好友
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <!-- 活动信息 -->
   <view class="activity-header">
     <image src="{{activity.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-bg"/>

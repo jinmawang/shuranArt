@@ -3,10 +3,21 @@ App({
     userInfo: null,
     token: null,
     baseUrl: 'https://tianma.chat/api',
-    studioConfig: null  // PST: 画室配置（BS-002: 画室名称默认值）
+    studioConfig: null,
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0
   },
 
   onLaunch(options) {
+    // 计算导航栏高度
+    const sysInfo = wx.getSystemInfoSync();
+    const menuBtn = wx.getMenuButtonBoundingClientRect();
+    this.globalData.statusBarHeight = sysInfo.statusBarHeight;
+    // 导航栏高度 = 胶囊按钮高度 + 上下间距
+    this.globalData.navBarHeight = (menuBtn.top - sysInfo.statusBarHeight) * 2 + menuBtn.height;
+    this.globalData.navBarTotalHeight = sysInfo.statusBarHeight + this.globalData.navBarHeight;
+
     // 检查登录状态
     const token = wx.getStorageSync('token');
     if (token) {
@@ -110,6 +121,37 @@ App({
           }
         },
         fail: reject
+      });
+    });
+  },
+
+  // 上传图片到服务器，返回永久URL
+  uploadImage(tempFilePath) {
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: this.globalData.baseUrl + '/admin/upload',
+        filePath: tempFilePath,
+        name: 'file',
+        header: {
+          'Authorization': 'Bearer ' + this.globalData.token
+        },
+        success: res => {
+          try {
+            const data = JSON.parse(res.data);
+            if (data.code === 0) {
+              resolve(data.data.url);
+            } else {
+              wx.showToast({ title: data.msg || '上传失败', icon: 'none' });
+              reject(new Error(data.msg));
+            }
+          } catch (e) {
+            reject(e);
+          }
+        },
+        fail: err => {
+          wx.showToast({ title: '上传失败，请检查网络', icon: 'none' });
+          reject(err);
+        }
       });
     });
   },

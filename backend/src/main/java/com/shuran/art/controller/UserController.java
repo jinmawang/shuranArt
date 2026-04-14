@@ -4,10 +4,13 @@ import com.shuran.art.dto.LoginRequest;
 import com.shuran.art.dto.LoginResponse;
 import com.shuran.art.dto.Result;
 import com.shuran.art.entity.User;
+import com.shuran.art.service.AdminService;
 import com.shuran.art.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final AdminService adminService;
 
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -27,6 +31,14 @@ public class UserController {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getUserById(userId);
         return Result.success(user);
+    }
+
+    @GetMapping("/is-admin")
+    public Result<Map<String, Boolean>> isAdmin(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        User user = userService.getUserById(userId);
+        boolean admin = adminService.isAdmin(user.getOpenid());
+        return Result.success(Map.of("isAdmin", admin));
     }
 
     @PutMapping("/update")

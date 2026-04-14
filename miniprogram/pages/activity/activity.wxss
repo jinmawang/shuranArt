@@ -135,7 +135,7 @@
   border-top: 1rpx solid #DFF0FA;
 }
 
-.btn-share, .btn-lottery, .btn-poster {
+.btn-share, .btn-lottery {
   flex: 1;
   display: flex;
   justify-content: center;
@@ -166,68 +166,3 @@
 .btn-lottery:active { transform: scale(0.98); background: #3A8EBC; }
 
 .btn-icon { width: 38rpx; height: 38rpx; margin-right: 10rpx; }
-
-.btn-poster {
-  background: #F5C842;
-  color: #5A3A00;
-  margin-right: 16rpx;
-  box-shadow: 0 4rpx 16rpx rgba(245, 200, 66, 0.35);
-  font-size: 26rpx;
-}
-
-.btn-poster:active { transform: scale(0.98); background: #E8B830; }
-.btn-poster.disabled { background: #F5F5F5; color: #AAAAAA; box-shadow: none; }
-
-/* Canvas 离屏 */
-.poster-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 750px; height: 1334px; }
-
-/* 海报预览弹窗 */
-.poster-modal {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 1000;
-  background: rgba(26, 46, 61, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.poster-modal-content {
-  position: relative;
-  width: 85%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.poster-close {
-  position: absolute;
-  top: -56rpx; right: 0;
-  width: 52rpx; height: 52rpx;
-  line-height: 52rpx;
-  text-align: center;
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 600;
-  border: 2rpx solid rgba(255,255,255,0.6);
-  border-radius: 50%;
-}
-
-.poster-image { width: 100%; border-radius: 16rpx; box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.25); }
-
-.poster-actions { display: flex; width: 100%; margin-top: 28rpx; gap: 20rpx; }
-
-.poster-btn {
-  flex: 1;
-  height: 88rpx;
-  line-height: 88rpx;
-  text-align: center;
-  border-radius: 44rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.poster-btn-save { background: #4A9ECC; color: #fff; box-shadow: 0 4rpx 16rpx rgba(74,158,204,0.3); }
-.poster-btn-save:active { transform: scale(0.98); }
-.poster-btn-share { background: rgba(255,255,255,0.95); color: #4A9ECC; border: 2rpx solid #4A9ECC; }
-.poster-btn-share:active { transform: scale(0.98); }

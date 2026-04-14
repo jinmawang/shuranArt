@@ -2,6 +2,15 @@
 <!-- 需求来源: EARS-CRS-001, EARS-CRS-002, AC-CRS-001, AC-CRS-002 -->
 <!-- 参照 teachers/teachers.wxml 页面结构 -->
 <view class="courses-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      课程介绍
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="page-header">
     <view class="header-title">课程介绍</view>
     <view class="header-desc">专业课程，系统教学</view>

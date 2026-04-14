@@ -2,6 +2,15 @@
 <!-- 需求来源: EARS-CRS-005, AC-CRS-004 -->
 <!-- 参照 admin/teachers/teachers.wxml 页面结构 -->
 <view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      课程管理
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
     <text class="header-title">课程管理</text>
     <view class="add-btn" bindtap="addCourse">
@@ -66,8 +75,14 @@
       </view>
       <!-- V-009: coverImg 选填 -->
       <view class="form-item">
-        <text class="label">封面图URL</text>
-        <input class="input" value="{{editing.coverImg}}" data-key="coverImg" bindinput="onInput" placeholder="请输入封面图URL"/>
+        <text class="label">封面图</text>
+        <view class="image-picker" bindtap="chooseCoverImage">
+          <image wx:if="{{editing.coverImg}}" src="{{editing.coverImg}}" class="picker-preview" mode="aspectFill"/>
+          <view wx:else class="picker-placeholder">
+            <text class="picker-plus">+</text>
+            <text class="picker-tip">点击上传图片</text>
+          </view>
+        </view>
       </view>
       <!-- V-010: description 选填 -->
       <view class="form-item">

@@ -5,12 +5,24 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     courses: [],
     showModal: false,
     editing: {}
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadCourses();
   },
 
@@ -48,6 +60,24 @@ Page({
     const key = e.currentTarget.dataset.key;
     const value = e.detail.value;
     this.setData({ [`editing.${key}`]: value });
+  },
+
+  chooseCoverImage() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath;
+        wx.showLoading({ title: '上传中...' });
+        app.uploadImage(tempFilePath).then(url => {
+          wx.hideLoading();
+          this.setData({ 'editing.coverImg': url });
+          wx.showToast({ title: '上传成功', icon: 'success' });
+        }).catch(() => {
+          wx.hideLoading();
+        });
+      }
+    });
   },
 
   // EP-04: 保存课程（新增/编辑）(RM-004, RM-005)

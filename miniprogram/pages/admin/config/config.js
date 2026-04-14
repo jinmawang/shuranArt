@@ -2,11 +2,23 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     config: {},
     markers: []
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadConfig();
   },
 
@@ -88,9 +100,14 @@ Page({
       mediaType: ['image'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath;
-        // 实际项目中应该上传到云存储获取永久URL
-        this.setData({ 'config.studio_qrcode': tempFilePath });
-        wx.showToast({ title: '已选择', icon: 'success' });
+        wx.showLoading({ title: '上传中...' });
+        app.uploadImage(tempFilePath).then(url => {
+          wx.hideLoading();
+          this.setData({ 'config.studio_qrcode': url });
+          wx.showToast({ title: '上传成功', icon: 'success' });
+        }).catch(() => {
+          wx.hideLoading();
+        });
       }
     });
   },

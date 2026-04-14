@@ -1,4 +1,13 @@
 <view class="activity-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      活动详情
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <image src="{{activity.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
 
   <view class="activity-content">
@@ -54,32 +63,9 @@
       <image src="/images/icon-share-white.png" class="btn-icon"/>
       分享活动
     </button>
-    <!-- PST: 生成海报按钮（REQ-PST-001, REQ-PST-014） -->
-    <button class="btn-poster {{isPosterGenerating ? 'disabled' : ''}}" bindtap="generatePoster" disabled="{{isPosterGenerating}}">
-      生成海报
-    </button>
     <button class="btn-lottery" bindtap="goToLottery">
       <image src="/images/icon-lottery-white.png" class="btn-icon"/>
       立即抽奖
     </button>
-  </view>
-
-  <!-- PST: Canvas 2D 离屏绘制（决策 2: Canvas 2D API） -->
-  <!-- 使用定位移出可视区域，保持 Canvas node 可用 -->
-  <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
-
-  <!-- PST: 海报预览弹窗（REQ-PST-004, BS-014） -->
-  <view class="poster-modal" wx:if="{{showPosterModal}}" bindtap="closePosterModal">
-    <view class="poster-modal-content" catchtap="">
-      <!-- 关闭按钮 -->
-      <view class="poster-close" bindtap="closePosterModal">X</view>
-      <!-- 海报图片 -->
-      <image src="{{posterImagePath}}" mode="aspectFit" class="poster-image"/>
-      <!-- 操作按钮 -->
-      <view class="poster-actions">
-        <button class="poster-btn poster-btn-save" bindtap="savePosterToAlbum">保存到相册</button>
-        <button class="poster-btn poster-btn-share" bindtap="sharePosterToFriend">分享给好友</button>
-      </view>
-    </view>
   </view>
 </view>

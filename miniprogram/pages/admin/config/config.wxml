@@ -1,4 +1,13 @@
 <view class="config-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      画室配置
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="form-section">
     <view class="section-title">基本信息</view>
 

@@ -1,10 +1,11 @@
 const app = getApp();
 
 // ─── 重力球物理常量 ───────────────────────────────
-var BALL_R   = 26;   // 球半径 px（与 CSS 52px/2 对应）
-var G_FORCE  = 0.45; // 重力加速度系数（px/frame²）
-var FRICTION = 0.97; // 每帧速度衰减（摩擦 / 空气阻力）
-var BOUNCE   = 0.42; // 碰壁弹性系数
+var BALL_R   = 26;    // 球半径 px（与 CSS 52px/2 对应）
+var G_FORCE  = 1.2;   // 重力加速度系数（响应速度更快）
+var FRICTION = 0.985; // 每帧速度衰减（保留更多动能）
+var BOUNCE   = 0.65;  // 碰壁弹性系数（更有弹性）
+var BALL_RESTITUTION = 0.85; // 球间碰撞弹性系数
 var CHARS    = ['书', '染', '美', '术'];
 // ─────────────────────────────────────────────────
 
@@ -37,10 +38,13 @@ Page({
     { id: 'l2', imageUrl: 'https://tianma.chat/images/%E4%BD%9C%E5%93%81/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241223193239.jpg', description: '创意绘画课堂' },
     { id: 'l3', imageUrl: 'https://tianma.chat/images/%E4%BD%9C%E5%93%81/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241223194551.jpg', description: '艺术成长之路' },
     { id: 'l4', imageUrl: 'https://tianma.chat/images/%E4%BD%9C%E5%93%81/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241223193245.jpg', description: '专业美术教学' },
-    { id: 'l5', imageUrl: 'https://tianma.chat/images/%E4%BD%9C%E5%93%81/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241223193251.jpg', description: '舒然画室 · 用艺术点亮生活' }
+    { id: 'l5', imageUrl: 'https://tianma.chat/images/%E4%BD%9C%E5%93%81/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241223193251.jpg', description: '书染美术 · 用艺术点亮生活' }
   ],
 
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     banners: [],
     studioConfig: {},
     activities: [],
@@ -55,14 +59,19 @@ Page({
     worksRight: WORKS_ALL.filter(function(_, i) { return i % 2 === 1; }),
     worksAll: WORKS_ALL,
     balls: [
-      { char: '书', x: 80,  y: 180 },
-      { char: '染', x: 280, y: 130 },
-      { char: '美', x: 130, y: 400 },
-      { char: '术', x: 260, y: 320 }
+      { char: '书', x: 60,  y: 120 },
+      { char: '染', x: 140, y: 120 },
+      { char: '美', x: 220, y: 120 },
+      { char: '术', x: 300, y: 120 }
     ]
   },
 
   onLoad: function() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this._initBalls();
     this.loadData();
   },
@@ -111,7 +120,7 @@ Page({
           id: 1,
           latitude: latitude,
           longitude: longitude,
-          title: data.studio_name || '舒然画室',
+          title: data.studio_name || '书染美术',
           iconPath: '/images/icon-marker.png',
           width: 40,
           height: 40
@@ -162,7 +171,7 @@ Page({
       wx.openLocation({
         latitude: latitude,
         longitude: longitude,
-        name: studioConfig.studio_name || '舒然画室',
+        name: studioConfig.studio_name || '书染美术',
         address: studioConfig.studio_address || '',
         scale: 16
       });
@@ -233,12 +242,12 @@ Page({
     this._sh = info.windowHeight;
     var sw = this._sw;
     var sh = this._sh;
-    // 初始位置分散在屏幕四象限，给予小初速让球"活起来"
+    // 初始位置从左到右排列（书染美术），给予小初速让球"活起来"
     this._phys = [
-      { x: sw * 0.22, y: sh * 0.28, vx:  2, vy:  1 },
-      { x: sw * 0.78, y: sh * 0.22, vx: -1, vy:  2 },
-      { x: sw * 0.30, y: sh * 0.58, vx:  1, vy: -2 },
-      { x: sw * 0.72, y: sh * 0.48, vx: -2, vy: -1 }
+      { x: sw * 0.15, y: sh * 0.15, vx:  1, vy:  1 },
+      { x: sw * 0.38, y: sh * 0.15, vx: -1, vy:  2 },
+      { x: sw * 0.62, y: sh * 0.15, vx:  1, vy: -1 },
+      { x: sw * 0.85, y: sh * 0.15, vx: -1, vy:  1 }
     ];
   },
 
@@ -300,8 +309,9 @@ Page({
       if (b.y > sh - r) { b.y = sh - r; b.vy = -Math.abs(b.vy) * BOUNCE; }
     }
 
-    // ── 3. 球间碰撞（弹性碰撞近似）────────────────
+    // ── 3. 球间碰撞（弹性碰撞）────────────────────────
     var minD = r * 2;
+    var hitFlags = [false, false, false, false];
     for (i = 0; i < phys.length; i++) {
       for (j = i + 1; j < phys.length; j++) {
         b  = phys[i];
@@ -318,16 +328,20 @@ Page({
           b.y  -= ny * overlap;
           bj.x += nx * overlap;
           bj.y += ny * overlap;
-          // 交换沿碰撞法线的速度分量
+          // 沿碰撞法线方向的相对速度
           var dvx = b.vx - bj.vx;
           var dvy = b.vy - bj.vy;
           var dot = dvx * nx + dvy * ny;
           if (dot > 0) {
-            var imp = dot * BOUNCE;
+            // 使用较高的弹性系数，碰撞更有力
+            var imp = dot * BALL_RESTITUTION;
             b.vx  -= imp * nx;
             b.vy  -= imp * ny;
             bj.vx += imp * nx;
             bj.vy += imp * ny;
+            // 标记碰撞，用于视觉反馈
+            hitFlags[i] = true;
+            hitFlags[j] = true;
           }
         }
       }
@@ -335,10 +349,10 @@ Page({
 
     // ── 4. 一次性 setData 更新视图 ──────────────
     this.setData({
-      'balls[0].x': phys[0].x, 'balls[0].y': phys[0].y,
-      'balls[1].x': phys[1].x, 'balls[1].y': phys[1].y,
-      'balls[2].x': phys[2].x, 'balls[2].y': phys[2].y,
-      'balls[3].x': phys[3].x, 'balls[3].y': phys[3].y
+      'balls[0].x': phys[0].x, 'balls[0].y': phys[0].y, 'balls[0].hit': hitFlags[0],
+      'balls[1].x': phys[1].x, 'balls[1].y': phys[1].y, 'balls[1].hit': hitFlags[1],
+      'balls[2].x': phys[2].x, 'balls[2].y': phys[2].y, 'balls[2].hit': hitFlags[2],
+      'balls[3].x': phys[3].x, 'balls[3].y': phys[3].y, 'balls[3].hit': hitFlags[3]
     });
   }
 });

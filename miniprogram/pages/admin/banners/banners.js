@@ -2,12 +2,24 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     banners: [],
     showModal: false,
     editing: {}
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad() {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     this.loadBanners();
   },
 
@@ -58,8 +70,14 @@ Page({
       mediaType: ['image'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath;
-        this.setData({ 'editing.imageUrl': tempFilePath });
-        wx.showToast({ title: '图片已选择', icon: 'success' });
+        wx.showLoading({ title: '上传中...' });
+        app.uploadImage(tempFilePath).then(url => {
+          wx.hideLoading();
+          this.setData({ 'editing.imageUrl': url });
+          wx.showToast({ title: '上传成功', icon: 'success' });
+        }).catch(() => {
+          wx.hideLoading();
+        });
       }
     });
   },

@@ -2,6 +2,9 @@ const app = getApp();
 
 Page({
   data: {
+    statusBarHeight: 0,
+    navBarHeight: 0,
+    navBarTotalHeight: 0,
     activity: {},
     userInfo: {},
     activityId: null,
@@ -9,7 +12,16 @@ Page({
     shareCode: null
   },
 
+  goBack() {
+    wx.navigateBack();
+  },
+
   onLoad(options) {
+    this.setData({
+      statusBarHeight: app.globalData.statusBarHeight,
+      navBarHeight: app.globalData.navBarHeight,
+      navBarTotalHeight: app.globalData.navBarTotalHeight
+    });
     if (options.activityId) {
       this.setData({ activityId: options.activityId });
       this.loadActivity(options.activityId);

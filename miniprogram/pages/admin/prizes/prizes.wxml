@@ -1,4 +1,13 @@
 <view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      奖品管理
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
     <text class="header-title">奖品管理</text>
     <view class="add-btn" bindtap="addPrize">
@@ -53,8 +62,14 @@
         <input class="input" type="number" value="{{editing.stock}}" data-key="stock" bindinput="onInput" placeholder="请输入库存数量"/>
       </view>
       <view class="form-item">
-        <text class="label">图标URL</text>
-        <input class="input" value="{{editing.icon}}" data-key="icon" bindinput="onInput" placeholder="请输入图标URL"/>
+        <text class="label">奖品图标</text>
+        <view class="image-picker" bindtap="chooseIcon">
+          <image wx:if="{{editing.icon}}" src="{{editing.icon}}" class="picker-preview" mode="aspectFill"/>
+          <view wx:else class="picker-placeholder">
+            <text class="picker-plus">+</text>
+            <text class="picker-tip">点击上传图片</text>
+          </view>
+        </view>
       </view>
       <view class="form-item">
         <text class="label">需要到店领取</text>
