@@ -1,0 +1,234 @@
+.studio-page { min-height: 100vh; background: #F0F7FF; }
+
+/* 顶部Tab栏 */
+.tab-bar {
+  display: flex;
+  background: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(74,158,204,0.08);
+  position: relative;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  color: #6A8099;
+  font-weight: 500;
+  border-bottom: 4rpx solid transparent;
+  transition: all 200ms;
+}
+
+.tab-item.active {
+  color: #4A9ECC;
+  font-weight: 700;
+  border-bottom-color: #4A9ECC;
+}
+
+/* Tab内容 */
+.tab-content { width: 100%; }
+.tab-scroll { height: 100%; }
+
+/* 通用卡片 */
+.section-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin: 20rpx 24rpx 0;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+  padding-left: 18rpx;
+  border-left: 5rpx solid #4A9ECC;
+}
+
+.nav-link {
+  font-size: 26rpx;
+  color: #4A9ECC;
+  padding: 8rpx 20rpx;
+  background: #E8F4FB;
+  border-radius: 20rpx;
+}
+
+/* 画室信息 */
+.studio-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+  margin-bottom: 8rpx;
+}
+
+.studio-slogan {
+  font-size: 28rpx;
+  color: #4A9ECC;
+  margin-bottom: 20rpx;
+}
+
+.studio-desc {
+  font-size: 28rpx;
+  color: #4A5E6D;
+  line-height: 1.8;
+}
+
+.studio-intro-text {
+  font-size: 26rpx;
+  color: #6A8099;
+  line-height: 1.8;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #DFF0FA;
+}
+
+/* 地址 */
+.address-text {
+  font-size: 26rpx;
+  color: #4A5E6D;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+
+.studio-map {
+  width: 100%;
+  height: 280rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+/* 照片墙 */
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.photo-item {
+  width: calc(33.33% - 8rpx);
+  height: 200rpx;
+  border-radius: 12rpx;
+}
+
+/* 学生作品瀑布流 */
+.works-waterfall {
+  display: flex;
+  gap: 12rpx;
+}
+
+.works-col { flex: 1; display: flex; flex-direction: column; gap: 12rpx; }
+
+.works-img {
+  width: 100%;
+  border-radius: 12rpx;
+}
+
+/* 老师卡片 */
+.teacher-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin: 20rpx 24rpx 0;
+  box-shadow: 0 2rpx 16rpx rgba(74,158,204,0.1);
+}
+
+.teacher-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.teacher-avatar {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.teacher-basic { flex: 1; }
+
+.teacher-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+}
+
+.teacher-title {
+  font-size: 26rpx;
+  color: #4A9ECC;
+  margin-top: 6rpx;
+}
+
+.teacher-intro {
+  font-size: 26rpx;
+  color: #4A5E6D;
+  line-height: 1.8;
+  margin-bottom: 16rpx;
+}
+
+/* 微信号 */
+.teacher-wechat {
+  display: flex;
+  align-items: center;
+  background: #F0F7FF;
+  border-radius: 14rpx;
+  padding: 18rpx 22rpx;
+  margin-bottom: 16rpx;
+}
+
+.wechat-label {
+  font-size: 24rpx;
+  color: #6A8099;
+  margin-right: 16rpx;
+}
+
+.wechat-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A2E3D;
+  flex: 1;
+}
+
+.copy-btn {
+  font-size: 24rpx;
+  color: #fff;
+  background: #4A9ECC;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+}
+
+/* 代表作品 */
+.works-label {
+  font-size: 24rpx;
+  color: #6A8099;
+  margin-bottom: 12rpx;
+}
+
+.works-scroll {
+  white-space: nowrap;
+}
+
+.work-thumb {
+  display: inline-block;
+  width: 180rpx;
+  height: 220rpx;
+  border-radius: 12rpx;
+  margin-right: 12rpx;
+}
+
+.empty-tip {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #A0B4C5;
+  font-size: 28rpx;
+}

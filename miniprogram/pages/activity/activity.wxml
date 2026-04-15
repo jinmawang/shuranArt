@@ -3,7 +3,7 @@
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
-      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      <view class="custom-nav-back" bindtap="goBack"></view>
       活动详情
     </view>
   </view>

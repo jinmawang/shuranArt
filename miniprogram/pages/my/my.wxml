@@ -7,7 +7,7 @@
   <view style="height:{{navBarTotalHeight}}px;"></view>
 
   <!-- 用户信息 -->
-  <view class="user-header" bindtap="showEditProfile">
+  <view class="user-header">
     <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
       <image src="{{tempAvatarUrl || userInfo.avatarUrl || defaultAvatar}}" class="user-avatar"/>
     </button>
@@ -31,11 +31,6 @@
 
   <!-- 功能菜单 -->
   <view class="menu-list">
-    <view class="menu-item" bindtap="goToRecords">
-      <image src="/images/icon-records.png" class="menu-icon"/>
-      <text class="menu-title">我的中奖记录</text>
-      <image src="/images/icon-arrow.png" class="menu-arrow"/>
-    </view>
     <view class="menu-item" bindtap="goToShare">
       <image src="/images/icon-invite.png" class="menu-icon"/>
       <text class="menu-title">邀请好友</text>
@@ -52,7 +47,6 @@
   <view class="card records-section">
     <view class="section-header">
       <text class="section-title">最近中奖</text>
-      <text class="section-more" bindtap="goToRecords">查看全部</text>
     </view>
     <view class="record-list">
       <view class="record-item" wx:for="{{records}}" wx:key="id">

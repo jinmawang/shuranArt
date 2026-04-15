@@ -43,8 +43,16 @@ page {
   justify-content: center;
   width: 60rpx;
   height: 60rpx;
-  font-size: 36rpx;
-  color: #fff;
+}
+
+.custom-nav-back::before {
+  content: '';
+  display: block;
+  width: 20rpx;
+  height: 20rpx;
+  border-left: 4rpx solid #fff;
+  border-bottom: 4rpx solid #fff;
+  transform: rotate(45deg);
 }
 
 /* 主题颜色 */
@@ -94,6 +102,20 @@ page {
 /* ============================================
    按钮样式
    ============================================ */
+
+/* 重置微信 button 默认样式 */
+button {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  text-align: center;
+}
+
+button::after {
+  border: none;
+}
+
 .btn-primary {
   background: #4A9ECC;
   color: #FFFFFF;
@@ -102,6 +124,7 @@ page {
   padding: 24rpx 48rpx;
   font-size: 30rpx;
   font-weight: 600;
+  text-align: center;
   box-shadow: 0 4rpx 16rpx rgba(74, 158, 204, 0.35);
   transition: all 200ms ease-out;
 }

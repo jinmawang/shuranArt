@@ -1,0 +1,116 @@
+<view class="studio-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      画室介绍
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 顶部Tab切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">画室介绍</view>
+    <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">师资团队</view>
+  </view>
+
+  <!-- Tab内容区 -->
+  <swiper class="tab-content" current="{{currentTab}}" bindchange="onTabSwipe" style="height: calc(100vh - {{navBarTotalHeight}}px - 88rpx);">
+
+    <!-- Tab1: 画室介绍 -->
+    <swiper-item>
+      <scroll-view scroll-y class="tab-scroll">
+
+        <!-- 画室基本信息 -->
+        <view class="section-card">
+          <view class="studio-name">{{studioConfig.studio_name || '书染美术'}}</view>
+          <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
+          <view class="studio-desc" wx:if="{{studioConfig.studio_description}}">{{studioConfig.studio_description}}</view>
+          <view class="studio-intro-text" wx:if="{{studioConfig.studio_intro}}">{{studioConfig.studio_intro}}</view>
+        </view>
+
+        <!-- 画室地址 -->
+        <view class="section-card" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
+          <view class="section-header">
+            <text class="section-title">画室地址</text>
+            <text class="nav-link">导航前往</text>
+          </view>
+          <view class="address-text">{{studioConfig.studio_address}}</view>
+          <map wx:if="{{latitude && longitude}}" class="studio-map"
+               latitude="{{latitude}}" longitude="{{longitude}}"
+               markers="{{markers}}" scale="16"/>
+        </view>
+
+        <!-- 画室日常 -->
+        <view class="section-card" wx:if="{{gallery.length > 0}}">
+          <view class="section-header">
+            <text class="section-title">画室日常</text>
+          </view>
+          <view class="photo-grid">
+            <image wx:for="{{gallery}}" wx:key="index" src="{{item}}" mode="aspectFill"
+                   class="photo-item" bindtap="previewGallery" data-src="{{item}}"/>
+          </view>
+        </view>
+
+        <!-- 学生作品 -->
+        <view class="section-card" wx:if="{{studentWorks.length > 0}}">
+          <view class="section-header">
+            <text class="section-title">学生作品</text>
+          </view>
+          <view class="works-waterfall">
+            <view class="works-col">
+              <image wx:for="{{studentWorks}}" wx:if="{{index % 2 === 0}}" wx:key="index"
+                     src="{{item}}" mode="widthFix" class="works-img"
+                     bindtap="previewStudentWork" data-src="{{item}}"/>
+            </view>
+            <view class="works-col">
+              <image wx:for="{{studentWorks}}" wx:if="{{index % 2 === 1}}" wx:key="index"
+                     src="{{item}}" mode="widthFix" class="works-img"
+                     bindtap="previewStudentWork" data-src="{{item}}"/>
+            </view>
+          </view>
+        </view>
+
+        <view style="height: 40rpx;"></view>
+      </scroll-view>
+    </swiper-item>
+
+    <!-- Tab2: 师资团队 -->
+    <swiper-item>
+      <scroll-view scroll-y class="tab-scroll">
+
+        <view class="teacher-card" wx:for="{{teachers}}" wx:key="id">
+          <view class="teacher-header">
+            <image src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill" class="teacher-avatar"/>
+            <view class="teacher-basic">
+              <view class="teacher-name">{{item.name}}</view>
+              <view class="teacher-title" wx:if="{{item.title}}">{{item.title}}</view>
+            </view>
+          </view>
+          <view class="teacher-intro" wx:if="{{item.intro}}">{{item.intro}}</view>
+
+          <!-- 微信号 -->
+          <view class="teacher-wechat" wx:if="{{item.wechatId}}" bindtap="copyWechatId" data-wechat="{{item.wechatId}}">
+            <text class="wechat-label">微信号</text>
+            <text class="wechat-value">{{item.wechatId}}</text>
+            <view class="copy-btn">复制</view>
+          </view>
+
+          <!-- 代表作品 -->
+          <view class="teacher-works" wx:if="{{item.works && item.works.length > 0}}">
+            <view class="works-label">代表作品</view>
+            <scroll-view scroll-x class="works-scroll">
+              <image wx:for="{{item.works}}" wx:for-item="work" wx:key="index"
+                     src="{{work}}" mode="aspectFill" class="work-thumb"
+                     bindtap="previewWork" data-works="{{item.works}}" data-current="{{work}}"/>
+            </scroll-view>
+          </view>
+        </view>
+
+        <view wx:if="{{teachers.length === 0}}" class="empty-tip">暂无师资信息</view>
+        <view style="height: 40rpx;"></view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+</view>

@@ -59,6 +59,17 @@
   margin-top: 16rpx;
 }
 
+.studio-brief {
+  font-size: 26rpx;
+  color: #6A8099;
+  line-height: 1.7;
+  margin-top: 12rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 .studio-intro-text {
   font-size: 26rpx;
   color: #4A5E6D;
@@ -67,6 +78,38 @@
   padding-top: 20rpx;
   border-top: 1rpx solid #DFF0FA;
   text-align: left;
+}
+
+/* 画室地址行（介绍卡片内） */
+.studio-address-row {
+  display: flex;
+  align-items: center;
+  background: #F0F7FF;
+  border-radius: 14rpx;
+  padding: 20rpx 24rpx;
+  margin-top: 24rpx;
+}
+
+.address-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.address-info {
+  flex: 1;
+}
+
+.address-text {
+  font-size: 26rpx;
+  color: #1A2E3D;
+  line-height: 1.5;
+}
+
+.address-tip {
+  font-size: 22rpx;
+  color: #4A9ECC;
+  margin-top: 4rpx;
 }
 
 /* 画室地址 */
@@ -116,6 +159,22 @@
   padding: 20rpx 0 16rpx;
   display: flex;
   align-items: center;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0 16rpx;
+}
+
+.section-header-row .section-title {
+  padding: 0;
+}
+
+.section-more {
+  font-size: 26rpx;
+  color: #4A9ECC;
 }
 
 .section-title::before {

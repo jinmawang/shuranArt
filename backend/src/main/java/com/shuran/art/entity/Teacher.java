@@ -19,5 +19,6 @@ public class Teacher {
     private List<String> works;
     private Integer sortOrder;
     private Integer status;
+    private String wechatId;
     private LocalDateTime createdAt;
 }

@@ -80,7 +80,7 @@ Page({
 
   loadActivity(id) {
     app.request({
-      url: '/activity/' + id,
+      url: '/activity/detail?id=' + id,
       noAuth: true
     }).then(data => {
       this.setData({

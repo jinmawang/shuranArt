@@ -49,6 +49,10 @@
         <textarea class="textarea" value="{{editing.intro}}" data-key="intro" bindinput="onInput" placeholder="请输入老师简介"/>
       </view>
       <view class="form-item">
+        <text class="label">微信号</text>
+        <input class="input" value="{{editing.wechatId}}" data-key="wechatId" bindinput="onInput" placeholder="请输入老师微信号（学员可一键复制）"/>
+      </view>
+      <view class="form-item">
         <text class="label">头像</text>
         <view class="image-picker" bindtap="chooseAvatar">
           <image wx:if="{{editing.avatar}}" src="{{editing.avatar}}" class="picker-preview" mode="aspectFill"/>

@@ -129,7 +129,7 @@ App({
   uploadImage(tempFilePath) {
     return new Promise((resolve, reject) => {
       wx.uploadFile({
-        url: this.globalData.baseUrl + '/admin/upload',
+        url: this.globalData.baseUrl + '/upload',
         filePath: tempFilePath,
         name: 'file',
         header: {

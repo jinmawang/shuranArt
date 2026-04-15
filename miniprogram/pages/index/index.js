@@ -187,8 +187,8 @@ Page({
     }
   },
 
-  goToTeachers: function() {
-    wx.navigateTo({ url: '/pages/teachers/teachers' });
+  goToStudio: function() {
+    wx.navigateTo({ url: '/pages/studio/studio' });
   },
 
   goToCourses: function() {
@@ -209,12 +209,6 @@ Page({
 
   goToActivityDetail: function(e) {
     wx.navigateTo({ url: '/pages/activity/activity?id=' + e.currentTarget.dataset.id });
-  },
-
-  previewHonor: function(e) {
-    var index = e.currentTarget.dataset.index;
-    var urls = this.data.honors.map(function(h) { return h.img; });
-    wx.previewImage({ urls: urls, current: urls[index] });
   },
 
   previewWork: function(e) {

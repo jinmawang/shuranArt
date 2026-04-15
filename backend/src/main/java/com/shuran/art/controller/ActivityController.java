@@ -46,8 +46,8 @@ public class ActivityController {
         return Result.success(activities);
     }
 
-    @GetMapping("/{id}")
-    public Result<Activity> getActivity(@PathVariable Long id) {
+    @GetMapping("/detail")
+    public Result<Activity> getActivity(@RequestParam Long id) {
         Activity activity = activityMapper.selectById(id);
         if (activity != null) {
             LocalDateTime now = LocalDateTime.now();

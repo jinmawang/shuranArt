@@ -23,6 +23,9 @@
   padding: 12rpx 24rpx;
   border-radius: 30rpx;
   font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .list-content {
@@ -81,6 +84,9 @@
   padding: 8rpx 20rpx;
   border-radius: 20rpx;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-btn.edit {
@@ -158,7 +164,6 @@
   padding: 0 20rpx;
   font-size: 28rpx;
   box-sizing: border-box;
-  line-height: 80rpx;
 }
 
 .input.picker {
@@ -174,9 +179,11 @@
 .btn-cancel, .btn-confirm {
   flex: 1;
   height: 80rpx;
-  line-height: 80rpx;
   border-radius: 40rpx;
   font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-cancel {

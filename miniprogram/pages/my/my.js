@@ -78,26 +78,12 @@ Page({
   onChooseAvatar(e) {
     const { avatarUrl } = e.detail;
     this.setData({ tempAvatarUrl: avatarUrl });
-    // 上传头像到云存储（这里简化处理，实际应上传到云存储获取永久URL）
-    // 微信小程序的临时文件路径可以直接展示，但需要上传到服务器才能持久化
-    wx.showToast({ title: '头像已更新', icon: 'success' });
-    // 如需持久化，需要上传到云存储后调用 this.updateUserInfo({ avatarUrl: permanentUrl })
-  },
-
-  // 上传头像到服务器（预留接口）
-  uploadAvatar(tempPath) {
-    // TODO: 上传到腾讯云COS或微信云存储获取永久URL
-    // wx.cloud.uploadFile 或 wx.uploadFile
-    // 获取永久URL后调用 updateUserInfo
-    this.updateUserInfo({ avatarUrl: tempPath });
-  },
-
-  // 使用随机头像
-  useRandomAvatar() {
-    const randomAvatar = this.data.defaultAvatar;
-    if (randomAvatar) {
-      this.updateUserInfo({ avatarUrl: randomAvatar });
-    }
+    // 上传到服务器获取永久URL
+    app.uploadImage(avatarUrl).then(url => {
+      this.updateUserInfo({ avatarUrl: url });
+    }).catch(() => {
+      wx.showToast({ title: '头像上传失败', icon: 'none' });
+    });
   },
 
   // 输入昵称
@@ -124,18 +110,6 @@ Page({
       this.fetchData();
     }).catch(() => {
       wx.showToast({ title: '更新失败', icon: 'none' });
-    });
-  },
-
-  // 显示编辑资料提示
-  showEditProfile() {
-    wx.showToast({ title: '点击头像可更换', icon: 'none' });
-  },
-
-  goToRecords() {
-    wx.showToast({
-      title: '功能开发中',
-      icon: 'none'
     });
   },
 

@@ -1,13 +1,13 @@
 <view class="index-page">
 
-  <!-- 重力感应小球层（pointer-events:none，完全不影响下层交互） -->
+  <!-- 重力感应小球层 -->
   <view class="gravity-layer">
     <view wx:for="{{balls}}" wx:key="index"
           class="gravity-ball gball-{{index}} {{item.hit ? 'gball-hit' : ''}}"
           style="left:{{item.x}}px;top:{{item.y}}px;">{{item.char}}</view>
   </view>
 
-  <!-- 顶部全屏轮播（沉浸式，延伸到状态栏） -->
+  <!-- 顶部轮播图 -->
   <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" autoplay interval="3500" circular wx:if="{{banners.length > 0}}">
     <swiper-item wx:for="{{banners}}" wx:key="id">
       <view class="banner-item">
@@ -17,29 +17,25 @@
     </swiper-item>
   </swiper>
 
-  <!-- 画室介绍 -->
+  <!-- 画室简介 -->
   <view class="card studio-intro">
     <view class="studio-name">{{studioConfig.studio_name || '书染美术'}}</view>
     <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
-    <view class="studio-desc">{{studioConfig.studio_description}}</view>
-    <view class="studio-intro-text" wx:if="{{studioConfig.studio_intro}}">
-      {{studioConfig.studio_intro}}
-    </view>
-
-    <!-- 画室荣誉 -->
-    <view class="honors-section" wx:if="{{honors.length > 0}}">
-      <view class="honors-title">画室荣誉</view>
-      <scroll-view scroll-x class="honors-scroll">
-        <image wx:for="{{honors}}" wx:key="id" src="{{item.img}}" mode="aspectFit" class="honor-img" bindtap="previewHonor" data-index="{{index}}"/>
-      </scroll-view>
+    <view class="studio-brief" wx:if="{{studioConfig.studio_description}}">{{studioConfig.studio_description}}</view>
+    <view class="studio-address-row" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
+      <view class="address-icon">&#x1F4CD;</view>
+      <view class="address-info">
+        <view class="address-text">{{studioConfig.studio_address}}</view>
+        <view class="address-tip">点击导航前往</view>
+      </view>
     </view>
   </view>
 
   <!-- 功能入口 -->
   <view class="feature-grid">
-    <view class="feature-item" bindtap="goToTeachers">
+    <view class="feature-item" bindtap="goToStudio">
       <view class="feature-icon-text shu">书</view>
-      <text>师资团队</text>
+      <text>画室介绍</text>
     </view>
     <view class="feature-item" bindtap="goToCourses">
       <view class="feature-icon-text ran">染</view>
@@ -47,7 +43,7 @@
     </view>
     <view class="feature-item" bindtap="goToActivity">
       <view class="feature-icon-text mei">美</view>
-      <text>活动详情</text>
+      <text>活动中心</text>
     </view>
     <view class="feature-item" bindtap="goToLottery">
       <view class="feature-icon-text shu2">术</view>
@@ -55,8 +51,8 @@
     </view>
   </view>
 
-  <!-- 活动列表 -->
-  <view class="section">
+  <!-- 热门活动 -->
+  <view class="section" wx:if="{{activities.length > 0}}">
     <view class="section-title">热门活动</view>
     <view class="activity-list">
       <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}">
@@ -69,13 +65,15 @@
           <view class="activity-time">{{item.startDate}} ~ {{item.endDate}}</view>
         </view>
       </view>
-      <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无活动</view>
     </view>
   </view>
 
-  <!-- 学生作品瀑布流 -->
-  <view class="section">
-    <view class="section-title">学生作品</view>
+  <!-- 精选作品 -->
+  <view class="section" wx:if="{{worksAll.length > 0}}">
+    <view class="section-header-row">
+      <text class="section-title">精选作品</text>
+      <text class="section-more" bindtap="goToStudio">查看更多</text>
+    </view>
     <view class="works-waterfall">
       <view class="works-col">
         <image wx:for="{{worksLeft}}" wx:key="index"
@@ -90,24 +88,7 @@
     </view>
   </view>
 
-  <!-- 画室地址 -->
-  <view class="card studio-location" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
-    <view class="location-header">
-      <image src="/images/icon-location.png" class="location-icon" wx:if="{{false}}"/>
-      <text class="location-title">📍 画室地址</text>
-      <text class="location-nav">导航前往</text>
-    </view>
-    <view class="location-address">{{studioConfig.studio_address}}</view>
-    <map wx:if="{{latitude && longitude}}"
-         class="studio-map"
-         latitude="{{latitude}}"
-         longitude="{{longitude}}"
-         markers="{{markers}}"
-         scale="16"
-         show-location/>
-  </view>
-
-  <!-- 联系老师 -->
+  <!-- 联系我们 -->
   <view class="card contact-section" wx:if="{{studioConfig.studio_qrcode}}">
     <view class="section-title">联系我们</view>
     <view class="qrcode-wrapper">

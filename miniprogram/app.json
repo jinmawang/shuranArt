@@ -4,6 +4,7 @@
     "pages/activity/activity",
     "pages/lottery/lottery",
     "pages/share/share",
+    "pages/studio/studio",
     "pages/teachers/teachers",
     "pages/courses/courses",
     "pages/course-detail/course-detail",
@@ -28,6 +29,7 @@
     "selectedColor": "#6366F1",
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
+    "fontSize": "12px",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -50,5 +52,10 @@
     ]
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于显示画室位置并提供导航服务"
+    }
+  }
 }

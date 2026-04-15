@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api")
 public class UploadController {
 
     @Value("${upload.base-url:https://tianma.chat}")

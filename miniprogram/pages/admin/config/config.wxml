@@ -3,7 +3,7 @@
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
-      <view class="custom-nav-back" bindtap="goBack">&lt;</view>
+      <view class="custom-nav-back" bindtap="goBack"></view>
       画室配置
     </view>
   </view>
@@ -76,6 +76,40 @@
         <view wx:else class="upload-placeholder">
           <text class="upload-icon">+</text>
           <text class="upload-text">上传二维码</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 画室日常照片 -->
+  <view class="form-section">
+    <view class="section-title">画室日常照片</view>
+    <view class="photo-manager">
+      <view class="photo-grid">
+        <view class="photo-item" wx:for="{{galleryList}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="photo-preview"/>
+          <view class="photo-delete" bindtap="removeGallery" data-index="{{index}}">x</view>
+        </view>
+        <view class="photo-add" bindtap="addGallery" wx:if="{{galleryList.length < 20}}">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 学生作品照片 -->
+  <view class="form-section">
+    <view class="section-title">学生作品照片</view>
+    <view class="photo-manager">
+      <view class="photo-grid">
+        <view class="photo-item" wx:for="{{studentWorksList}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="photo-preview"/>
+          <view class="photo-delete" bindtap="removeStudentWork" data-index="{{index}}">x</view>
+        </view>
+        <view class="photo-add" bindtap="addStudentWork" wx:if="{{studentWorksList.length < 20}}">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加</text>
         </view>
       </view>
     </view>
