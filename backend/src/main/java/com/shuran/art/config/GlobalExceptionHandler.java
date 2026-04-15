@@ -12,7 +12,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<Void> handleRuntimeException(RuntimeException e) {
         log.error("运行时异常: ", e);
-        return Result.error(e.getMessage());
+        String msg = e.getMessage();
+        if (msg == null || msg.isBlank()) {
+            msg = e.getClass().getSimpleName();
+        }
+        return Result.error(msg);
     }
 
     @ExceptionHandler(Exception.class)

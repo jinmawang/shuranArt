@@ -8,10 +8,6 @@
     </view>
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
-  <view class="admin-header">
-    <view class="header-title">管理后台</view>
-    <view class="header-desc">书染美术</view>
-  </view>
 
   <view class="menu-grid">
     <view class="menu-item" bindtap="goToConfig">

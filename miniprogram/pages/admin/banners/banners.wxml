@@ -9,7 +9,6 @@
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
-    <text class="header-title">轮播图管理</text>
     <text class="header-count">{{banners.length}}/5</text>
     <view class="add-btn" bindtap="addBanner">
       <text>+ 添加</text>

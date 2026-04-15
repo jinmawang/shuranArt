@@ -121,32 +121,19 @@ public class AdminService {
     // EP-04 STEP-01~03: 新增或编辑课程 (RM-004, RM-005)
     // 验证逻辑: V-003 ~ V-012, CV-001 ~ CV-006
     public void saveCourse(Course course) {
-        // CV-001 / V-004: name 非空
         if (course.getName() == null || course.getName().isBlank()) {
             throw new RuntimeException("课程名称不能为空");
         }
 
-        // CV-002 / V-005: category 非空
         if (course.getCategory() == null || course.getCategory().isBlank()) {
             throw new RuntimeException("课程类别不能为空");
         }
 
-        // CV-003 / V-006: price 非 null 且 >= 0
-        if (course.getPrice() == null || course.getPrice() < 0) {
-            throw new RuntimeException("课程价格不能为负数");
-        }
-
-        // CV-004 / V-007: duration 非空
-        if (course.getDuration() == null || course.getDuration().isBlank()) {
-            throw new RuntimeException("课程时长不能为空");
-        }
-
-        // CV-005 / V-008: suitableFor 非空
         if (course.getSuitableFor() == null || course.getSuitableFor().isBlank()) {
             throw new RuntimeException("适合人群不能为空");
         }
 
-        // CV-006 / V-012: status 校验（0 或 1）
+        // status 校验（0 或 1）
         if (course.getStatus() != null && course.getStatus() != 0 && course.getStatus() != 1) {
             throw new RuntimeException("状态值无效");
         }

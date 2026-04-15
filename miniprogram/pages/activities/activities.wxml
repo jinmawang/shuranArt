@@ -1,0 +1,27 @@
+<view class="activities-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      活动中心
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <view class="activity-list">
+    <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
+      <view class="activity-info">
+        <view class="activity-title">{{item.title}}</view>
+        <view class="activity-status {{item.started ? 'active' : 'upcoming'}}" wx:if="{{!item.ended}}">
+          {{item.started ? '进行中' : '即将开始'}}
+        </view>
+        <view class="activity-time">{{item.startDate}} ~ {{item.endDate}}</view>
+        <view class="activity-desc" wx:if="{{item.description}}">{{item.description}}</view>
+      </view>
+    </view>
+
+    <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无活动</view>
+  </view>
+</view>

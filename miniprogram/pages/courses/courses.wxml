@@ -8,10 +8,6 @@
     </view>
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
-  <view class="page-header">
-    <view class="header-title">课程介绍</view>
-    <view class="header-desc">专业课程，系统教学</view>
-  </view>
 
   <!-- 分类筛选栏 -->
   <view class="category-bar">

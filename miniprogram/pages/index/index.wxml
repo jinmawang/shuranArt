@@ -22,13 +22,6 @@
     <view class="studio-name">{{studioConfig.studio_name || '书染美术'}}</view>
     <view class="studio-slogan">{{studioConfig.studio_slogan || '用艺术点亮生活'}}</view>
     <view class="studio-brief" wx:if="{{studioConfig.studio_description}}">{{studioConfig.studio_description}}</view>
-    <view class="studio-address-row" wx:if="{{studioConfig.studio_address}}" bindtap="openMap">
-      <view class="address-icon">&#x1F4CD;</view>
-      <view class="address-info">
-        <view class="address-text">{{studioConfig.studio_address}}</view>
-        <view class="address-tip">点击导航前往</view>
-      </view>
-    </view>
   </view>
 
   <!-- 功能入口 -->

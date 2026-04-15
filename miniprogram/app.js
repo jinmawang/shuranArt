@@ -108,8 +108,13 @@ App({
               url: '/user/login',
               method: 'POST',
               data: { code: res.code },
-              noAuth: true
+              noAuth: true,
+              silent: true
             }).then(data => {
+              if (!data || !data.token) {
+                reject(new Error('登录返回数据异常'));
+                return;
+              }
               this.globalData.token = data.token;
               this.globalData.userInfo = data;
               wx.setStorageSync('token', data.token);
@@ -163,6 +168,12 @@ App({
         'Content-Type': 'application/json'
       };
 
+      // 需要登录但没有 token，静默返回 null
+      if (!options.noAuth && !this.globalData.token) {
+        resolve(null);
+        return;
+      }
+
       if (!options.noAuth && this.globalData.token) {
         header['Authorization'] = 'Bearer ' + this.globalData.token;
       }
@@ -176,24 +187,33 @@ App({
           if (res.statusCode === 200 && res.data.code === 0) {
             resolve(res.data.data);
           } else if (res.statusCode === 401) {
-            // Token过期，重新登录
+            // Token过期，清除旧token并重新登录
+            this.globalData.token = null;
+            wx.removeStorageSync('token');
             this.login().then(() => {
-              this.request(options).then(resolve).catch(reject);
-            }).catch(reject);
-          } else {
-            wx.showToast({
-              title: res.data.msg || '请求失败',
-              icon: 'none'
+              this.request(options).then(resolve).catch(() => resolve(null));
+            }).catch(() => {
+              resolve(null);
             });
-            reject(new Error(res.data.msg));
+          } else {
+            // 非静默模式下提示错误
+            if (!options.silent) {
+              wx.showToast({
+                title: res.data.msg || '请求失败',
+                icon: 'none'
+              });
+            }
+            resolve(null);
           }
         },
-        fail: err => {
-          wx.showToast({
-            title: '网络错误',
-            icon: 'none'
-          });
-          reject(err);
+        fail: () => {
+          if (!options.silent) {
+            wx.showToast({
+              title: '网络错误',
+              icon: 'none'
+            });
+          }
+          resolve(null);
         }
       });
     });

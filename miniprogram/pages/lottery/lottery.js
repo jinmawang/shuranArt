@@ -49,7 +49,7 @@ Page({
     if (!app.globalData.token) {
       app.login().then(() => {
         this.fetchUserInfo();
-      });
+      }).catch(() => {});
     } else {
       this.fetchUserInfo();
     }
@@ -59,6 +59,7 @@ Page({
     app.request({
       url: '/user/info'
     }).then(data => {
+      if (!data) return;
       this.setData({ userInfo: data });
       app.globalData.userInfo = data;
     });

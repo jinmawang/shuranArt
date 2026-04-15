@@ -30,6 +30,9 @@ public class UserController {
     public Result<User> getUserInfo(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
         return Result.success(user);
     }
 
@@ -37,6 +40,9 @@ public class UserController {
     public Result<Map<String, Boolean>> isAdmin(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.success(Map.of("isAdmin", false));
+        }
         boolean admin = adminService.isAdmin(user.getOpenid());
         return Result.success(Map.of("isAdmin", admin));
     }

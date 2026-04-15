@@ -9,7 +9,6 @@
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
-    <text class="header-title">老师管理</text>
     <view class="add-btn" bindtap="addTeacher">
       <text>+ 添加</text>
     </view>

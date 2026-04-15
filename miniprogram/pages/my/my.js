@@ -39,7 +39,7 @@ Page({
     if (!app.globalData.token) {
       app.login().then(() => {
         this.fetchData();
-      });
+      }).catch(() => {});
     } else {
       this.fetchData();
     }
@@ -50,6 +50,7 @@ Page({
     app.request({
       url: '/user/info'
     }).then(data => {
+      if (!data) return;
       // 如果用户没有设置头像，生成随机头像
       const defaultAvatar = getRandomAvatar(data.id);
       this.setData({
@@ -57,14 +58,14 @@ Page({
         defaultAvatar: defaultAvatar
       });
       app.globalData.userInfo = data;
-    });
+    }).catch(() => {});
 
     // 获取中奖记录
     app.request({
       url: '/lottery/records'
     }).then(data => {
       this.setData({ records: (data || []).slice(0, 5) });
-    });
+    }).catch(() => {});
 
     // 检查管理员权限
     app.request({

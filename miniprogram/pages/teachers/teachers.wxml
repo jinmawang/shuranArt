@@ -8,10 +8,6 @@
     </view>
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
-  <view class="page-header">
-    <view class="header-title">师资团队</view>
-    <view class="header-desc">专业的老师，专注的态度</view>
-  </view>
 
   <view class="teacher-list">
     <view class="teacher-card" wx:for="{{teachers}}" wx:key="id">

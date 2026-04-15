@@ -106,8 +106,10 @@ public class ActivityController {
 
         // 增加抽奖机会
         User user = userMapper.selectById(userId);
-        user.setLotteryChances(user.getLotteryChances() + 1);
-        userMapper.updateById(user);
+        if (user != null) {
+            user.setLotteryChances(user.getLotteryChances() + 1);
+            userMapper.updateById(user);
+        }
 
         result.put("success", true);
         result.put("lotteryAdded", true);

@@ -9,7 +9,6 @@
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
   <view class="list-header">
-    <text class="header-title">奖品管理</text>
     <view class="add-btn" bindtap="addPrize">
       <text>+ 添加</text>
     </view>

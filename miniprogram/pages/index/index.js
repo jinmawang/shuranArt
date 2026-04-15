@@ -112,6 +112,7 @@ Page({
       url: '/studio/config',
       noAuth: true
     }).then(function(data) {
+      if (!data) return;
       var latitude = data.studio_latitude ? parseFloat(data.studio_latitude) : null;
       var longitude = data.studio_longitude ? parseFloat(data.studio_longitude) : null;
       var markers = [];
@@ -127,7 +128,7 @@ Page({
         });
       }
       this.setData({ studioConfig: data, latitude: latitude, longitude: longitude, markers: markers });
-    }.bind(this));
+    }.bind(this)).catch(function() {});
   },
 
   loadBanners: function() {
@@ -155,7 +156,7 @@ Page({
         });
       });
       self.setData({ activities: activities });
-    });
+    }).catch(function() {});
   },
 
   formatDate: function(dateTimeStr) {
@@ -196,11 +197,7 @@ Page({
   },
 
   goToActivity: function() {
-    if (this.data.activities.length > 0) {
-      wx.navigateTo({ url: '/pages/activity/activity?id=' + this.data.activities[0].id });
-    } else {
-      wx.showToast({ title: '暂无活动', icon: 'none' });
-    }
+    wx.navigateTo({ url: '/pages/activities/activities' });
   },
 
   goToLottery: function() {
