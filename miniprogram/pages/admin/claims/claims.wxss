@@ -75,37 +75,3 @@
   color: #999;
 }
 
-/* 自定义导航栏 */
-.custom-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: #6366F1;
-}
-
-.custom-nav-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #fff;
-}
-
-.custom-nav-back {
-  position: absolute;
-  left: 20rpx;
-  width: 60rpx;
-  height: 60rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.custom-nav-back::after {
-  content: '<';
-  font-size: 36rpx;
-  color: #fff;
-}

@@ -18,57 +18,22 @@
     </view>
   </scroll-view>
 
-  <scroll-view scroll-y class="course-scroll">
-
-    <!-- 内置课程 -->
-    <view class="section-block" wx:if="{{builtinCourses.length > 0}}">
-      <view class="section-label">热门科目</view>
-      <view class="course-list">
-        <view class="course-card builtin-card"
-              wx:for="{{builtinCourses}}" wx:key="id"
-              wx:if="{{currentCategory === '全部' || item.category === currentCategory}}"
-              bindtap="showBuiltinDetail" data-index="{{index}}">
-          <image src="{{item.coverImg}}" mode="aspectFill" class="course-cover"
-                 binderror="onImgError"/>
-          <view class="course-info">
-            <view class="course-name">{{item.name}}</view>
-            <view class="course-tags">
-              <view class="course-category-tag">{{item.category}}</view>
-              <view class="course-age-tag">{{item.suitableFor}}</view>
-            </view>
-            <view class="course-desc">{{item.description}}</view>
-            <view class="course-duration">课时：{{item.duration}}</view>
-          </view>
+  <!-- 课程列表 -->
+  <view class="course-list">
+    <view class="course-card" wx:for="{{courses}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <image src="{{item.coverImg || '/images/default-course.png'}}" mode="aspectFill" class="course-cover"/>
+      <view class="course-info">
+        <view class="course-name">{{item.name}}</view>
+        <view class="course-tags">
+          <view class="course-category-tag">{{item.category}}</view>
+          <view class="course-age-tag" wx:if="{{item.suitableFor}}">{{item.suitableFor}}</view>
         </view>
+        <view class="course-desc" wx:if="{{item.description}}">{{item.description}}</view>
       </view>
     </view>
 
-    <!-- 自定义课程 -->
-    <view class="section-block" wx:if="{{customCourses.length > 0}}">
-      <view class="section-label">更多课程</view>
-      <view class="course-list">
-        <view class="course-card"
-              wx:for="{{customCourses}}" wx:key="id"
-              wx:if="{{currentCategory === '全部' || item.category === currentCategory}}"
-              bindtap="goToDetail" data-id="{{item.id}}">
-          <image src="{{item.coverImg || '/images/default-course.png'}}" mode="aspectFill" class="course-cover"/>
-          <view class="course-info">
-            <view class="course-name">{{item.name}}</view>
-            <view class="course-tags">
-              <view class="course-category-tag">{{item.category}}</view>
-              <view class="course-age-tag" wx:if="{{item.suitableFor}}">{{item.suitableFor}}</view>
-            </view>
-            <view class="course-desc" wx:if="{{item.description}}">{{item.description}}</view>
-          </view>
-        </view>
-      </view>
+    <view wx:if="{{courses.length === 0}}" class="empty-tip">
+      {{currentCategory !== '全部' ? '该类别暂无课程' : '暂无课程信息'}}
     </view>
-
-    <!-- 空状态 -->
-    <view wx:if="{{builtinCourses.length === 0 && customCourses.length === 0}}" class="empty-tip">
-      暂无课程信息
-    </view>
-
-    <view style="height: 40rpx;"></view>
-  </scroll-view>
+  </view>
 </view>
