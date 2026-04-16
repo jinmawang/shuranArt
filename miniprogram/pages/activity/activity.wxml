@@ -36,6 +36,7 @@
         <view class="rule-item">2. 分享活动给好友，好友点击后可获得抽奖机会</view>
         <view class="rule-item">3. 分享越多，中奖概率越大</view>
         <view class="rule-item">4. 抽中实物奖品请到店凭兑换码领取</view>
+        <view class="rule-item">5. 中奖奖品请在2个月内到店兑换，逾期作废</view>
       </view>
     </view>
 

@@ -54,6 +54,21 @@
 .menu-item:last-child { border-bottom: none; }
 .menu-item:active { background: #F7FBFF; }
 
+.menu-item-btn {
+  display: block !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: normal !important;
+  width: 100% !important;
+  text-align: left !important;
+  overflow: visible !important;
+  min-height: 0 !important;
+}
+.menu-item-btn::after { display: none !important; }
+
 .menu-icon {
   width: 44rpx;
   height: 44rpx;
@@ -64,7 +79,14 @@
 }
 
 .menu-title { flex: 1; font-size: 30rpx; color: #1A2E3D; font-weight: 500; }
-.menu-arrow { width: 20rpx; height: 20rpx; opacity: 0.3; }
+
+.menu-arrow-css {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 3rpx solid #C0C0C0;
+  border-right: 3rpx solid #C0C0C0;
+  transform: rotate(45deg);
+}
 
 /* 记录区块 */
 .records-section { margin: 0 24rpx 20rpx; }

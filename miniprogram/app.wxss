@@ -124,7 +124,9 @@ button::after {
   padding: 24rpx 48rpx;
   font-size: 30rpx;
   font-weight: 600;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 4rpx 16rpx rgba(74, 158, 204, 0.35);
   transition: all 200ms ease-out;
 }

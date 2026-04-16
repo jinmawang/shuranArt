@@ -1,0 +1,46 @@
+<view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      管理员管理
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <view class="list-header">
+    <view class="add-btn" bindtap="generateInvite">
+      <text>+ 添加管理员</text>
+    </view>
+  </view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{admins}}" wx:key="id">
+      <image src="{{item.avatarUrl || '/images/default-avatar.png'}}" class="item-avatar"/>
+      <view class="item-info">
+        <view class="item-name">
+          {{item.nickName}}
+          <text wx:if="{{item.isSuper}}" class="super-badge">超级管理员</text>
+        </view>
+        <view class="item-title">添加时间：{{item.createdAt}}</view>
+      </view>
+      <view class="item-actions" wx:if="{{!item.isSuper}}">
+        <view class="action-btn delete" bindtap="deleteAdmin" data-id="{{item.id}}" data-name="{{item.nickName}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{admins.length === 0}}" class="empty-tip">暂无管理员</view>
+  </view>
+
+  <!-- 分享弹窗 -->
+  <view class="modal" wx:if="{{showShareModal}}">
+    <view class="modal-mask" bindtap="closeShareModal"></view>
+    <view class="modal-content share-modal">
+      <view class="modal-title">邀请管理员</view>
+      <view class="share-tip">点击下方按钮，将邀请发送给微信好友</view>
+      <view class="share-note">邀请链接24小时内有效，仅限一人使用</view>
+      <button class="share-btn" open-type="share" bindtap="closeShareModal">发送给好友</button>
+      <view class="share-cancel" bindtap="closeShareModal">取消</view>
+    </view>
+  </view>
+</view>

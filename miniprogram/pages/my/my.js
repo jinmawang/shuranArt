@@ -124,5 +124,12 @@ Page({
     wx.navigateTo({
       url: '/pages/admin/index/index'
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '书染美术 - 专业美术教育',
+      path: '/pages/index/index'
+    };
   }
 });

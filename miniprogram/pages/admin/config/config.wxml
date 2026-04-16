@@ -70,6 +70,11 @@
     </view>
 
     <view class="form-item">
+      <text class="label">联系电话</text>
+      <input class="input" type="number" value="{{config.studio_phone}}" data-key="studio_phone" bindinput="onInput" placeholder="请输入联系电话"/>
+    </view>
+
+    <view class="form-item">
       <text class="label">老师微信二维码</text>
       <view class="image-upload" bindtap="chooseQrcode">
         <image wx:if="{{config.studio_qrcode}}" src="{{config.studio_qrcode}}" mode="aspectFit" class="upload-preview qrcode"/>

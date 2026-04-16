@@ -106,6 +106,33 @@
   overflow: hidden;
 }
 
+/* 联系方式 */
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #EEF6FC;
+}
+.contact-item:last-child { border-bottom: none; }
+.contact-label {
+  font-size: 26rpx;
+  color: #8899A6;
+  width: 100rpx;
+}
+.contact-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1A2E3D;
+  font-weight: 500;
+}
+.contact-action {
+  font-size: 24rpx;
+  color: #4A9ECC;
+  background: #E8F4FB;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+
 /* 照片墙 */
 .photo-grid {
   display: flex;

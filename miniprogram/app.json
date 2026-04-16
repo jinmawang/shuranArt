@@ -16,7 +16,10 @@
     "pages/admin/activities/activities",
     "pages/admin/courses/courses",
     "pages/admin/prizes/prizes",
-    "pages/admin/banners/banners"
+    "pages/admin/banners/banners",
+    "pages/admin/admins/admins",
+    "pages/admin/claims/claims",
+    "pages/admin-invite/admin-invite"
   ],
   "window": {
     "backgroundTextStyle": "light",

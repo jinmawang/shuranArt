@@ -27,7 +27,7 @@
 
   <!-- 转盘区域 -->
   <view class="wheel-container">
-    <view class="wheel-wrapper" style="transform: rotate({{rotateAngle}}deg); transition: transform {{isSpinning ? '4s' : '0s'}} cubic-bezier(0.17, 0.67, 0.12, 0.99);">
+    <view class="wheel-wrapper" style="transform: rotate({{rotateAngle}}deg); transition: transform {{isSpinning ? '6s' : '0s'}} cubic-bezier(0.32, 0.94, 0.60, 1.00);">
       <view class="wheel-item" wx:for="{{prizes}}" wx:key="id" style="transform: rotate({{index * (360 / prizes.length)}}deg);">
         <view class="prize-content" style="transform: rotate({{180 / prizes.length}}deg);">
           <image src="{{item.icon || '/images/prize-default.png'}}" class="prize-icon"/>
@@ -36,8 +36,7 @@
       </view>
     </view>
     <view class="wheel-pointer {{isSpinning ? 'disabled' : ''}}" bindtap="startLottery">
-      <text wx:if="{{!activity || !activity.started}}">未开始</text>
-      <text wx:else>抽奖</text>
+      <text>抽奖</text>
     </view>
   </view>
 
@@ -85,6 +84,10 @@
         <view class="rule-item">
           <text class="rule-num">5</text>
           <text class="rule-text">抽中实物奖品请到店凭兑换码领取</text>
+        </view>
+        <view class="rule-item">
+          <text class="rule-num">6</text>
+          <text class="rule-text">中奖奖品有效期为2个月，请及时兑换</text>
         </view>
       </view>
       <button class="btn-primary" bindtap="closeRulesModal">我知道了</button>

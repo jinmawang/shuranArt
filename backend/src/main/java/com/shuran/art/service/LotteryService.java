@@ -49,15 +49,6 @@ public class LotteryService {
             throw new RuntimeException("活动不存在或已结束");
         }
 
-        // 检查活动时间
-        LocalDateTime now = LocalDateTime.now();
-        if (activity.getStartTime() != null && now.isBefore(activity.getStartTime())) {
-            throw new RuntimeException("活动尚未开始");
-        }
-        if (activity.getEndTime() != null && now.isAfter(activity.getEndTime())) {
-            throw new RuntimeException("活动已结束");
-        }
-
         // 2.5. 检查用户在该活动的抽奖次数是否已达上限
         int maxLottery = activity.getMaxLotteryPerUser() != null ? activity.getMaxLotteryPerUser() : 10;
         long userActivityLotteryCount = lotteryRecordMapper.selectCount(
@@ -69,9 +60,13 @@ public class LotteryService {
             throw new RuntimeException("该活动抽奖次数已达上限（" + maxLottery + "次）");
         }
 
-        // 3. 扣减抽奖机会
-        user.setLotteryChances(user.getLotteryChances() - 1);
-        userMapper.updateById(user);
+        // 3. 原子扣减抽奖机会（防并发）
+        int affected = userMapper.deductLotteryChance(userId);
+        if (affected == 0) {
+            throw new RuntimeException("没有抽奖机会");
+        }
+        // 重新读取用户信息
+        user = userMapper.selectById(userId);
 
         // 4. 获取奖品池
         List<Prize> prizes = prizeMapper.selectList(
@@ -91,17 +86,15 @@ public class LotteryService {
             selectedPrize = selectPrize(prizes);
         }
 
-        // 7. 检查并扣减库存
+        // 7. 检查并原子扣减库存
         if (selectedPrize.getStock() != null && selectedPrize.getStock() != -1) {
-            if (selectedPrize.getStock() <= 0) {
+            int stockAffected = prizeMapper.deductStock(selectedPrize.getId());
+            if (stockAffected == 0) {
                 // 库存不足，降级到参与奖（积分）
                 selectedPrize = prizes.stream()
                     .filter(p -> "points".equals(p.getType()) && (p.getLevel() == null || p.getLevel() >= 3))
                     .findFirst()
                     .orElse(prizes.get(0));
-            } else {
-                selectedPrize.setStock(selectedPrize.getStock() - 1);
-                prizeMapper.updateById(selectedPrize);
             }
         }
 
@@ -119,7 +112,7 @@ public class LotteryService {
         if (needClaim) {
             record.setStatus("pending");
             record.setClaimCode(CodeGenerator.generateClaimCode());
-            record.setExpireAt(LocalDateTime.now().plusDays(30));
+            record.setExpireAt(LocalDateTime.now().plusDays(60));
         } else {
             record.setStatus("claimed");
             record.setClaimedAt(LocalDateTime.now());

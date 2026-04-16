@@ -1,0 +1,26 @@
+<view class="invite-page">
+  <view class="invite-card" wx:if="{{status === 'ready'}}">
+    <view class="invite-icon">🎨</view>
+    <view class="invite-title">管理员邀请</view>
+    <view class="invite-desc">你被邀请成为「书染美术」小程序管理员</view>
+    <view class="invite-note">接受后可进入管理后台，管理课程、老师、活动等内容</view>
+    <button class="invite-btn" bindtap="acceptInvite">接受邀请</button>
+  </view>
+
+  <view class="invite-card" wx:if="{{status === 'loading'}}">
+    <view class="invite-icon">⏳</view>
+    <view class="invite-title">处理中...</view>
+  </view>
+
+  <view class="invite-card" wx:if="{{status === 'success'}}">
+    <view class="invite-icon">✅</view>
+    <view class="invite-title">已成为管理员</view>
+    <view class="invite-desc">正在跳转管理后台...</view>
+  </view>
+
+  <view class="invite-card" wx:if="{{status === 'error'}}">
+    <view class="invite-icon">❌</view>
+    <view class="invite-title">{{errorMsg}}</view>
+    <view class="invite-desc">请联系管理员重新发送邀请</view>
+  </view>
+</view>

@@ -42,6 +42,23 @@
                markers="{{markers}}" scale="16"/>
         </view>
 
+        <!-- 联系方式 -->
+        <view class="section-card" wx:if="{{studioConfig.studio_wechat_id || studioConfig.studio_phone}}">
+          <view class="section-header">
+            <text class="section-title">联系方式</text>
+          </view>
+          <view class="contact-item" wx:if="{{studioConfig.studio_wechat_id}}" bindtap="copyWechat">
+            <text class="contact-label">微信号</text>
+            <text class="contact-value">{{studioConfig.studio_wechat_id}}</text>
+            <view class="contact-action">复制</view>
+          </view>
+          <view class="contact-item" wx:if="{{studioConfig.studio_phone}}" bindtap="callPhone">
+            <text class="contact-label">电话</text>
+            <text class="contact-value">{{studioConfig.studio_phone}}</text>
+            <view class="contact-action">拨打</view>
+          </view>
+        </view>
+
         <!-- 画室日常 -->
         <view class="section-card" wx:if="{{gallery.length > 0}}">
           <view class="section-header">

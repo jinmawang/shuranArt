@@ -107,6 +107,9 @@
   padding: 12rpx 28rpx;
   border-radius: 24rpx;
   box-shadow: 0 3rpx 10rpx rgba(74, 158, 204, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .copy-btn:active { transform: scale(0.96); }

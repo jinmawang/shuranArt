@@ -5,16 +5,20 @@ import com.shuran.art.entity.*;
 import com.shuran.art.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
     private final AdminWhitelistMapper adminWhitelistMapper;
+    private final AdminInviteMapper adminInviteMapper;
+    private final UserMapper userMapper;
+    private final LotteryRecordMapper lotteryRecordMapper;
     private final StudioConfigMapper studioConfigMapper;
     private final TeacherMapper teacherMapper;
     private final ActivityMapper activityMapper;
@@ -219,5 +223,157 @@ public class AdminService {
 
     public void deleteBanner(Long id) {
         bannerMapper.deleteById(id);
+    }
+
+    // 管理员管理
+
+    public List<Map<String, Object>> getAdminList() {
+        List<AdminWhitelist> admins = adminWhitelistMapper.selectList(
+            new LambdaQueryWrapper<AdminWhitelist>().orderByAsc(AdminWhitelist::getId)
+        );
+        List<String> openids = admins.stream().map(AdminWhitelist::getOpenid).collect(Collectors.toList());
+        Map<String, User> userMap = new HashMap<>();
+        if (!openids.isEmpty()) {
+            List<User> users = userMapper.selectList(
+                new LambdaQueryWrapper<User>().in(User::getOpenid, openids)
+            );
+            for (User u : users) {
+                userMap.put(u.getOpenid(), u);
+            }
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (AdminWhitelist admin : admins) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", admin.getId());
+            item.put("openid", admin.getOpenid());
+            item.put("isSuper", Boolean.TRUE.equals(admin.getIsSuper()));
+            item.put("createdAt", admin.getCreatedAt());
+            User user = userMap.get(admin.getOpenid());
+            if (user != null) {
+                item.put("nickName", user.getNickName());
+                item.put("avatarUrl", user.getAvatarUrl());
+            } else {
+                item.put("nickName", admin.getName() != null ? admin.getName() : "未知用户");
+                item.put("avatarUrl", "");
+            }
+            result.add(item);
+        }
+        return result;
+    }
+
+    public String generateInviteToken(String inviterOpenid) {
+        String token = UUID.randomUUID().toString().replace("-", "");
+        AdminInvite invite = new AdminInvite();
+        invite.setToken(token);
+        invite.setInviterOpenid(inviterOpenid);
+        invite.setExpiresAt(LocalDateTime.now().plusHours(24));
+        invite.setUsed(false);
+        adminInviteMapper.insert(invite);
+        return token;
+    }
+
+    @Transactional
+    public void acceptInvite(String token, String openid, String nickName) {
+        AdminInvite invite = adminInviteMapper.selectOne(
+            new LambdaQueryWrapper<AdminInvite>().eq(AdminInvite::getToken, token)
+        );
+        if (invite == null) {
+            throw new RuntimeException("邀请链接无效");
+        }
+        if (Boolean.TRUE.equals(invite.getUsed())) {
+            throw new RuntimeException("该邀请链接已被使用");
+        }
+        if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("邀请链接已过期");
+        }
+        if (isAdmin(openid)) {
+            throw new RuntimeException("您已经是管理员");
+        }
+        // 加入白名单
+        AdminWhitelist admin = new AdminWhitelist();
+        admin.setOpenid(openid);
+        admin.setName(nickName);
+        admin.setIsSuper(false);
+        adminWhitelistMapper.insert(admin);
+        // 标记token已使用
+        invite.setUsed(true);
+        invite.setUsedByOpenid(openid);
+        adminInviteMapper.updateById(invite);
+    }
+
+    public void deleteAdmin(Long id, String operatorOpenid) {
+        // 仅超级管理员可删除其他管理员
+        AdminWhitelist operator = adminWhitelistMapper.selectOne(
+            new LambdaQueryWrapper<AdminWhitelist>().eq(AdminWhitelist::getOpenid, operatorOpenid)
+        );
+        if (operator == null || !Boolean.TRUE.equals(operator.getIsSuper())) {
+            throw new RuntimeException("仅超级管理员可执行此操作");
+        }
+        AdminWhitelist admin = adminWhitelistMapper.selectById(id);
+        if (admin == null) {
+            throw new RuntimeException("管理员不存在");
+        }
+        if (Boolean.TRUE.equals(admin.getIsSuper())) {
+            throw new RuntimeException("无法删除超级管理员");
+        }
+        adminWhitelistMapper.deleteById(id);
+    }
+
+    // 奖品核销
+
+    public List<Map<String, Object>> getPendingLotteryRecords() {
+        List<LotteryRecord> records = lotteryRecordMapper.selectList(
+            new LambdaQueryWrapper<LotteryRecord>()
+                .eq(LotteryRecord::getStatus, "pending")
+                .gt(LotteryRecord::getExpireAt, LocalDateTime.now())
+                .orderByDesc(LotteryRecord::getCreatedAt)
+        );
+        // 关联用户信息
+        Set<Long> userIds = records.stream().map(LotteryRecord::getUserId).collect(Collectors.toSet());
+        Map<Long, User> userMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            List<User> users = userMapper.selectBatchIds(userIds);
+            for (User u : users) {
+                userMap.put(u.getId(), u);
+            }
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (LotteryRecord r : records) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", r.getId());
+            item.put("prizeName", r.getPrizeName());
+            item.put("prizeType", r.getPrizeType());
+            item.put("prizeLevel", r.getPrizeLevel());
+            item.put("prizeValue", r.getPrizeValue());
+            item.put("claimCode", r.getClaimCode());
+            item.put("createdAt", r.getCreatedAt());
+            item.put("expireAt", r.getExpireAt());
+            User user = userMap.get(r.getUserId());
+            if (user != null) {
+                item.put("nickName", user.getNickName());
+                item.put("avatarUrl", user.getAvatarUrl());
+            } else {
+                item.put("nickName", "未知用户");
+                item.put("avatarUrl", "");
+            }
+            result.add(item);
+        }
+        return result;
+    }
+
+    public void claimLotteryRecord(Long recordId) {
+        LotteryRecord record = lotteryRecordMapper.selectById(recordId);
+        if (record == null) {
+            throw new RuntimeException("记录不存在");
+        }
+        if ("claimed".equals(record.getStatus())) {
+            throw new RuntimeException("该奖品已核销");
+        }
+        if (record.getExpireAt() != null && record.getExpireAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("该奖品已过期");
+        }
+        record.setStatus("claimed");
+        record.setClaimedAt(LocalDateTime.now());
+        lotteryRecordMapper.updateById(record);
     }
 }

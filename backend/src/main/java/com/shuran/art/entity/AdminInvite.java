@@ -5,12 +5,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("admin_whitelist")
-public class AdminWhitelist {
+@TableName("admin_invite")
+public class AdminInvite {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String openid;
-    private String name;
-    private Boolean isSuper;
+    private String token;
+    private String inviterOpenid;
     private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
+    private Boolean used;
+    private String usedByOpenid;
 }

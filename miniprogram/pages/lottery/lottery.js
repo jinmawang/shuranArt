@@ -150,16 +150,6 @@ Page({
       return;
     }
 
-    // 检查活动状态
-    const activity = this.data.activity;
-    if (activity && !activity.started) {
-      wx.showToast({
-        title: '活动尚未开始',
-        icon: 'none'
-      });
-      return;
-    }
-
     if (!this.data.userInfo.lotteryChances || this.data.userInfo.lotteryChances <= 0) {
       wx.showToast({
         title: '没有抽奖机会',
@@ -196,7 +186,7 @@ Page({
         // 更新用户信息和抽奖状态
         this.fetchUserInfo();
         this.loadLotteryStatus();
-      }, 4000);
+      }, 6200);
     }).catch(err => {
       this.setData({ isSpinning: false });
       wx.showToast({

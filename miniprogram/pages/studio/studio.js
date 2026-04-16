@@ -128,5 +128,22 @@ Page({
     var works = e.currentTarget.dataset.works;
     var current = e.currentTarget.dataset.current;
     wx.previewImage({ urls: works, current: current });
+  },
+
+  copyWechat() {
+    var wechatId = this.data.studioConfig.studio_wechat_id;
+    if (!wechatId) return;
+    wx.setClipboardData({
+      data: wechatId,
+      success: function() {
+        wx.showToast({ title: '微信号已复制', icon: 'success' });
+      }
+    });
+  },
+
+  callPhone() {
+    var phone = this.data.studioConfig.studio_phone;
+    if (!phone) return;
+    wx.makePhoneCall({ phoneNumber: phone });
   }
 });

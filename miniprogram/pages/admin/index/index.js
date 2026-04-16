@@ -59,5 +59,13 @@ Page({
 
   goToBanners() {
     wx.navigateTo({ url: '/pages/admin/banners/banners' });
+  },
+
+  goToAdmins() {
+    wx.navigateTo({ url: '/pages/admin/admins/admins' });
+  },
+
+  goToClaims() {
+    wx.navigateTo({ url: '/pages/admin/claims/claims' });
   }
 });

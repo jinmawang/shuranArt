@@ -10,6 +10,7 @@ import com.shuran.art.mapper.ActivityVisitMapper;
 import com.shuran.art.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -61,6 +62,7 @@ public class ActivityController {
      * 记录用户访问活动，首次访问自动获得1次抽奖机会
      */
     @PostMapping("/visit")
+    @Transactional
     public Result<Map<String, Object>> visitActivity(
             HttpServletRequest httpRequest,
             @RequestBody Map<String, Long> request) {
@@ -97,23 +99,30 @@ public class ActivityController {
             return Result.success(result);
         }
 
-        // 记录首次访问
-        ActivityVisit visit = new ActivityVisit();
-        visit.setUserId(userId);
-        visit.setActivityId(activityId);
-        visit.setLotteryGranted(1);
-        activityVisitMapper.insert(visit);
+        // 记录首次访问（数据库唯一索引兜底防并发）
+        try {
+            ActivityVisit visit = new ActivityVisit();
+            visit.setUserId(userId);
+            visit.setActivityId(activityId);
+            visit.setLotteryGranted(1);
+            activityVisitMapper.insert(visit);
 
-        // 增加抽奖机会
-        User user = userMapper.selectById(userId);
-        if (user != null) {
-            user.setLotteryChances(user.getLotteryChances() + 1);
-            userMapper.updateById(user);
+            // 增加抽奖机会
+            User user = userMapper.selectById(userId);
+            if (user != null) {
+                user.setLotteryChances(user.getLotteryChances() + 1);
+                userMapper.updateById(user);
+            }
+
+            result.put("success", true);
+            result.put("lotteryAdded", true);
+            result.put("msg", "获得1次抽奖机会");
+        } catch (Exception e) {
+            // 唯一索引冲突 = 并发重复访问，忽略
+            result.put("success", true);
+            result.put("lotteryAdded", false);
+            result.put("msg", "已访问过该活动");
         }
-
-        result.put("success", true);
-        result.put("lotteryAdded", true);
-        result.put("msg", "获得1次抽奖机会");
         return Result.success(result);
     }
 }

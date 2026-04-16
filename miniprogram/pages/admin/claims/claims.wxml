@@ -1,0 +1,27 @@
+<view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      奖品核销
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <view class="list-content">
+    <view class="list-item" wx:for="{{records}}" wx:key="id">
+      <image src="{{item.avatarUrl || '/images/default-avatar.png'}}" class="item-avatar"/>
+      <view class="item-info">
+        <view class="item-name">{{item.nickName}}</view>
+        <view class="item-prize">{{item.prizeName}}</view>
+        <view class="item-code">兑换码：{{item.claimCode}}</view>
+        <view class="item-time">中奖：{{item.createdAt}} · 到期：{{item.expireAt}}</view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn claim" bindtap="claimRecord" data-id="{{item.id}}" data-name="{{item.prizeName}}">核销</view>
+      </view>
+    </view>
+    <view wx:if="{{records.length === 0}}" class="empty-tip">暂无待核销奖品</view>
+  </view>
+</view>

@@ -184,6 +184,9 @@
   background: #E8F4FB;
   border-radius: 20rpx;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .rules-btn:active { background: #D0EAFA; }
