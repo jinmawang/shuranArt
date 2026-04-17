@@ -60,5 +60,8 @@
     "scope.userLocation": {
       "desc": "用于显示画室位置并提供导航服务"
     }
-  }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ]
 }
