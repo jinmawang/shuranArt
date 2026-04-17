@@ -44,6 +44,15 @@
     </view>
   </view>
 
+  <!-- 作品墙入口 -->
+  <view class="works-entry" bindtap="goToWorks">
+    <view class="works-entry-text">
+      <view class="works-entry-title">学员作品墙</view>
+      <view class="works-entry-desc">欣赏学员的精彩创作</view>
+    </view>
+    <view class="works-entry-arrow"></view>
+  </view>
+
   <!-- 热门活动 -->
   <view class="section" wx:if="{{activities.length > 0}}">
     <view class="section-title">热门活动</view>

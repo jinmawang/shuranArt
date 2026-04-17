@@ -1,0 +1,79 @@
+.timeline-page { min-height: 100vh; background: #F0F7FF; }
+
+.child-header {
+  padding: 32rpx;
+  background: #4A9ECC;
+  color: #fff;
+}
+.child-name { font-size: 36rpx; font-weight: 700; }
+.child-count { font-size: 24rpx; opacity: 0.85; margin-top: 8rpx; }
+
+.timeline { padding: 32rpx 24rpx 32rpx 60rpx; position: relative; }
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 32rpx;
+  padding-left: 32rpx;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -10rpx;
+  top: 12rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #4A9ECC;
+  border: 4rpx solid #E8F4FB;
+}
+
+.timeline-line {
+  position: absolute;
+  left: -2rpx;
+  top: 36rpx;
+  bottom: 0;
+  width: 4rpx;
+  background: #DFF0FA;
+}
+
+.timeline-content {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(74,158,204,0.08);
+}
+
+.timeline-date {
+  font-size: 24rpx;
+  color: #A0B4C5;
+  margin-bottom: 16rpx;
+}
+
+.timeline-img {
+  width: 100%;
+  border-radius: 12rpx;
+  display: block;
+}
+
+.timeline-desc {
+  font-size: 26rpx;
+  color: #4A5E6D;
+  margin-top: 16rpx;
+  line-height: 1.6;
+}
+
+.share-btn {
+  margin-top: 16rpx;
+  background: #ff6b35 !important;
+  color: #fff !important;
+  border-radius: 40rpx !important;
+  height: 72rpx;
+  font-size: 26rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.share-btn::after { border: none; }
+
+.empty-tip { text-align: center; padding: 120rpx 0; color: #A0B4C5; font-size: 28rpx; }

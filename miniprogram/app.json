@@ -19,7 +19,11 @@
     "pages/admin/banners/banners",
     "pages/admin/admins/admins",
     "pages/admin/claims/claims",
-    "pages/admin-invite/admin-invite"
+    "pages/admin/works/works",
+    "pages/admin-invite/admin-invite",
+    "pages/works/works",
+    "pages/works/timeline",
+    "pages/works/upload"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -1,0 +1,33 @@
+<view class="timeline-page">
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      {{child.name || '作品集'}}
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 孩子信息 -->
+  <view class="child-header">
+    <view class="child-name">{{child.name}}的作品集</view>
+    <view class="child-count">共 {{works.length}} 幅作品</view>
+  </view>
+
+  <!-- 时间线 -->
+  <view class="timeline">
+    <view class="timeline-item" wx:for="{{works}}" wx:key="id">
+      <view class="timeline-dot"></view>
+      <view class="timeline-line" wx:if="{{index < works.length - 1}}"></view>
+      <view class="timeline-content">
+        <view class="timeline-date">{{item.createdAt}}</view>
+        <image src="{{item.imageUrl}}" mode="widthFix" class="timeline-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+        <view class="timeline-desc" wx:if="{{item.description}}">{{item.description}}</view>
+        <!-- 只有最新一张可以分享 -->
+        <button wx:if="{{index === 0}}" class="share-btn" open-type="share">分享到朋友圈</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{works.length === 0}}" class="empty-tip">暂无作品</view>
+</view>

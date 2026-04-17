@@ -1,0 +1,106 @@
+.list-page { min-height: 100vh; background: #f5f5f5; }
+
+.config-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  background: #fff;
+  margin-bottom: 2rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+.config-icon { font-size: 20rpx; color: #999; }
+
+.config-panel {
+  background: #fff;
+  padding: 24rpx 30rpx;
+  margin-bottom: 2rpx;
+}
+.form-item { margin-bottom: 20rpx; }
+.label { display: block; font-size: 26rpx; color: #666; margin-bottom: 10rpx; }
+.input {
+  width: 100%;
+  height: 80rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+.save-config-btn {
+  background: #4A9ECC !important;
+  color: #fff !important;
+  border-radius: 40rpx !important;
+  height: 72rpx;
+  font-size: 26rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16rpx;
+}
+.save-config-btn::after { border: none; }
+
+.tab-bar {
+  display: flex;
+  background: #fff;
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-bottom: 4rpx solid transparent;
+}
+.tab-item.active {
+  color: #4A9ECC;
+  font-weight: 600;
+  border-bottom-color: #4A9ECC;
+}
+
+.list-content { padding: 20rpx; }
+
+.work-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.work-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.work-info { flex: 1; min-width: 0; }
+.work-name { font-size: 28rpx; font-weight: 500; color: #333; }
+.work-desc { font-size: 24rpx; color: #999; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.work-time { font-size: 22rpx; color: #bbb; margin-top: 4rpx; }
+
+.work-status { font-size: 22rpx; margin-top: 4rpx; }
+.work-status.pending { color: #f0ad4e; }
+.work-status.approved { color: #4A9ECC; }
+.work-status.rejected { color: #e53935; }
+
+.work-actions { display: flex; flex-direction: column; gap: 12rpx; flex-shrink: 0; margin-left: 16rpx; }
+.action-btn {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-btn.approve { background: #e8f5e9; color: #2e7d32; }
+.action-btn.reject { background: #fff3e0; color: #e65100; }
+.action-btn.delete { background: #ffebee; color: #e53935; }
+
+.empty-tip { text-align: center; padding: 80rpx 0; color: #999; }

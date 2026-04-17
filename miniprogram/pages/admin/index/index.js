@@ -67,5 +67,9 @@ Page({
 
   goToClaims() {
     wx.navigateTo({ url: '/pages/admin/claims/claims' });
+  },
+
+  goToWorks() {
+    wx.navigateTo({ url: '/pages/admin/works/works' });
   }
 });

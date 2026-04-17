@@ -1,0 +1,71 @@
+.upload-page { min-height: 100vh; background: #F0F7FF; }
+
+.section { margin: 20rpx 24rpx; background: #fff; border-radius: 16rpx; padding: 24rpx; box-shadow: 0 2rpx 12rpx rgba(74,158,204,0.08); }
+.section-title { font-size: 28rpx; font-weight: 600; color: #1A2E3D; margin-bottom: 20rpx; }
+
+.child-list { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.child-chip {
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  background: #F0F7FF;
+  color: #4A5E6D;
+  border: 1rpx solid #DFF0FA;
+}
+.child-chip.active { background: #4A9ECC; color: #fff; border-color: #4A9ECC; }
+.child-chip.add { background: #fff; color: #4A9ECC; border: 1rpx dashed #4A9ECC; }
+
+.image-picker {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 2rpx dashed #DFF0FA;
+  background: #FAFCFF;
+}
+.picker-preview { width: 100%; height: 100%; }
+.picker-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.picker-plus { font-size: 64rpx; color: #A0B4C5; line-height: 1; }
+.picker-tip { font-size: 24rpx; color: #A0B4C5; margin-top: 12rpx; }
+
+.desc-input {
+  width: 100%;
+  height: 160rpx;
+  background: #F5F8FC;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.submit-bar { padding: 24rpx; }
+.submit-btn {
+  background: #4A9ECC !important;
+  color: #fff !important;
+  border-radius: 44rpx !important;
+  height: 88rpx;
+  font-size: 32rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.submit-btn::after { border: none; }
+
+/* 弹窗 */
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; }
+.modal-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+.modal-content { position: relative; width: 80%; background: #fff; border-radius: 16rpx; padding: 40rpx; }
+.modal-title { font-size: 32rpx; font-weight: bold; color: #333; text-align: center; margin-bottom: 30rpx; }
+.modal-input { width: 100%; height: 80rpx; background: #f5f5f5; border-radius: 8rpx; padding: 0 20rpx; font-size: 28rpx; box-sizing: border-box; }
+.modal-actions { display: flex; gap: 20rpx; margin-top: 30rpx; }
+.btn-cancel, .btn-confirm { flex: 1; height: 80rpx; border-radius: 40rpx; font-size: 28rpx; display: flex; align-items: center; justify-content: center; }
+.btn-cancel { background: #f5f5f5; color: #666; }
+.btn-confirm { background: #4A9ECC; color: #fff; }

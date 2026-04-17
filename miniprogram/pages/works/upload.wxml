@@ -1,0 +1,59 @@
+<view class="upload-page">
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      上传作品
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 选择孩子 -->
+  <view class="section">
+    <view class="section-title">选择孩子</view>
+    <view class="child-list">
+      <view class="child-chip {{selectedChildId === item.id ? 'active' : ''}}"
+            wx:for="{{children}}" wx:key="id"
+            bindtap="selectChild" data-id="{{item.id}}">
+        {{item.name}}
+      </view>
+      <view class="child-chip add" bindtap="showAddChildModal">+ 添加</view>
+    </view>
+  </view>
+
+  <!-- 上传图片 -->
+  <view class="section">
+    <view class="section-title">作品图片</view>
+    <view class="image-picker" bindtap="chooseImage">
+      <image wx:if="{{imageUrl}}" src="{{imageUrl}}" mode="aspectFill" class="picker-preview"/>
+      <view wx:else class="picker-placeholder">
+        <text class="picker-plus">+</text>
+        <text class="picker-tip">点击上传作品</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 描述 -->
+  <view class="section">
+    <view class="section-title">作品描述（选填）</view>
+    <textarea class="desc-input" value="{{description}}" bindinput="onDescInput" placeholder="描述一下这幅作品吧" maxlength="100"/>
+  </view>
+
+  <!-- 提交 -->
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="submit">提交作品</button>
+  </view>
+
+  <!-- 添加孩子弹窗 -->
+  <view class="modal" wx:if="{{showAddChild}}">
+    <view class="modal-mask" bindtap="closeAddChild"></view>
+    <view class="modal-content">
+      <view class="modal-title">添加孩子</view>
+      <input class="modal-input" value="{{newChildName}}" bindinput="onChildNameInput" placeholder="请输入孩子姓名"/>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeAddChild">取消</button>
+        <button class="btn-confirm" bindtap="addChild">确定</button>
+      </view>
+    </view>
+  </view>
+</view>

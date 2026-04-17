@@ -204,6 +204,10 @@ Page({
     wx.switchTab({ url: '/pages/lottery/lottery' });
   },
 
+  goToWorks: function() {
+    wx.navigateTo({ url: '/pages/works/works' });
+  },
+
   goToActivityDetail: function(e) {
     wx.navigateTo({ url: '/pages/activity/activity?id=' + e.currentTarget.dataset.id });
   },

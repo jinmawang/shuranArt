@@ -1,0 +1,41 @@
+<view class="works-page">
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      作品墙
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 上传入口 -->
+  <view class="upload-bar" bindtap="goToUpload">
+    <text class="upload-bar-text">上传我的作品</text>
+    <text class="upload-bar-icon">+</text>
+  </view>
+
+  <!-- 瀑布流 -->
+  <view class="waterfall">
+    <view class="waterfall-col">
+      <view class="work-card" wx:for="{{works}}" wx:key="id" wx:if="{{index % 2 === 0}}">
+        <image src="{{item.imageUrl}}" mode="widthFix" class="work-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+        <view class="work-info" bindtap="goToTimeline" data-childid="{{item.childId}}">
+          <text class="work-child-name">{{item.childName}}</text>
+          <text class="work-desc" wx:if="{{item.description}}">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="waterfall-col">
+      <view class="work-card" wx:for="{{works}}" wx:key="id" wx:if="{{index % 2 === 1}}">
+        <image src="{{item.imageUrl}}" mode="widthFix" class="work-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+        <view class="work-info" bindtap="goToTimeline" data-childid="{{item.childId}}">
+          <text class="work-child-name">{{item.childName}}</text>
+          <text class="work-desc" wx:if="{{item.description}}">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{works.length === 0 && !loading}}" class="empty-tip">暂无作品，快来上传第一幅吧</view>
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+</view>

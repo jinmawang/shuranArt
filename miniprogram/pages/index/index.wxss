@@ -461,3 +461,24 @@
   display: block;
   box-shadow: 0 2rpx 10rpx rgba(26, 46, 61, 0.08);
 }
+
+/* 作品墙入口 */
+.works-entry {
+  display: flex;
+  align-items: center;
+  margin: 20rpx 24rpx;
+  padding: 28rpx 24rpx;
+  background: linear-gradient(135deg, #E8F4FB, #F0F7FF);
+  border-radius: 16rpx;
+  border: 1rpx solid #DFF0FA;
+}
+.works-entry-text { flex: 1; }
+.works-entry-title { font-size: 30rpx; font-weight: 600; color: #1A2E3D; }
+.works-entry-desc { font-size: 24rpx; color: #6A8099; margin-top: 6rpx; }
+.works-entry-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 3rpx solid #4A9ECC;
+  border-right: 3rpx solid #4A9ECC;
+  transform: rotate(45deg);
+}

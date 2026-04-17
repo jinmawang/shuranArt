@@ -8,6 +8,7 @@ import com.shuran.art.entity.Prize;
 import com.shuran.art.entity.Teacher;
 import com.shuran.art.entity.User;
 import com.shuran.art.service.AdminService;
+import com.shuran.art.service.StudentWorkService;
 import com.shuran.art.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final StudentWorkService studentWorkService;
     private final UserService userService;
 
     // 画室配置
@@ -169,6 +171,35 @@ public class AdminController {
     @PostMapping("/lottery-record/{id}/claim")
     public Result<Void> claimLotteryRecord(@PathVariable Long id) {
         adminService.claimLotteryRecord(id);
+        return Result.success();
+    }
+
+    // 学生作品管理
+    @GetMapping("/works/pending")
+    public Result<List<Map<String, Object>>> getPendingWorks() {
+        return Result.success(studentWorkService.getPendingWorks());
+    }
+
+    @GetMapping("/works/all")
+    public Result<List<Map<String, Object>>> getAllWorks() {
+        return Result.success(studentWorkService.getAllWorks());
+    }
+
+    @PostMapping("/works/{id}/approve")
+    public Result<Void> approveWork(@PathVariable Long id) {
+        studentWorkService.approveWork(id);
+        return Result.success();
+    }
+
+    @PostMapping("/works/{id}/reject")
+    public Result<Void> rejectWork(@PathVariable Long id) {
+        studentWorkService.rejectWork(id);
+        return Result.success();
+    }
+
+    @DeleteMapping("/works/{id}")
+    public Result<Void> deleteWork(@PathVariable Long id) {
+        studentWorkService.deleteWork(id);
         return Result.success();
     }
 }

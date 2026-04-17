@@ -1,0 +1,76 @@
+<view class="list-page">
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      学生作品管理
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 配置按钮 -->
+  <view class="config-bar" bindtap="toggleConfig">
+    <text>分享文案与上传设置</text>
+    <text class="config-icon">{{showConfig ? '▲' : '▼'}}</text>
+  </view>
+
+  <!-- 配置面板 -->
+  <view class="config-panel" wx:if="{{showConfig}}">
+    <view class="form-item">
+      <text class="label">分享默认文案</text>
+      <input class="input" value="{{shareText}}" bindinput="onShareTextInput" placeholder="分享文案"/>
+    </view>
+    <view class="form-item">
+      <text class="label">上传间隔（天）</text>
+      <input class="input" type="number" value="{{intervalDays}}" bindinput="onIntervalInput" placeholder="30"/>
+    </view>
+    <button class="save-config-btn" bindtap="saveConfig">保存设置</button>
+  </view>
+
+  <!-- Tab切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">
+      待审核 ({{pendingWorks.length}})
+    </view>
+    <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">
+      全部作品 ({{allWorks.length}})
+    </view>
+  </view>
+
+  <!-- 待审核列表 -->
+  <view class="list-content" wx:if="{{currentTab === 0}}">
+    <view class="work-item" wx:for="{{pendingWorks}}" wx:key="id">
+      <image src="{{item.imageUrl}}" mode="aspectFill" class="work-thumb" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+      <view class="work-info">
+        <view class="work-name">{{item.childName}}</view>
+        <view class="work-desc" wx:if="{{item.description}}">{{item.description}}</view>
+        <view class="work-time">{{item.createdAt}}</view>
+      </view>
+      <view class="work-actions">
+        <view class="action-btn approve" bindtap="approveWork" data-id="{{item.id}}">通过</view>
+        <view class="action-btn reject" bindtap="rejectWork" data-id="{{item.id}}">拒绝</view>
+      </view>
+    </view>
+    <view wx:if="{{pendingWorks.length === 0}}" class="empty-tip">暂无待审核作品</view>
+  </view>
+
+  <!-- 全部作品列表 -->
+  <view class="list-content" wx:if="{{currentTab === 1}}">
+    <view class="work-item" wx:for="{{allWorks}}" wx:key="id">
+      <image src="{{item.imageUrl}}" mode="aspectFill" class="work-thumb" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+      <view class="work-info">
+        <view class="work-name">{{item.childName}}</view>
+        <view class="work-status {{item.status}}">
+          <text wx:if="{{item.status === 'pending'}}">待审核</text>
+          <text wx:if="{{item.status === 'approved'}}">已通过</text>
+          <text wx:if="{{item.status === 'rejected'}}">已拒绝</text>
+        </view>
+        <view class="work-time">{{item.createdAt}}</view>
+      </view>
+      <view class="work-actions">
+        <view class="action-btn delete" bindtap="deleteWork" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{allWorks.length === 0}}" class="empty-tip">暂无作品</view>
+  </view>
+</view>
