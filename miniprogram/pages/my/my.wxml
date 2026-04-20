@@ -58,9 +58,10 @@
           <view class="record-time">{{item.createdAt}}</view>
         </view>
         <view class="record-status {{item.status}}">
-          <text wx:if="{{item.status === 'pending'}}">待领取</text>
-          <text wx:if="{{item.status === 'claimed'}}">已领取</text>
+          <text wx:if="{{item.status === 'pending'}}">待兑换</text>
+          <text wx:if="{{item.status === 'claimed'}}">已兑换</text>
           <text wx:if="{{item.status === 'expired'}}">已过期</text>
+          <text wx:if="{{item.status === 'void'}}">已作废</text>
         </view>
       </view>
       <view wx:if="{{records.length === 0}}" class="empty-tip">暂无中奖记录</view>

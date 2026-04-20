@@ -1,5 +1,4 @@
 <view class="list-page">
-  <!-- 自定义导航栏 -->
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
@@ -9,8 +8,19 @@
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
 
-  <view class="list-content">
-    <view class="list-item" wx:for="{{records}}" wx:key="id">
+  <!-- Tab -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">
+      奖品兑换 ({{prizeRecords.length}})
+    </view>
+    <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">
+      积分兑换 ({{pointsUsers.length}})
+    </view>
+  </view>
+
+  <!-- 奖品兑换 -->
+  <view class="list-content" wx:if="{{currentTab === 0}}">
+    <view class="list-item" wx:for="{{prizeRecords}}" wx:key="id">
       <image src="{{item.avatarUrl || '/images/default-avatar.png'}}" class="item-avatar"/>
       <view class="item-info">
         <view class="item-name">{{item.nickName}}</view>
@@ -19,9 +29,30 @@
         <view class="item-time">中奖：{{item.createdAt}} · 到期：{{item.expireAt}}</view>
       </view>
       <view class="item-actions">
-        <view class="action-btn claim" bindtap="claimRecord" data-id="{{item.id}}" data-name="{{item.prizeName}}">核销</view>
+        <view class="action-btn claim" bindtap="claimRecord" data-id="{{item.id}}" data-name="{{item.prizeName}}">兑换</view>
+        <view class="action-btn void" bindtap="voidRecord" data-id="{{item.id}}">作废</view>
       </view>
     </view>
-    <view wx:if="{{records.length === 0}}" class="empty-tip">暂无待核销奖品</view>
+    <view wx:if="{{prizeRecords.length === 0}}" class="empty-tip">暂无待兑换奖品</view>
+  </view>
+
+  <!-- 积分兑换 -->
+  <view class="list-content" wx:if="{{currentTab === 1}}">
+    <view class="points-tip">最低兑换积分：{{minPoints}}分（可在画室配置中修改 min_exchange_points）</view>
+    <view class="list-item" wx:for="{{pointsUsers}}" wx:key="userId">
+      <image src="{{item.avatarUrl || '/images/default-avatar.png'}}" class="item-avatar"/>
+      <view class="item-info">
+        <view class="item-name">{{item.nickName}}</view>
+        <view class="item-prize">累计待兑换积分：{{item.totalPoints}} 分（{{item.count}}次中奖）</view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn claim {{item.totalPoints >= minPoints ? '' : 'disabled'}}"
+              bindtap="{{item.totalPoints >= minPoints ? 'exchangePoints' : ''}}"
+              data-userid="{{item.userId}}" data-name="{{item.nickName}}" data-total="{{item.totalPoints}}">
+          兑换
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{pointsUsers.length === 0}}" class="empty-tip">暂无待兑换积分</view>
   </view>
 </view>

@@ -148,6 +148,7 @@
 .record-status.pending { background: #FEF8E7; color: #C08000; }
 .record-status.claimed { background: #E8F4FB; color: #4A9ECC; }
 .record-status.expired { background: #F5F5F5; color: #999999; }
+.record-status.void { background: #F5F5F5; color: #999999; }
 
 .empty-tip { text-align: center; padding: 64rpx 0; color: #A0B4C5; font-size: 28rpx; }
 

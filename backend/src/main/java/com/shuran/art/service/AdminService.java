@@ -325,6 +325,7 @@ public class AdminService {
         List<LotteryRecord> records = lotteryRecordMapper.selectList(
             new LambdaQueryWrapper<LotteryRecord>()
                 .eq(LotteryRecord::getStatus, "pending")
+                .ne(LotteryRecord::getPrizeType, "points")
                 .gt(LotteryRecord::getExpireAt, LocalDateTime.now())
                 .orderByDesc(LotteryRecord::getCreatedAt)
         );
@@ -376,14 +377,85 @@ public class AdminService {
         record.setStatus("claimed");
         record.setClaimedAt(LocalDateTime.now());
         lotteryRecordMapper.updateById(record);
+    }
 
-        // 如果是积分类奖品，核销时发放积分
-        if ("points".equals(record.getPrizeType()) && record.getPrizeValue() != null) {
-            User user = userMapper.selectById(record.getUserId());
-            if (user != null) {
-                user.setPoints(user.getPoints() + record.getPrizeValue());
-                userMapper.updateById(user);
-            }
+    public void voidLotteryRecord(Long recordId) {
+        LotteryRecord record = lotteryRecordMapper.selectById(recordId);
+        if (record == null) {
+            throw new RuntimeException("记录不存在");
+        }
+        record.setStatus("void");
+        lotteryRecordMapper.updateById(record);
+    }
+
+    /**
+     * 积分汇总：按用户聚合所有 pending 的积分奖品
+     */
+    public List<Map<String, Object>> getPointsSummary() {
+        // 查出所有待兑换的积分类记录
+        List<LotteryRecord> records = lotteryRecordMapper.selectList(
+            new LambdaQueryWrapper<LotteryRecord>()
+                .eq(LotteryRecord::getStatus, "pending")
+                .eq(LotteryRecord::getPrizeType, "points")
+                .gt(LotteryRecord::getExpireAt, LocalDateTime.now())
+        );
+        // 按用户聚合
+        Map<Long, Integer> pointsMap = new HashMap<>();
+        Map<Long, Integer> countMap = new HashMap<>();
+        for (LotteryRecord r : records) {
+            pointsMap.merge(r.getUserId(), r.getPrizeValue() != null ? r.getPrizeValue() : 0, Integer::sum);
+            countMap.merge(r.getUserId(), 1, Integer::sum);
+        }
+        // 关联用户信息
+        Set<Long> userIds = pointsMap.keySet();
+        Map<Long, User> userMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            userMapper.selectBatchIds(userIds).forEach(u -> userMap.put(u.getId(), u));
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Long uid : userIds) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("userId", uid);
+            item.put("totalPoints", pointsMap.get(uid));
+            item.put("count", countMap.get(uid));
+            User user = userMap.get(uid);
+            item.put("nickName", user != null ? user.getNickName() : "未知");
+            item.put("avatarUrl", user != null ? user.getAvatarUrl() : "");
+            result.add(item);
+        }
+        // 按积分降序
+        result.sort((a, b) -> (int) b.get("totalPoints") - (int) a.get("totalPoints"));
+        return result;
+    }
+
+    /**
+     * 积分兑换：将该用户所有 pending 的积分记录标记为 claimed
+     */
+    @Transactional
+    public void exchangePoints(Long userId) {
+        // 检查最低兑换积分
+        Map<String, String> config = getStudioConfig();
+        int minPoints = 100;
+        try {
+            String val = config.get("min_exchange_points");
+            if (val != null) minPoints = Integer.parseInt(val);
+        } catch (NumberFormatException ignored) {}
+
+        List<LotteryRecord> records = lotteryRecordMapper.selectList(
+            new LambdaQueryWrapper<LotteryRecord>()
+                .eq(LotteryRecord::getUserId, userId)
+                .eq(LotteryRecord::getStatus, "pending")
+                .eq(LotteryRecord::getPrizeType, "points")
+                .gt(LotteryRecord::getExpireAt, LocalDateTime.now())
+        );
+        int total = records.stream().mapToInt(r -> r.getPrizeValue() != null ? r.getPrizeValue() : 0).sum();
+        if (total < minPoints) {
+            throw new RuntimeException("累计积分不足" + minPoints + "，无法兑换");
+        }
+        for (LotteryRecord r : records) {
+            r.setStatus("claimed");
+            r.setClaimedAt(LocalDateTime.now());
+            lotteryRecordMapper.updateById(r);
         }
     }
 }

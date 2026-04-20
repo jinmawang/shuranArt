@@ -174,6 +174,24 @@ public class AdminController {
         return Result.success();
     }
 
+    @PostMapping("/lottery-record/{id}/void")
+    public Result<Void> voidLotteryRecord(@PathVariable Long id) {
+        adminService.voidLotteryRecord(id);
+        return Result.success();
+    }
+
+    @GetMapping("/points-summary")
+    public Result<List<Map<String, Object>>> getPointsSummary() {
+        return Result.success(adminService.getPointsSummary());
+    }
+
+    @PostMapping("/points-exchange")
+    public Result<Void> exchangePoints(@RequestBody Map<String, Long> body) {
+        Long userId = body.get("userId");
+        adminService.exchangePoints(userId);
+        return Result.success();
+    }
+
     // 学生作品管理
     @GetMapping("/works/pending")
     public Result<List<Map<String, Object>>> getPendingWorks() {
