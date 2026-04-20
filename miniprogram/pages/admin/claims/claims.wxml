@@ -25,7 +25,6 @@
       <view class="item-info">
         <view class="item-name">{{item.nickName}}</view>
         <view class="item-prize">{{item.prizeName}}</view>
-        <view class="item-code">兑换码：{{item.claimCode}}</view>
         <view class="item-time">中奖：{{item.createdAt}} · 到期：{{item.expireAt}}</view>
       </view>
       <view class="item-actions">

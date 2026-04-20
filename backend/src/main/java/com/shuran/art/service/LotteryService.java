@@ -110,7 +110,6 @@ public class LotteryService {
 
         // 所有奖品统一待核销，线下兑换后由管理员核销
         record.setStatus("pending");
-        record.setClaimCode(CodeGenerator.generateClaimCode());
         record.setExpireAt(LocalDateTime.now().plusDays(60));
 
         lotteryRecordMapper.insert(record);

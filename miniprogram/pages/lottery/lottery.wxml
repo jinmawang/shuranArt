@@ -83,7 +83,7 @@
         </view>
         <view class="rule-item">
           <text class="rule-num">5</text>
-          <text class="rule-text">抽中实物奖品请到店凭兑换码领取</text>
+          <text class="rule-text">中奖奖品请到画室线下兑换</text>
         </view>
         <view class="rule-item">
           <text class="rule-num">6</text>
@@ -110,8 +110,7 @@
       <view class="result-name">{{resultPrize.prizeName}}</view>
       <view class="result-count" wx:if="{{resultPrize.isGuarantee}}">保底中奖！</view>
       <view class="result-claim">
-        <text>兑换码：{{resultPrize.claimCode}}</text>
-        <text class="claim-tip">请到店出示兑换码领取奖品（有效期2个月）</text>
+        <text class="claim-tip">请到画室线下兑换（有效期2个月）</text>
       </view>
       <button class="btn-primary" bindtap="closeResult">知道了</button>
     </view>
