@@ -108,23 +108,12 @@ public class LotteryService {
         record.setPrizeLevel(selectedPrize.getLevel());
         record.setPrizeValue(selectedPrize.getValue());
 
-        boolean needClaim = selectedPrize.getNeedClaim() != null && selectedPrize.getNeedClaim() == 1;
-        if (needClaim) {
-            record.setStatus("pending");
-            record.setClaimCode(CodeGenerator.generateClaimCode());
-            record.setExpireAt(LocalDateTime.now().plusDays(60));
-        } else {
-            record.setStatus("claimed");
-            record.setClaimedAt(LocalDateTime.now());
-        }
+        // 所有奖品统一待核销，线下兑换后由管理员核销
+        record.setStatus("pending");
+        record.setClaimCode(CodeGenerator.generateClaimCode());
+        record.setExpireAt(LocalDateTime.now().plusDays(60));
 
         lotteryRecordMapper.insert(record);
-
-        // 10. 如果是积分，直接发放
-        if ("points".equals(selectedPrize.getType())) {
-            user.setPoints(user.getPoints() + selectedPrize.getValue());
-            userMapper.updateById(user);
-        }
 
         // 计算距离保底的进度
         int lotteryCountSinceLastWin = calculateLotteryCountSinceLastWin(userId);
@@ -136,7 +125,7 @@ public class LotteryService {
                 .prizeLevel(selectedPrize.getLevel())
                 .prizeValue(selectedPrize.getValue())
                 .icon(selectedPrize.getIcon())
-                .needClaim(needClaim)
+                .needClaim(true)
                 .claimCode(record.getClaimCode())
                 .isGuarantee(needGuarantee)
                 .lotteryCount(lotteryCountSinceLastWin)

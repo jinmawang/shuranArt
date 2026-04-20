@@ -109,12 +109,9 @@
       <image src="{{resultPrize.icon || '/images/prize-default.png'}}" class="result-icon"/>
       <view class="result-name">{{resultPrize.prizeName}}</view>
       <view class="result-count" wx:if="{{resultPrize.isGuarantee}}">保底中奖！</view>
-      <view class="result-claim" wx:if="{{resultPrize.needClaim}}">
+      <view class="result-claim">
         <text>兑换码：{{resultPrize.claimCode}}</text>
-        <text class="claim-tip">请到店出示兑换码领取奖品</text>
-      </view>
-      <view class="result-points" wx:if="{{resultPrize.prizeType === 'points'}}">
-        <text>已自动发放到您的账户</text>
+        <text class="claim-tip">请到店出示兑换码领取奖品（有效期2个月）</text>
       </view>
       <button class="btn-primary" bindtap="closeResult">知道了</button>
     </view>

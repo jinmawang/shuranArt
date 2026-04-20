@@ -361,6 +361,7 @@ public class AdminService {
         return result;
     }
 
+    @Transactional
     public void claimLotteryRecord(Long recordId) {
         LotteryRecord record = lotteryRecordMapper.selectById(recordId);
         if (record == null) {
@@ -375,5 +376,14 @@ public class AdminService {
         record.setStatus("claimed");
         record.setClaimedAt(LocalDateTime.now());
         lotteryRecordMapper.updateById(record);
+
+        // 如果是积分类奖品，核销时发放积分
+        if ("points".equals(record.getPrizeType()) && record.getPrizeValue() != null) {
+            User user = userMapper.selectById(record.getUserId());
+            if (user != null) {
+                user.setPoints(user.getPoints() + record.getPrizeValue());
+                userMapper.updateById(user);
+            }
+        }
     }
 }
