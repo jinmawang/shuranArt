@@ -177,6 +177,13 @@ public class StudentWorkService {
         return enrichWorks(works);
     }
 
+    public void unfeatureWork(Long workId) {
+        StudentWork work = workMapper.selectById(workId);
+        if (work == null) throw new RuntimeException("作品不存在");
+        work.setFeatured(false);
+        workMapper.updateById(work);
+    }
+
     public void rejectWork(Long workId) {
         StudentWork work = workMapper.selectById(workId);
         if (work == null) throw new RuntimeException("作品不存在");

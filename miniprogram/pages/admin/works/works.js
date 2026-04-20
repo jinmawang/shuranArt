@@ -10,6 +10,7 @@ Page({
     allChildren: [],
     pendingWorks: [],
     allWorks: [],
+    featuredWorks: [],
     shareText: '',
     showConfig: false
   },
@@ -44,6 +45,9 @@ Page({
     });
     app.request({ url: '/admin/works/all' }).then(data => {
       this.setData({ allWorks: data || [] });
+    });
+    app.request({ url: '/admin/works/featured' }).then(data => {
+      this.setData({ featuredWorks: data || [] });
     });
   },
 
@@ -93,6 +97,14 @@ Page({
     const id = e.currentTarget.dataset.id;
     app.request({ url: '/admin/works/' + id + '/feature', method: 'POST' }).then(() => {
       wx.showToast({ title: '已加精', icon: 'success' });
+      this.loadData();
+    });
+  },
+
+  unfeatureWork(e) {
+    const id = e.currentTarget.dataset.id;
+    app.request({ url: '/admin/works/' + id + '/unfeature', method: 'POST' }).then(() => {
+      wx.showToast({ title: '已取消加精', icon: 'success' });
       this.loadData();
     });
   },

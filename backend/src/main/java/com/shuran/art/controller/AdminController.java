@@ -215,6 +215,17 @@ public class AdminController {
         return Result.success();
     }
 
+    @PostMapping("/works/{id}/unfeature")
+    public Result<Void> unfeatureWork(@PathVariable Long id) {
+        studentWorkService.unfeatureWork(id);
+        return Result.success();
+    }
+
+    @GetMapping("/works/featured")
+    public Result<List<Map<String, Object>>> getAdminFeaturedWorks() {
+        return Result.success(studentWorkService.getFeaturedWorks());
+    }
+
     @PostMapping("/works/{id}/reject")
     public Result<Void> rejectWork(@PathVariable Long id) {
         studentWorkService.rejectWork(id);
