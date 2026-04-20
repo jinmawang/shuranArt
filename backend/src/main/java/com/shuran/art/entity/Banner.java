@@ -13,6 +13,8 @@ public class Banner {
     private Long id;
     private String imageUrl;
     private String description;
+    private String content;
+    private String shareText;
     private Integer sortOrder;
     private Integer status;
     private LocalDateTime createdAt;

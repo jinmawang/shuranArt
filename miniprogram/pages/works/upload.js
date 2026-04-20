@@ -5,12 +5,15 @@ Page({
     statusBarHeight: 0,
     navBarHeight: 0,
     navBarTotalHeight: 0,
-    children: [],
+    allChildren: [],
+    approvedChildren: [],
     selectedChildId: null,
     imageUrl: '',
     description: '',
     showAddChild: false,
-    newChildName: ''
+    newChildName: '',
+    newChildReason: '',
+    canAddChild: true
   },
 
   goBack() {
@@ -28,11 +31,19 @@ Page({
 
   loadChildren() {
     app.request({ url: '/works/children' }).then(data => {
-      const children = data || [];
+      const all = data || [];
+      const approved = all.filter(c => c.status === 'approved');
+      const pending = all.filter(c => c.status === 'pending');
       this.setData({
-        children: children,
-        selectedChildId: children.length > 0 ? children[0].id : null
+        allChildren: all,
+        approvedChildren: approved,
+        selectedChildId: approved.length > 0 ? approved[0].id : null,
+        canAddChild: all.length < 3
       });
+      // 提示有待审核的孩子
+      if (pending.length > 0 && approved.length === 0) {
+        wx.showToast({ title: '孩子正在审核中，请耐心等待', icon: 'none', duration: 2000 });
+      }
     });
   },
 
@@ -41,7 +52,7 @@ Page({
   },
 
   showAddChildModal() {
-    this.setData({ showAddChild: true, newChildName: '' });
+    this.setData({ showAddChild: true, newChildName: '', newChildReason: '' });
   },
 
   closeAddChild() {
@@ -52,20 +63,31 @@ Page({
     this.setData({ newChildName: e.detail.value });
   },
 
+  onChildReasonInput(e) {
+    this.setData({ newChildReason: e.detail.value });
+  },
+
   addChild() {
     const name = this.data.newChildName.trim();
+    const reason = this.data.newChildReason.trim();
     if (!name) {
-      wx.showToast({ title: '请输入姓名', icon: 'none' });
+      wx.showToast({ title: '请输入孩子姓名', icon: 'none' });
+      return;
+    }
+    if (!reason) {
+      wx.showToast({ title: '请填写申请理由', icon: 'none' });
       return;
     }
     app.request({
       url: '/works/child',
       method: 'POST',
-      data: { name: name }
-    }).then(child => {
-      this.setData({ showAddChild: false, selectedChildId: child.id });
+      data: { name: name, reason: reason }
+    }).then(data => {
+      if (data === null) return;
+      this.setData({ showAddChild: false });
       this.loadChildren();
-      wx.showToast({ title: '添加成功', icon: 'success' });
+      wx.showToast({ title: '已提交申请', icon: 'success', duration: 2000 });
+      wx.showModal({ title: '提交成功', content: '孩子信息已提交，等待管理员审核通过后即可上传作品', showCancel: false });
     });
   },
 
@@ -90,11 +112,15 @@ Page({
 
   submit() {
     if (!this.data.selectedChildId) {
-      wx.showToast({ title: '请选择或添加孩子', icon: 'none' });
+      wx.showToast({ title: '请先选择已审核通过的孩子', icon: 'none' });
       return;
     }
     if (!this.data.imageUrl) {
       wx.showToast({ title: '请上传作品图片', icon: 'none' });
+      return;
+    }
+    if (this.data.description && this.data.description.length > 100) {
+      wx.showToast({ title: '描述不能超过100字', icon: 'none' });
       return;
     }
     app.request({
@@ -105,11 +131,14 @@ Page({
         imageUrl: this.data.imageUrl,
         description: this.data.description
       }
-    }).then(() => {
-      wx.showToast({ title: '提交成功，等待审核', icon: 'success' });
-      setTimeout(() => { wx.navigateBack(); }, 1500);
-    }).catch(err => {
-      wx.showToast({ title: (err && err.msg) || '提交失败', icon: 'none' });
+    }).then(data => {
+      if (data === null) return;
+      wx.showModal({
+        title: '提交成功',
+        content: '作品已提交，等待管理员审核通过后展示在作品墙',
+        showCancel: false,
+        success: () => { wx.navigateBack(); }
+      });
     });
   }
 });

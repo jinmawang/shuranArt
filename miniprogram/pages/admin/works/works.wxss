@@ -79,6 +79,17 @@
   flex-shrink: 0;
 }
 
+.work-thumb.round {
+  border-radius: 50%;
+}
+
+.sub-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #666;
+  padding: 16rpx 0 8rpx;
+}
+
 .work-info { flex: 1; min-width: 0; }
 .work-name { font-size: 28rpx; font-weight: 500; color: #333; }
 .work-desc { font-size: 24rpx; color: #999; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -100,7 +111,8 @@
   justify-content: center;
 }
 .action-btn.approve { background: #e8f5e9; color: #2e7d32; }
-.action-btn.reject { background: #fff3e0; color: #e65100; }
+.action-btn.feature { background: #fff3e0; color: #e65100; }
+.action-btn.reject { background: #fce4ec; color: #c62828; }
 .action-btn.delete { background: #ffebee; color: #e53935; }
 
 .empty-tip { text-align: center; padding: 80rpx 0; color: #999; }

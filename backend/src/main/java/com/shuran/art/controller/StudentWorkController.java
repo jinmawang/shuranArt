@@ -24,15 +24,16 @@ public class StudentWorkController {
         return Result.success(studentWorkService.getMyChildren(userId));
     }
 
-    // 添加孩子
+    // 添加孩子（需审核）
     @PostMapping("/child")
     public Result<StudentChild> addChild(@RequestBody Map<String, String> body, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         String name = body.get("name");
+        String reason = body.get("reason");
         if (name == null || name.isBlank()) {
             return Result.error("请输入孩子姓名");
         }
-        return Result.success(studentWorkService.addChild(userId, name.trim()));
+        return Result.success(studentWorkService.addChild(userId, name.trim(), reason));
     }
 
     // 上传作品
@@ -61,5 +62,11 @@ public class StudentWorkController {
     @GetMapping("/timeline/{childId}")
     public Result<Map<String, Object>> getTimeline(@PathVariable Long childId) {
         return Result.success(studentWorkService.getChildTimeline(childId));
+    }
+
+    // 精选作品（公开）
+    @GetMapping("/featured")
+    public Result<List<Map<String, Object>>> getFeaturedWorks() {
+        return Result.success(studentWorkService.getFeaturedWorks());
     }
 }

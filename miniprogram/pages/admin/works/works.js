@@ -6,10 +6,11 @@ Page({
     navBarHeight: 0,
     navBarTotalHeight: 0,
     currentTab: 0,
+    pendingChildren: [],
+    allChildren: [],
     pendingWorks: [],
     allWorks: [],
     shareText: '',
-    intervalDays: '30',
     showConfig: false
   },
 
@@ -28,11 +29,16 @@ Page({
   },
 
   switchTab(e) {
-    const tab = parseInt(e.currentTarget.dataset.tab);
-    this.setData({ currentTab: tab });
+    this.setData({ currentTab: parseInt(e.currentTarget.dataset.tab) });
   },
 
   loadData() {
+    app.request({ url: '/admin/children/pending' }).then(data => {
+      this.setData({ pendingChildren: data || [] });
+    });
+    app.request({ url: '/admin/children/all' }).then(data => {
+      this.setData({ allChildren: data || [] });
+    });
     app.request({ url: '/admin/works/pending' }).then(data => {
       this.setData({ pendingWorks: data || [] });
     });
@@ -44,16 +50,49 @@ Page({
   loadConfig() {
     app.request({ url: '/admin/config' }).then(data => {
       this.setData({
-        shareText: data.work_share_text || '快来看我在书染美术的作品～',
-        intervalDays: data.work_upload_interval_days || '30'
+        shareText: data.work_share_text || '快来看我在书染美术的作品～'
       });
     });
   },
 
+  // 学员审核
+  approveChild(e) {
+    const id = e.currentTarget.dataset.id;
+    app.request({ url: '/admin/children/' + id + '/approve', method: 'POST' }).then(() => {
+      wx.showToast({ title: '已通过', icon: 'success' });
+      this.loadData();
+    });
+  },
+
+  rejectChild(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '确认拒绝',
+      content: '确定拒绝该学员申请？',
+      success: res => {
+        if (res.confirm) {
+          app.request({ url: '/admin/children/' + id + '/reject', method: 'POST' }).then(() => {
+            wx.showToast({ title: '已拒绝', icon: 'success' });
+            this.loadData();
+          });
+        }
+      }
+    });
+  },
+
+  // 作品审核
   approveWork(e) {
     const id = e.currentTarget.dataset.id;
     app.request({ url: '/admin/works/' + id + '/approve', method: 'POST' }).then(() => {
       wx.showToast({ title: '已通过', icon: 'success' });
+      this.loadData();
+    });
+  },
+
+  featureWork(e) {
+    const id = e.currentTarget.dataset.id;
+    app.request({ url: '/admin/works/' + id + '/feature', method: 'POST' }).then(() => {
+      wx.showToast({ title: '已加精', icon: 'success' });
       this.loadData();
     });
   },
@@ -98,18 +137,11 @@ Page({
     this.setData({ shareText: e.detail.value });
   },
 
-  onIntervalInput(e) {
-    this.setData({ intervalDays: e.detail.value });
-  },
-
   saveConfig() {
     app.request({
       url: '/admin/config',
       method: 'POST',
-      data: {
-        work_share_text: this.data.shareText,
-        work_upload_interval_days: this.data.intervalDays
-      }
+      data: { work_share_text: this.data.shareText }
     }).then(() => {
       wx.showToast({ title: '已保存', icon: 'success' });
       this.setData({ showConfig: false });

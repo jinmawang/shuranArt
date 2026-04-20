@@ -8,11 +8,9 @@ Page({
     works: [],
     page: 1,
     hasMore: true,
-    loading: false
-  },
-
-  goBack() {
-    wx.navigateBack();
+    loading: false,
+    shareText: '快来看我在书染美术的作品～',
+    shareWork: null
   },
 
   onLoad() {
@@ -21,6 +19,12 @@ Page({
       navBarHeight: app.globalData.navBarHeight,
       navBarTotalHeight: app.globalData.navBarTotalHeight
     });
+    this.loadShareText();
+  },
+
+  onShow() {
+    // 每次显示时重新加载（tab页切换回来也刷新）
+    this.setData({ works: [], page: 1, hasMore: true });
     this.loadWorks();
   },
 
@@ -43,6 +47,17 @@ Page({
     });
   },
 
+  loadShareText() {
+    app.request({
+      url: '/studio/config',
+      noAuth: true
+    }).then(data => {
+      if (data && data.work_share_text) {
+        this.setData({ shareText: data.work_share_text });
+      }
+    });
+  },
+
   onReachBottom() {
     this.loadWorks();
   },
@@ -61,5 +76,33 @@ Page({
 
   goToUpload() {
     wx.navigateTo({ url: '/pages/works/upload' });
+  },
+
+  setShareWork(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    this.setData({ shareWork: this.data.works[index] });
+  },
+
+  onShareAppMessage() {
+    const work = this.data.shareWork;
+    if (work) {
+      return {
+        title: this.data.shareText,
+        path: '/pages/works/timeline?childId=' + work.childId,
+        imageUrl: work.imageUrl
+      };
+    }
+    return {
+      title: this.data.shareText,
+      path: '/pages/works/works'
+    };
+  },
+
+  onShareTimeline() {
+    const work = this.data.shareWork;
+    return {
+      title: this.data.shareText,
+      imageUrl: work ? work.imageUrl : ''
+    };
   }
 });

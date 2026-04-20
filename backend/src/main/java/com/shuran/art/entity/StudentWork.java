@@ -14,5 +14,6 @@ public class StudentWork {
     private String imageUrl;
     private String description;
     private String status;
+    private Boolean featured;
     private LocalDateTime createdAt;
 }

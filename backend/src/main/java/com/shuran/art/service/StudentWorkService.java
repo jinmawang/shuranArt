@@ -34,10 +34,29 @@ public class StudentWorkService {
         );
     }
 
-    public StudentChild addChild(Long userId, String name) {
+    public List<StudentChild> getMyApprovedChildren(Long userId) {
+        return childMapper.selectList(
+            new LambdaQueryWrapper<StudentChild>()
+                .eq(StudentChild::getUserId, userId)
+                .eq(StudentChild::getStatus, "approved")
+                .orderByAsc(StudentChild::getCreatedAt)
+        );
+    }
+
+    public StudentChild addChild(Long userId, String name, String reason) {
+        // 每个用户最多3个孩子
+        long count = childMapper.selectCount(
+            new LambdaQueryWrapper<StudentChild>()
+                .eq(StudentChild::getUserId, userId)
+        );
+        if (count >= 3) {
+            throw new RuntimeException("每个账号最多添加3个孩子");
+        }
         StudentChild child = new StudentChild();
         child.setUserId(userId);
         child.setName(name);
+        child.setStatus("pending");
+        child.setReason(reason);
         childMapper.insert(child);
         return child;
     }
@@ -46,31 +65,21 @@ public class StudentWorkService {
 
     @Transactional
     public void uploadWork(Long userId, Long childId, String imageUrl, String description) {
-        // 验证孩子属于该用户
+        // 验证孩子属于该用户且已审核通过
         StudentChild child = childMapper.selectById(childId);
         if (child == null || !child.getUserId().equals(userId)) {
             throw new RuntimeException("无权操作");
         }
-
-        // 检查上传间隔
-        int intervalDays = getUploadIntervalDays();
-        StudentWork lastWork = workMapper.selectOne(
-            new LambdaQueryWrapper<StudentWork>()
-                .eq(StudentWork::getChildId, childId)
-                .eq(StudentWork::getUserId, userId)
-                .orderByDesc(StudentWork::getCreatedAt)
-                .last("LIMIT 1")
-        );
-        if (lastWork != null && lastWork.getCreatedAt().plusDays(intervalDays).isAfter(LocalDateTime.now())) {
-            throw new RuntimeException("每" + intervalDays + "天只能上传一张作品");
+        if (!"approved".equals(child.getStatus())) {
+            throw new RuntimeException("该孩子尚未审核通过");
         }
 
-        // 检查是否超过24张，超过则删除最早的
+        // 检查是否超过30张，超过则删除最早的
         long count = workMapper.selectCount(
             new LambdaQueryWrapper<StudentWork>()
                 .eq(StudentWork::getChildId, childId)
         );
-        if (count >= 24) {
+        if (count >= 30) {
             StudentWork oldest = workMapper.selectOne(
                 new LambdaQueryWrapper<StudentWork>()
                     .eq(StudentWork::getChildId, childId)
@@ -149,6 +158,25 @@ public class StudentWorkService {
         workMapper.updateById(work);
     }
 
+    public void approveAndFeatureWork(Long workId) {
+        StudentWork work = workMapper.selectById(workId);
+        if (work == null) throw new RuntimeException("作品不存在");
+        work.setStatus("approved");
+        work.setFeatured(true);
+        workMapper.updateById(work);
+    }
+
+    public List<Map<String, Object>> getFeaturedWorks() {
+        List<StudentWork> works = workMapper.selectList(
+            new LambdaQueryWrapper<StudentWork>()
+                .eq(StudentWork::getStatus, "approved")
+                .eq(StudentWork::getFeatured, true)
+                .orderByDesc(StudentWork::getCreatedAt)
+                .last("LIMIT 10")
+        );
+        return enrichWorks(works);
+    }
+
     public void rejectWork(Long workId) {
         StudentWork work = workMapper.selectById(workId);
         if (work == null) throw new RuntimeException("作品不存在");
@@ -158,6 +186,62 @@ public class StudentWorkService {
 
     public void deleteWork(Long workId) {
         workMapper.deleteById(workId);
+    }
+
+    // === 孩子审核（管理端） ===
+
+    public List<Map<String, Object>> getPendingChildren() {
+        List<StudentChild> children = childMapper.selectList(
+            new LambdaQueryWrapper<StudentChild>()
+                .eq(StudentChild::getStatus, "pending")
+                .orderByDesc(StudentChild::getCreatedAt)
+        );
+        return enrichChildren(children);
+    }
+
+    public List<Map<String, Object>> getAllChildren() {
+        List<StudentChild> children = childMapper.selectList(
+            new LambdaQueryWrapper<StudentChild>()
+                .orderByDesc(StudentChild::getCreatedAt)
+        );
+        return enrichChildren(children);
+    }
+
+    public void approveChild(Long childId) {
+        StudentChild child = childMapper.selectById(childId);
+        if (child == null) throw new RuntimeException("学员不存在");
+        child.setStatus("approved");
+        childMapper.updateById(child);
+    }
+
+    public void rejectChild(Long childId) {
+        StudentChild child = childMapper.selectById(childId);
+        if (child == null) throw new RuntimeException("学员不存在");
+        child.setStatus("rejected");
+        childMapper.updateById(child);
+    }
+
+    private List<Map<String, Object>> enrichChildren(List<StudentChild> children) {
+        if (children.isEmpty()) return new ArrayList<>();
+        Set<Long> userIds = children.stream().map(StudentChild::getUserId).collect(Collectors.toSet());
+        Map<Long, User> userMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            userMapper.selectBatchIds(userIds).forEach(u -> userMap.put(u.getId(), u));
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (StudentChild c : children) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", c.getId());
+            item.put("name", c.getName());
+            item.put("status", c.getStatus());
+            item.put("reason", c.getReason());
+            item.put("createdAt", c.getCreatedAt());
+            User user = userMap.get(c.getUserId());
+            item.put("parentName", user != null ? user.getNickName() : "未知");
+            item.put("parentAvatar", user != null ? user.getAvatarUrl() : "");
+            result.add(item);
+        }
+        return result;
     }
 
     // === 辅助方法 ===
@@ -184,16 +268,6 @@ public class StudentWorkService {
             result.add(item);
         }
         return result;
-    }
-
-    private int getUploadIntervalDays() {
-        Map<String, String> config = adminService.getStudioConfig();
-        String val = config.get("work_upload_interval_days");
-        try {
-            return val != null ? Integer.parseInt(val) : 30;
-        } catch (NumberFormatException e) {
-            return 30;
-        }
     }
 
     private String getShareText() {

@@ -231,5 +231,13 @@ Page({
       path: `/pages/activity/activity?id=${activity.id}&sharerId=${userId || ''}&shareCode=${this.data.shareCode || ''}`,
       imageUrl: activity.shareImage || activity.coverImg || '/images/share-default.png'
     };
+  },
+
+  onShareTimeline() {
+    const activity = this.data.activity;
+    return {
+      title: activity.shareTitle || activity.title || '快来参加活动吧！',
+      imageUrl: activity.shareImage || activity.coverImg || '/images/share-default.png'
+    };
   }
 });

@@ -10,7 +10,7 @@
   <!-- 顶部轮播图 -->
   <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" autoplay interval="3500" circular wx:if="{{banners.length > 0}}">
     <swiper-item wx:for="{{banners}}" wx:key="id">
-      <view class="banner-item">
+      <view class="banner-item" bindtap="goToBannerDetail" data-id="{{item.id}}">
         <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-img"/>
         <view class="banner-desc" wx:if="{{item.description}}">{{item.description}}</view>
       </view>
@@ -44,15 +44,6 @@
     </view>
   </view>
 
-  <!-- 作品墙入口 -->
-  <view class="works-entry" bindtap="goToWorks">
-    <view class="works-entry-text">
-      <view class="works-entry-title">学员作品墙</view>
-      <view class="works-entry-desc">欣赏学员的精彩创作</view>
-    </view>
-    <view class="works-entry-arrow"></view>
-  </view>
-
   <!-- 热门活动 -->
   <view class="section" wx:if="{{activities.length > 0}}">
     <view class="section-title">热门活动</view>
@@ -74,7 +65,7 @@
   <view class="section" wx:if="{{worksAll.length > 0}}">
     <view class="section-header-row">
       <text class="section-title">精选作品</text>
-      <text class="section-more" bindtap="goToStudio">查看更多</text>
+      <text class="section-more" bindtap="goToWorksWall">查看更多</text>
     </view>
     <view class="works-waterfall">
       <view class="works-col">

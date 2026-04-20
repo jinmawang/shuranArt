@@ -191,6 +191,12 @@ public class AdminController {
         return Result.success();
     }
 
+    @PostMapping("/works/{id}/feature")
+    public Result<Void> approveAndFeatureWork(@PathVariable Long id) {
+        studentWorkService.approveAndFeatureWork(id);
+        return Result.success();
+    }
+
     @PostMapping("/works/{id}/reject")
     public Result<Void> rejectWork(@PathVariable Long id) {
         studentWorkService.rejectWork(id);
@@ -200,6 +206,29 @@ public class AdminController {
     @DeleteMapping("/works/{id}")
     public Result<Void> deleteWork(@PathVariable Long id) {
         studentWorkService.deleteWork(id);
+        return Result.success();
+    }
+
+    // 学员审核
+    @GetMapping("/children/pending")
+    public Result<List<Map<String, Object>>> getPendingChildren() {
+        return Result.success(studentWorkService.getPendingChildren());
+    }
+
+    @GetMapping("/children/all")
+    public Result<List<Map<String, Object>>> getAllChildren() {
+        return Result.success(studentWorkService.getAllChildren());
+    }
+
+    @PostMapping("/children/{id}/approve")
+    public Result<Void> approveChild(@PathVariable Long id) {
+        studentWorkService.approveChild(id);
+        return Result.success();
+    }
+
+    @PostMapping("/children/{id}/reject")
+    public Result<Void> rejectChild(@PathVariable Long id) {
+        studentWorkService.rejectChild(id);
         return Result.success();
     }
 }

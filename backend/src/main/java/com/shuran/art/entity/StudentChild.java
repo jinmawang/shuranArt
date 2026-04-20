@@ -12,5 +12,7 @@ public class StudentChild {
     private Long userId;
     private String name;
     private String avatar;
+    private String status;
+    private String reason;
     private LocalDateTime createdAt;
 }

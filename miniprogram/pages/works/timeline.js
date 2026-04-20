@@ -52,5 +52,13 @@ Page({
       path: '/pages/works/timeline?childId=' + child.id,
       imageUrl: latestWork ? latestWork.imageUrl : ''
     };
+  },
+
+  onShareTimeline() {
+    const latestWork = this.data.works.length > 0 ? this.data.works[0] : null;
+    return {
+      title: this.data.shareText,
+      imageUrl: latestWork ? latestWork.imageUrl : ''
+    };
   }
 });

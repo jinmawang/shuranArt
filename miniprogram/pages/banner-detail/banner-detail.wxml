@@ -1,0 +1,24 @@
+<view class="detail-page">
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      {{banner.description || '详情'}}
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <image src="{{banner.imageUrl}}" mode="widthFix" class="detail-img" bindtap="previewImage"/>
+
+  <view class="detail-card" wx:if="{{banner.description}}">
+    <view class="detail-title">{{banner.description}}</view>
+  </view>
+
+  <view class="detail-card" wx:if="{{banner.content}}">
+    <view class="detail-content">{{banner.content}}</view>
+  </view>
+
+  <view class="share-bar">
+    <button class="share-btn" open-type="share">分享给好友</button>
+  </view>
+</view>

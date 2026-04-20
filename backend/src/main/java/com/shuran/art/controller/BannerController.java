@@ -25,4 +25,9 @@ public class BannerController {
         );
         return Result.success(banners);
     }
+
+    @GetMapping("/detail")
+    public Result<Banner> getBanner(@RequestParam Long id) {
+        return Result.success(bannerMapper.selectById(id));
+    }
 }

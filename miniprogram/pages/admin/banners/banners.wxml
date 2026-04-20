@@ -54,6 +54,14 @@
         <input class="input" value="{{editing.description}}" data-key="description" bindinput="onInput" maxlength="20" placeholder="请输入描述"/>
       </view>
       <view class="form-item">
+        <text class="label">笔记内容（点击轮播图后展示）</text>
+        <textarea class="textarea tall" value="{{editing.content}}" data-key="content" bindinput="onInput" placeholder="请输入笔记详细内容，支持几百字" maxlength="1000"/>
+      </view>
+      <view class="form-item">
+        <text class="label">分享文案</text>
+        <input class="input" value="{{editing.shareText}}" data-key="shareText" bindinput="onInput" placeholder="分享给好友时显示的文案"/>
+      </view>
+      <view class="form-item">
         <text class="label">排序（数字越小越靠前）</text>
         <input class="input" type="number" value="{{editing.sortOrder}}" data-key="sortOrder" bindinput="onInput" placeholder="0"/>
       </view>

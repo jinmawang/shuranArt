@@ -55,9 +55,9 @@ Page({
       { id: 1, img: 'https://tianma.chat/images/%E7%94%BB%E5%AE%A4%E5%A5%96%E7%AB%A0/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241212083047.jpg' },
       { id: 2, img: 'https://tianma.chat/images/%E7%94%BB%E5%AE%A4%E5%A5%96%E7%AB%A0/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20241212083111.jpg' }
     ],
-    worksLeft: WORKS_ALL.filter(function(_, i) { return i % 2 === 0; }),
-    worksRight: WORKS_ALL.filter(function(_, i) { return i % 2 === 1; }),
-    worksAll: WORKS_ALL,
+    worksLeft: [],
+    worksRight: [],
+    worksAll: [],
     balls: [
       { char: '书', x: 60,  y: 120 },
       { char: '染', x: 140, y: 120 },
@@ -103,7 +103,8 @@ Page({
     return Promise.all([
       this.loadConfig(),
       this.loadActivities(),
-      this.loadBanners()
+      this.loadBanners(),
+      this.loadFeaturedWorks()
     ]);
   },
 
@@ -140,6 +141,37 @@ Page({
       self.setData({ banners: (data && data.length) ? data : self.LOCAL_BANNERS });
     }).catch(function() {
       self.setData({ banners: self.LOCAL_BANNERS });
+    });
+  },
+
+  loadFeaturedWorks: function() {
+    var self = this;
+    return app.request({
+      url: '/works/featured',
+      noAuth: true
+    }).then(function(data) {
+      var featured = (data || []).map(function(w) { return w.imageUrl; });
+      // 不足10条用内置图片补齐
+      var all = featured.slice();
+      var i = 0;
+      while (all.length < 10 && i < WORKS_ALL.length) {
+        if (all.indexOf(WORKS_ALL[i]) === -1) {
+          all.push(WORKS_ALL[i]);
+        }
+        i++;
+      }
+      self.setData({
+        worksAll: all,
+        worksLeft: all.filter(function(_, idx) { return idx % 2 === 0; }),
+        worksRight: all.filter(function(_, idx) { return idx % 2 === 1; })
+      });
+    }).catch(function() {
+      // 接口失败用内置
+      self.setData({
+        worksAll: WORKS_ALL,
+        worksLeft: WORKS_ALL.filter(function(_, idx) { return idx % 2 === 0; }),
+        worksRight: WORKS_ALL.filter(function(_, idx) { return idx % 2 === 1; })
+      });
     });
   },
 
@@ -206,6 +238,15 @@ Page({
 
   goToWorks: function() {
     wx.navigateTo({ url: '/pages/works/works' });
+  },
+
+  goToWorksWall: function() {
+    wx.switchTab({ url: '/pages/works/works' });
+  },
+
+  goToBannerDetail: function(e) {
+    var id = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: '/pages/banner-detail/banner-detail?id=' + id });
   },
 
   goToActivityDetail: function(e) {

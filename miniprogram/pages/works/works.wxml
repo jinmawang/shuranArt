@@ -1,36 +1,26 @@
 <view class="works-page">
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
-    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
-      <view class="custom-nav-back" bindtap="goBack"></view>
-      作品墙
-    </view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px;">作品墙</view>
   </view>
   <view style="height:{{navBarTotalHeight}}px;"></view>
 
-  <!-- 上传入口 -->
-  <view class="upload-bar" bindtap="goToUpload">
-    <text class="upload-bar-text">上传我的作品</text>
-    <text class="upload-bar-icon">+</text>
-  </view>
-
-  <!-- 瀑布流 -->
-  <view class="waterfall">
-    <view class="waterfall-col">
-      <view class="work-card" wx:for="{{works}}" wx:key="id" wx:if="{{index % 2 === 0}}">
-        <image src="{{item.imageUrl}}" mode="widthFix" class="work-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
-        <view class="work-info" bindtap="goToTimeline" data-childid="{{item.childId}}">
-          <text class="work-child-name">{{item.childName}}</text>
-          <text class="work-desc" wx:if="{{item.description}}">{{item.description}}</text>
+  <!-- 时间线 -->
+  <view class="timeline" wx:if="{{works.length > 0}}">
+    <view class="timeline-item" wx:for="{{works}}" wx:key="id">
+      <view class="timeline-dot"></view>
+      <view class="timeline-line" wx:if="{{index < works.length - 1}}"></view>
+      <view class="timeline-content">
+        <view class="timeline-header">
+          <text class="timeline-name" bindtap="goToTimeline" data-childid="{{item.childId}}">{{item.childName}}</text>
+          <text class="timeline-date">{{item.createdAt}}</text>
         </view>
-      </view>
-    </view>
-    <view class="waterfall-col">
-      <view class="work-card" wx:for="{{works}}" wx:key="id" wx:if="{{index % 2 === 1}}">
-        <image src="{{item.imageUrl}}" mode="widthFix" class="work-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
-        <view class="work-info" bindtap="goToTimeline" data-childid="{{item.childId}}">
-          <text class="work-child-name">{{item.childName}}</text>
-          <text class="work-desc" wx:if="{{item.description}}">{{item.description}}</text>
+        <image src="{{item.imageUrl}}" mode="widthFix" class="timeline-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
+        <view class="timeline-footer">
+          <view class="timeline-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          <button class="share-float-btn" open-type="share" bindtap="setShareWork" data-index="{{index}}">
+            <image src="/images/icon-share-blue.png" class="share-btn-icon"/>
+          </button>
         </view>
       </view>
     </view>
@@ -38,4 +28,15 @@
 
   <view wx:if="{{works.length === 0 && !loading}}" class="empty-tip">暂无作品，快来上传第一幅吧</view>
   <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+
+  <view class="bottom-tip">只保存最近30张作品～审核通过后才可展示哦～</view>
+
+  <!-- 底部留白给固定按钮 -->
+  <view style="height: 120rpx;"></view>
+
+  <!-- 固定底部上传按钮 -->
+  <view class="upload-fixed" bindtap="goToUpload">
+    <text class="upload-fixed-icon">+</text>
+    <text class="upload-fixed-text">上传我的作品</text>
+  </view>
 </view>

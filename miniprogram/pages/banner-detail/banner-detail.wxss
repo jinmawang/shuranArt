@@ -1,0 +1,42 @@
+.detail-page { min-height: 100vh; background: #F0F7FF; }
+
+.detail-img { width: 100%; display: block; }
+
+.detail-card {
+  margin: 20rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(74,158,204,0.08);
+}
+
+.detail-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1A2E3D;
+  line-height: 1.5;
+}
+
+.detail-content {
+  font-size: 28rpx;
+  color: #4A5E6D;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.share-bar {
+  padding: 24rpx;
+}
+
+.share-btn {
+  background: #4A9ECC !important;
+  color: #fff !important;
+  border-radius: 44rpx !important;
+  height: 88rpx;
+  font-size: 30rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.share-btn::after { border: none; }

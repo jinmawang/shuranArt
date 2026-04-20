@@ -9,6 +9,7 @@
     "pages/teachers/teachers",
     "pages/courses/courses",
     "pages/course-detail/course-detail",
+    "pages/banner-detail/banner-detail",
     "pages/my/my",
     "pages/admin/index/index",
     "pages/admin/config/config",
@@ -49,6 +50,12 @@
         "text": "抽奖",
         "iconPath": "images/tab-lottery.png",
         "selectedIconPath": "images/tab-lottery-active.png"
+      },
+      {
+        "pagePath": "pages/works/works",
+        "text": "作品墙",
+        "iconPath": "images/tab-works.png",
+        "selectedIconPath": "images/tab-works-active.png"
       },
       {
         "pagePath": "pages/my/my",
