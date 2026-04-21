@@ -57,13 +57,13 @@ rsync -avz --progress \
 # Step 3: 在服务器上重启服务
 echo ""
 echo "[3/4] 重启服务..."
-ssh "$SERVER" "cd $REMOTE_DIR && sudo docker-compose down && sudo docker-compose up -d --build"
+ssh "$SERVER" "cd $REMOTE_DIR && sudo docker compose down && sudo docker compose up -d --build"
 
 # Step 4: 验证服务状态
 echo ""
 echo "[4/4] 验证服务状态..."
 sleep 5
-ssh "$SERVER" "cd $REMOTE_DIR && sudo docker-compose ps"
+ssh "$SERVER" "cd $REMOTE_DIR && sudo docker compose ps"
 
 echo ""
 echo "========================================="
