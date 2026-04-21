@@ -34,11 +34,13 @@ Page({
       const all = data || [];
       const approved = all.filter(c => c.status === 'approved');
       const pending = all.filter(c => c.status === 'pending');
+      // 只有 pending + approved 计入名额，rejected 不占位
+      const activeCount = approved.length + pending.length;
       this.setData({
         allChildren: all,
         approvedChildren: approved,
         selectedChildId: approved.length > 0 ? approved[0].id : null,
-        canAddChild: all.length < 3
+        canAddChild: activeCount < 3
       });
       // 提示有待审核的孩子
       if (pending.length > 0 && approved.length === 0) {

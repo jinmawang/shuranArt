@@ -44,10 +44,11 @@ public class StudentWorkService {
     }
 
     public StudentChild addChild(Long userId, String name, String reason) {
-        // 每个用户最多3个孩子
+        // 每个用户最多3个孩子（只计算 pending + approved，rejected 不占名额）
         long count = childMapper.selectCount(
             new LambdaQueryWrapper<StudentChild>()
                 .eq(StudentChild::getUserId, userId)
+                .in(StudentChild::getStatus, "pending", "approved")
         );
         if (count >= 3) {
             throw new RuntimeException("每个账号最多添加3个孩子");
