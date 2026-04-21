@@ -19,7 +19,7 @@ echo "========================================="
 echo ""
 echo "[1/4] 构建后端 JAR 包..."
 cd "$PROJECT_DIR/backend"
-mvn clean package -DskipTests -q
+JAVA_HOME=$(/usr/libexec/java_home) mvn clean package -DskipTests -q
 if [ ! -f target/art-backend-1.0.0.jar ]; then
   echo "❌ JAR 构建失败！"
   exit 1
