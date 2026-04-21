@@ -350,11 +350,19 @@ public class GroupBuyService {
         teamMapper.updateById(team);
         log.info("拼团成功: activityId={}, teamId={}", activity.getId(), team.getId());
 
-        // 发送订阅消息通知所有团员
+        // 异步发送订阅消息，不阻塞事务
+        final Long teamId = team.getId();
+        final Long activityIdFinal = activity.getId();
+        final String title = activity.getTitle();
+        final String completedTime = team.getCompletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        new Thread(() -> sendGroupCompleteNotifications(teamId, activityIdFinal, title, completedTime)).start();
+    }
+
+    private void sendGroupCompleteNotifications(Long teamId, Long activityId, String title, String completedTime) {
         try {
             List<GroupBuyMember> members = memberMapper.selectList(
                 new LambdaQueryWrapper<GroupBuyMember>()
-                    .eq(GroupBuyMember::getTeamId, team.getId())
+                    .eq(GroupBuyMember::getTeamId, teamId)
             );
 
             String accessToken = wxAccessTokenManager.getAccessToken();
@@ -369,6 +377,9 @@ public class GroupBuyService {
 
             String url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=" + accessToken;
 
+            // thing类型字段限制20字符，超出截断
+            String safeTitle = title != null && title.length() > 20 ? title.substring(0, 20) : title;
+
             for (GroupBuyMember member : members) {
                 try {
                     String openid = getOpenidByUserId(member.getUserId());
@@ -377,17 +388,23 @@ public class GroupBuyService {
                     Map<String, Object> msg = new HashMap<>();
                     msg.put("touser", openid);
                     msg.put("template_id", SUBSCRIBE_TEMPLATE_ID);
-                    msg.put("page", "pages/groupbuy/groupbuy?id=" + activity.getId() + "&teamId=" + team.getId());
+                    msg.put("page", "pages/groupbuy/groupbuy?id=" + activityId + "&teamId=" + teamId);
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("thing1", Map.of("value", activity.getTitle()));
+                    data.put("thing1", Map.of("value", safeTitle));
                     data.put("thing2", Map.of("value", "拼团成功！请联系老师线下缴费"));
-                    data.put("time3", Map.of("value", team.getCompletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-                    data.put("character_string4", Map.of("value", String.valueOf(team.getId())));
+                    data.put("time3", Map.of("value", completedTime));
+                    data.put("character_string4", Map.of("value", String.valueOf(teamId)));
                     msg.put("data", data);
 
-                    restTemplate.postForObject(url, msg, Map.class);
-                    log.info("拼团成功通知已发送给用户: {}", member.getUserId());
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> resp = restTemplate.postForObject(url, msg, Map.class);
+                    if (resp != null && !Integer.valueOf(0).equals(resp.get("errcode"))) {
+                        log.warn("订阅消息发送失败, userId: {}, errcode: {}, errmsg: {}",
+                            member.getUserId(), resp.get("errcode"), resp.get("errmsg"));
+                    } else {
+                        log.info("拼团成功通知已发送给用户: {}", member.getUserId());
+                    }
                 } catch (Exception e) {
                     log.warn("发送订阅消息失败, userId: {}", member.getUserId(), e);
                 }
