@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -56,9 +57,19 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public Result<Void> updateUser(HttpServletRequest request, @RequestBody User user) {
+    public Result<Void> updateUser(HttpServletRequest request, @RequestBody Map<String, String> body) {
         Long userId = (Long) request.getAttribute("userId");
-        user.setId(userId);
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        // 只允许更新昵称和头像，防止篡改积分等敏感字段
+        if (body.containsKey("nickName")) {
+            user.setNickName(body.get("nickName"));
+        }
+        if (body.containsKey("avatarUrl")) {
+            user.setAvatarUrl(body.get("avatarUrl"));
+        }
         userService.updateUser(user);
         return Result.success();
     }

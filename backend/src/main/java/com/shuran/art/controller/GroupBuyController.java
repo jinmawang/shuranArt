@@ -2,6 +2,7 @@ package com.shuran.art.controller;
 
 import com.shuran.art.dto.Result;
 import com.shuran.art.entity.GroupBuyActivity;
+import com.shuran.art.entity.GroupBuyMember;
 import com.shuran.art.entity.GroupBuyTeam;
 import com.shuran.art.service.GroupBuyService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ public class GroupBuyController {
 
     /**
      * 获取拼团活动详情+团列表（无需登录）
+     * 注意：公开接口，需要隐藏成员手机号
      */
     @GetMapping("/activity")
     public Result<Map<String, Object>> getActivityDetail(@RequestParam Long id) {
@@ -35,6 +37,8 @@ public class GroupBuyController {
         if (detail == null) {
             return Result.error("活动不存在");
         }
+        // 公开接口隐藏手机号
+        stripPhoneFromTeams(detail);
         return Result.success(detail);
     }
 
@@ -75,7 +79,7 @@ public class GroupBuyController {
     }
 
     /**
-     * 获取团详情
+     * 获取团详情（隐藏手机号）
      */
     @GetMapping("/team")
     public Result<GroupBuyTeam> getTeamDetail(@RequestParam Long id) {
@@ -83,15 +87,42 @@ public class GroupBuyController {
         if (team == null) {
             return Result.error("团不存在");
         }
+        stripPhoneFromTeam(team);
         return Result.success(team);
     }
 
     /**
-     * 我参与的团
+     * 我参与的团（隐藏手机号）
      */
     @GetMapping("/my-teams")
     public Result<List<Map<String, Object>>> getMyTeams(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        return Result.success(groupBuyService.getMyTeams(userId));
+        List<Map<String, Object>> list = groupBuyService.getMyTeams(userId);
+        for (Map<String, Object> item : list) {
+            Object t = item.get("team");
+            if (t instanceof GroupBuyTeam) {
+                stripPhoneFromTeam((GroupBuyTeam) t);
+            }
+        }
+        return Result.success(list);
+    }
+
+    /**
+     * 非管理员接口隐藏成员手机号（隐私保护）
+     */
+    @SuppressWarnings("unchecked")
+    private void stripPhoneFromTeams(Map<String, Object> detail) {
+        List<GroupBuyTeam> teams = (List<GroupBuyTeam>) detail.get("teams");
+        if (teams == null) return;
+        for (GroupBuyTeam team : teams) {
+            stripPhoneFromTeam(team);
+        }
+    }
+
+    private void stripPhoneFromTeam(GroupBuyTeam team) {
+        if (team.getMembers() == null) return;
+        for (GroupBuyMember member : team.getMembers()) {
+            member.setPhone(null);
+        }
     }
 }

@@ -103,6 +103,13 @@ public class GroupBuyService {
             return result;
         }
 
+        // 检查用户是否已在该活动的某个团中（防止重复开团/参团）
+        if (isUserInActivity(userId, activityId)) {
+            result.put("success", false);
+            result.put("msg", "您已参与该活动的拼团");
+            return result;
+        }
+
         // 创建团
         GroupBuyTeam team = new GroupBuyTeam();
         team.setActivityId(activityId);
@@ -175,10 +182,18 @@ public class GroupBuyService {
             return result;
         }
 
-        // 检查团是否已满
-        if (team.getMemberCount() >= activity.getGroupSize()) {
+        // 检查用户是否已在该活动的其他团中
+        if (isUserInActivity(userId, team.getActivityId())) {
             result.put("success", false);
-            result.put("msg", "该团已满");
+            result.put("msg", "您已参与该活动的拼团");
+            return result;
+        }
+
+        // 检查团是否已满（再次读取最新memberCount防并发）
+        GroupBuyTeam freshTeam = teamMapper.selectById(teamId);
+        if (freshTeam == null || freshTeam.getStatus() != 0 || freshTeam.getMemberCount() >= activity.getGroupSize()) {
+            result.put("success", false);
+            result.put("msg", "该团已满或已成团");
             return result;
         }
 
@@ -194,18 +209,18 @@ public class GroupBuyService {
         fillMemberFromUser(member, userId);
         memberMapper.insert(member);
 
-        // 更新人数
-        team.setMemberCount(team.getMemberCount() + 1);
-        teamMapper.updateById(team);
+        // 更新人数（使用freshTeam的最新数据）
+        freshTeam.setMemberCount(freshTeam.getMemberCount() + 1);
+        teamMapper.updateById(freshTeam);
 
         // 检查是否成团
-        if (team.getMemberCount() >= activity.getGroupSize()) {
-            completeTeam(team, activity);
+        if (freshTeam.getMemberCount() >= activity.getGroupSize()) {
+            completeTeam(freshTeam, activity);
         }
 
         result.put("success", true);
         result.put("teamId", teamId);
-        result.put("completed", team.getStatus() == 1);
+        result.put("completed", freshTeam.getStatus() == 1);
         return result;
     }
 
@@ -281,6 +296,26 @@ public class GroupBuyService {
     }
 
     // ─── 内部方法 ─────────────────────────────────
+
+    /**
+     * 检查用户是否已在该活动的任意团中
+     */
+    private boolean isUserInActivity(Long userId, Long activityId) {
+        // 获取该活动的所有团ID
+        List<GroupBuyTeam> teams = teamMapper.selectList(
+            new LambdaQueryWrapper<GroupBuyTeam>()
+                .eq(GroupBuyTeam::getActivityId, activityId)
+                .select(GroupBuyTeam::getId)
+        );
+        if (teams.isEmpty()) return false;
+        List<Long> teamIds = teams.stream().map(GroupBuyTeam::getId).toList();
+        Long count = memberMapper.selectCount(
+            new LambdaQueryWrapper<GroupBuyMember>()
+                .in(GroupBuyMember::getTeamId, teamIds)
+                .eq(GroupBuyMember::getUserId, userId)
+        );
+        return count > 0;
+    }
 
     private void fillMemberFromUser(GroupBuyMember member, Long userId) {
         User user = userMapper.selectById(userId);
