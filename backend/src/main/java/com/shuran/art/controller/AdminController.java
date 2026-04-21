@@ -8,6 +8,7 @@ import com.shuran.art.entity.Prize;
 import com.shuran.art.entity.Teacher;
 import com.shuran.art.entity.User;
 import com.shuran.art.service.AdminService;
+import com.shuran.art.service.GroupBuyService;
 import com.shuran.art.service.StudentWorkService;
 import com.shuran.art.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final GroupBuyService groupBuyService;
     private final StudentWorkService studentWorkService;
     private final UserService userService;
 
@@ -259,5 +261,29 @@ public class AdminController {
     public Result<Void> rejectChild(@PathVariable Long id) {
         studentWorkService.rejectChild(id);
         return Result.success();
+    }
+
+    // ─── 拼团管理 ─────────────────────────────────
+
+    @GetMapping("/groupbuy/activities")
+    public Result<List<com.shuran.art.entity.GroupBuyActivity>> getGroupBuyActivities() {
+        return Result.success(groupBuyService.getAllActivities());
+    }
+
+    @PostMapping("/groupbuy/activity")
+    public Result<Void> saveGroupBuyActivity(@RequestBody com.shuran.art.entity.GroupBuyActivity activity) {
+        groupBuyService.saveActivity(activity);
+        return Result.success();
+    }
+
+    @DeleteMapping("/groupbuy/activity/{id}")
+    public Result<Void> deleteGroupBuyActivity(@PathVariable Long id) {
+        groupBuyService.deleteActivity(id);
+        return Result.success();
+    }
+
+    @GetMapping("/groupbuy/teams")
+    public Result<List<com.shuran.art.entity.GroupBuyTeam>> getGroupBuyTeams(@RequestParam Long activityId) {
+        return Result.success(groupBuyService.getTeamsByActivity(activityId));
     }
 }

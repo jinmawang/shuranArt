@@ -1,8 +1,10 @@
+<wxs src="../../utils/time.wxs" module="T"/>
 <view class="timeline-page">
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
-      <view class="custom-nav-back" bindtap="goBack"></view>
+      <view wx:if="{{!isFromShare}}" class="custom-nav-back" bindtap="goBack"></view>
+      <view wx:else class="custom-nav-home" bindtap="goHome"><image src="/images/icons/home-copy.png" class="nav-home-icon"/></view>
       {{child.name || '作品集'}}
     </view>
   </view>
@@ -20,7 +22,7 @@
       <view class="timeline-dot"></view>
       <view class="timeline-line" wx:if="{{index < works.length - 1}}"></view>
       <view class="timeline-content">
-        <view class="timeline-date">{{item.createdAt}}</view>
+        <view class="timeline-date">{{T.formatDateTime(item.createdAt)}}</view>
         <image src="{{item.imageUrl}}" mode="widthFix" class="timeline-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
         <view class="timeline-desc" wx:if="{{item.description}}">{{item.description}}</view>
         <!-- 只有最新一张可以分享 -->

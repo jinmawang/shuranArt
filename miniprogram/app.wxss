@@ -55,6 +55,24 @@ page {
   transform: rotate(45deg);
 }
 
+/* 首页按钮（从分享进入时显示） */
+.custom-nav-home {
+  position: absolute;
+  left: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  font-size: 36rpx;
+  color: #fff;
+}
+
+.nav-home-icon {
+  width: 44rpx;
+  height: 44rpx;
+}
+
 /* 主题颜色 */
 .primary-color { color: #4A9ECC; }
 .secondary-color { color: #3A8EBC; }

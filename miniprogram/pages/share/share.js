@@ -9,18 +9,24 @@ Page({
     userInfo: {},
     activityId: null,
     shareStatus: {},
-    shareCode: null
+    shareCode: null,
+    isFromShare: false
   },
 
   goBack() {
     wx.navigateBack();
   },
 
+  goHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   onLoad(options) {
     this.setData({
       statusBarHeight: app.globalData.statusBarHeight,
       navBarHeight: app.globalData.navBarHeight,
-      navBarTotalHeight: app.globalData.navBarTotalHeight
+      navBarTotalHeight: app.globalData.navBarTotalHeight,
+      isFromShare: getCurrentPages().length === 1
     });
     if (options.activityId) {
       this.setData({ activityId: options.activityId });

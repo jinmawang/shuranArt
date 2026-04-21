@@ -252,9 +252,11 @@ public class AdminService {
             if (user != null) {
                 item.put("nickName", user.getNickName());
                 item.put("avatarUrl", user.getAvatarUrl());
+                item.put("phone", user.getPhone());
             } else {
                 item.put("nickName", admin.getName() != null ? admin.getName() : "未知用户");
                 item.put("avatarUrl", "");
+                item.put("phone", "");
             }
             result.add(item);
         }

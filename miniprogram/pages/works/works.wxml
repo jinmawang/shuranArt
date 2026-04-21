@@ -1,3 +1,4 @@
+<wxs src="../../utils/time.wxs" module="T"/>
 <view class="works-page">
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
@@ -13,7 +14,7 @@
       <view class="timeline-content">
         <view class="timeline-header">
           <text class="timeline-name" bindtap="goToTimeline" data-childid="{{item.childId}}">{{item.childName}}</text>
-          <text class="timeline-date">{{item.createdAt}}</text>
+          <text class="timeline-date">{{T.formatDateTime(item.createdAt)}}</text>
         </view>
         <image src="{{item.imageUrl}}" mode="widthFix" class="timeline-img" bindtap="previewImage" data-src="{{item.imageUrl}}"/>
         <view class="timeline-footer">

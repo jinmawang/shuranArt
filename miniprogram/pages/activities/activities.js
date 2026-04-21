@@ -22,25 +22,48 @@ Page({
   },
 
   loadActivities() {
-    app.request({
-      url: '/activity/list',
-      noAuth: true
-    }).then(data => {
-      var now = new Date();
-      var activities = (data || []).map(function(item) {
-        var startDate = item.startTime ? item.startTime.split('T')[0].split(' ')[0] : '';
-        var endDate = item.endTime ? item.endTime.split('T')[0].split(' ')[0] : '';
+    var self = this;
+    Promise.all([
+      app.request({ url: '/activity/list', noAuth: true }).catch(function() { return []; }),
+      app.request({ url: '/groupbuy/activities', noAuth: true }).catch(function() { return []; })
+    ]).then(function(results) {
+      var normal = (results[0] || []).map(function(item) {
         return Object.assign({}, item, {
-          startDate: startDate,
-          endDate: endDate
+          type: 'activity',
+          startDate: self.formatDate(item.startTime),
+          endDate: self.formatDate(item.endTime)
         });
       });
-      this.setData({ activities: activities });
+      var groupbuy = (results[1] || []).map(function(item) {
+        return Object.assign({}, item, {
+          type: 'groupbuy',
+          startDate: self.formatDate(item.startTime),
+          endDate: self.formatDate(item.endTime)
+        });
+      });
+      var all = normal.concat(groupbuy);
+      all.sort(function(a, b) {
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+      self.setData({ activities: all });
     });
   },
 
+  formatDate: function(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    var str = dateTimeStr.replace('T', ' ');
+    var datePart = str.split(' ')[0] || '';
+    var d = datePart.split('-');
+    if (d.length < 3) return datePart;
+    return d[0] + '年' + parseInt(d[1]) + '月' + parseInt(d[2]) + '日';
+  },
+
   goToDetail(e) {
-    var id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/activity/activity?id=' + id });
+    var item = e.currentTarget.dataset;
+    if (item.type === 'groupbuy') {
+      wx.navigateTo({ url: '/pages/groupbuy/groupbuy?id=' + item.id });
+    } else {
+      wx.navigateTo({ url: '/pages/activity/activity?id=' + item.id });
+    }
   }
 });

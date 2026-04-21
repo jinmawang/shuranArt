@@ -1,3 +1,4 @@
+<wxs src="../../../utils/time.wxs" module="T"/>
 <view class="list-page">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
@@ -23,7 +24,8 @@
           {{item.nickName}}
           <text wx:if="{{item.isSuper}}" class="super-badge">超级管理员</text>
         </view>
-        <view class="item-title">添加时间：{{item.createdAt}}</view>
+        <view class="item-title" wx:if="{{item.phone}}">手机号：{{item.phone}}</view>
+        <view class="item-title">添加时间：{{T.formatDateTime(item.createdAt)}}</view>
       </view>
       <view class="item-actions" wx:if="{{!item.isSuper}}">
         <view class="action-btn delete" bindtap="deleteAdmin" data-id="{{item.id}}" data-name="{{item.nickName}}">删除</view>

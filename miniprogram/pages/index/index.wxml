@@ -48,11 +48,14 @@
   <view class="section" wx:if="{{activities.length > 0}}">
     <view class="section-title">热门活动</view>
     <view class="activity-list">
-      <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}">
+      <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="goToActivityDetail" data-id="{{item.id}}" data-type="{{item.type}}">
         <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="activity-cover"/>
         <view class="activity-info">
           <view class="activity-title">{{item.title}}</view>
-          <view class="activity-status-tag {{item.started ? 'active' : 'upcoming'}}" wx:if="{{!item.ended}}">
+          <view class="activity-status-tag groupbuy-tag" wx:if="{{item.type === 'groupbuy' && !item.ended}}">
+            {{item.groupSize}}人拼团
+          </view>
+          <view class="activity-status-tag {{item.started ? 'active' : 'upcoming'}}" wx:if="{{item.type !== 'groupbuy' && !item.ended}}">
             {{item.started ? '进行中' : '即将开始'}}
           </view>
           <view class="activity-time">{{item.startDate}} ~ {{item.endDate}}</view>

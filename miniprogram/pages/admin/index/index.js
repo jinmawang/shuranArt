@@ -71,5 +71,9 @@ Page({
 
   goToWorks() {
     wx.navigateTo({ url: '/pages/admin/works/works' });
+  },
+
+  goToGroupbuy() {
+    wx.navigateTo({ url: '/pages/admin/groupbuy/groupbuy' });
   }
 });

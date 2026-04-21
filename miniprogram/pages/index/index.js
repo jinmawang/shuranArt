@@ -177,23 +177,39 @@ Page({
 
   loadActivities: function() {
     var self = this;
-    return app.request({
-      url: '/activity/list',
-      noAuth: true
-    }).then(function(data) {
-      var activities = (data || []).map(function(item) {
+    return Promise.all([
+      app.request({ url: '/activity/list', noAuth: true }).catch(function() { return []; }),
+      app.request({ url: '/groupbuy/activities', noAuth: true }).catch(function() { return []; })
+    ]).then(function(results) {
+      var normal = (results[0] || []).map(function(item) {
         return Object.assign({}, item, {
+          type: 'activity',
           startDate: self.formatDate(item.startTime),
           endDate: self.formatDate(item.endTime)
         });
       });
-      self.setData({ activities: activities });
-    }).catch(function() {});
+      var groupbuy = (results[1] || []).map(function(item) {
+        return Object.assign({}, item, {
+          type: 'groupbuy',
+          startDate: self.formatDate(item.startTime),
+          endDate: self.formatDate(item.endTime)
+        });
+      });
+      var all = normal.concat(groupbuy);
+      all.sort(function(a, b) {
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+      self.setData({ activities: all });
+    });
   },
 
   formatDate: function(dateTimeStr) {
     if (!dateTimeStr) return '';
-    return dateTimeStr.split('T')[0].split(' ')[0];
+    var str = dateTimeStr.replace('T', ' ');
+    var datePart = str.split(' ')[0] || '';
+    var d = datePart.split('-');
+    if (d.length < 3) return datePart;
+    return d[0] + '年' + parseInt(d[1]) + '月' + parseInt(d[2]) + '日';
   },
 
   openMap: function() {
@@ -250,7 +266,12 @@ Page({
   },
 
   goToActivityDetail: function(e) {
-    wx.navigateTo({ url: '/pages/activity/activity?id=' + e.currentTarget.dataset.id });
+    var item = e.currentTarget.dataset;
+    if (item.type === 'groupbuy') {
+      wx.navigateTo({ url: '/pages/groupbuy/groupbuy?id=' + item.id });
+    } else {
+      wx.navigateTo({ url: '/pages/activity/activity?id=' + item.id });
+    }
   },
 
   previewWork: function(e) {
@@ -390,5 +411,20 @@ Page({
       'balls[2].x': phys[2].x, 'balls[2].y': phys[2].y, 'balls[2].hit': hitFlags[2],
       'balls[3].x': phys[3].x, 'balls[3].y': phys[3].y, 'balls[3].hit': hitFlags[3]
     });
+  },
+
+  onShareAppMessage: function() {
+    return {
+      title: '书染美术 · 用艺术点亮生活',
+      path: '/pages/index/index',
+      imageUrl: this.data.banners.length > 0 ? this.data.banners[0].imageUrl : ''
+    };
+  },
+
+  onShareTimeline: function() {
+    return {
+      title: '书染美术 · 用艺术点亮生活',
+      imageUrl: this.data.banners.length > 0 ? this.data.banners[0].imageUrl : ''
+    };
   }
 });

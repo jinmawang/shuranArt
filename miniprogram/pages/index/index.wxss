@@ -221,15 +221,15 @@
 .feature-item:active { transform: scale(0.94); background: #F0F7FF; }
 
 .feature-icon-text {
-  width: 88rpx;
-  height: 88rpx;
+  width: 106rpx;
+  height: 106rpx;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 44rpx;
+  font-size: 52rpx;
   font-weight: 700;
-  border-radius: 22rpx;
-  margin-bottom: 12rpx;
+  border-radius: 26rpx;
+  margin-bottom: 16rpx;
   transition: all 200ms ease-out;
 }
 
@@ -254,7 +254,7 @@
 }
 
 .feature-item:active .feature-icon-text { transform: scale(0.95); }
-.feature-item text { font-size: 24rpx; color: #4A5E6D; font-weight: 500; }
+.feature-item text { font-size: 28rpx; color: #4A5E6D; font-weight: 500; }
 
 /* 区块标题 */
 .section { margin: 0 24rpx 20rpx; }
@@ -307,6 +307,7 @@
 
 .activity-status-tag.active { background: #E8F4FB; color: #4A9ECC; }
 .activity-status-tag.upcoming { background: #FEF8E7; color: #D4A020; }
+.activity-status-tag.groupbuy-tag { background: #EDE9FE; color: #7C3AED; }
 
 .activity-time { font-size: 24rpx; color: #A0B4C5; }
 

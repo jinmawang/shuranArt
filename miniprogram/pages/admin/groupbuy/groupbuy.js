@@ -7,11 +7,18 @@ Page({
     navBarTotalHeight: 0,
     activities: [],
     showModal: false,
-    editing: {}
+    editing: {},
+    showTeams: false,
+    currentActivityTitle: '',
+    teams: []
   },
 
   goBack() {
-    wx.navigateBack();
+    if (this.data.showTeams) {
+      this.setData({ showTeams: false, teams: [] });
+    } else {
+      wx.navigateBack();
+    }
   },
 
   onLoad() {
@@ -25,7 +32,7 @@ Page({
 
   loadActivities() {
     app.request({
-      url: '/admin/activities'
+      url: '/admin/groupbuy/activities'
     }).then(data => {
       this.setData({ activities: data || [] });
     });
@@ -34,7 +41,7 @@ Page({
   addActivity() {
     this.setData({
       showModal: true,
-      editing: { totalShareLimit: 5, status: 1 }
+      editing: { groupSize: 3, status: 1 }
     });
   },
 
@@ -44,8 +51,8 @@ Page({
       showModal: true,
       editing: {
         ...item,
-        startDate: item.startTime ? item.startTime.split(' ')[0] : '',
-        endDate: item.endTime ? item.endTime.split(' ')[0] : ''
+        startDate: item.startTime ? item.startTime.split(' ')[0].split('T')[0] : '',
+        endDate: item.endTime ? item.endTime.split(' ')[0].split('T')[0] : ''
       }
     });
   },
@@ -56,8 +63,7 @@ Page({
 
   onInput(e) {
     const key = e.currentTarget.dataset.key;
-    const value = e.detail.value;
-    this.setData({ [`editing.${key}`]: value });
+    this.setData({ [`editing.${key}`]: e.detail.value });
   },
 
   onStartDateChange(e) {
@@ -72,17 +78,14 @@ Page({
     this.setData({ 'editing.status': e.detail.value ? 1 : 0 });
   },
 
-  // 选择封面图片
   chooseCoverImage() {
     this.chooseAndUploadImage('coverImg');
   },
 
-  // 选择分享图片
   chooseShareImage() {
     this.chooseAndUploadImage('shareImage');
   },
 
-  // 选择并上传图片到服务器
   chooseAndUploadImage(key) {
     wx.chooseMedia({
       count: 1,
@@ -96,6 +99,7 @@ Page({
           wx.showToast({ title: '上传成功', icon: 'success' });
         }).catch(() => {
           wx.hideLoading();
+          wx.showToast({ title: '上传失败', icon: 'none' });
         });
       }
     });
@@ -104,7 +108,7 @@ Page({
   saveActivity() {
     const { editing } = this.data;
     if (!editing.title) {
-      wx.showToast({ title: '请输入标题', icon: 'none' });
+      wx.showToast({ title: '请输入课程名称', icon: 'none' });
       return;
     }
 
@@ -112,7 +116,7 @@ Page({
       ...editing,
       startTime: editing.startDate ? editing.startDate + 'T00:00:00' : null,
       endTime: editing.endDate ? editing.endDate + 'T23:59:59' : null,
-      totalShareLimit: parseInt(editing.totalShareLimit) || 5
+      groupSize: parseInt(editing.groupSize) || 3
     };
     delete data.startDate;
     delete data.endDate;
@@ -120,18 +124,17 @@ Page({
     delete data.ended;
 
     wx.showLoading({ title: '保存中...' });
-
     app.request({
-      url: '/admin/activity',
+      url: '/admin/groupbuy/activity',
       method: 'POST',
       data: data
-    }).then(() => {
+    }).then(data => {
       wx.hideLoading();
-      wx.showToast({ title: '保存成功', icon: 'success' });
-      this.closeModal();
-      this.loadActivities();
-    }).catch(() => {
-      wx.hideLoading();
+      if (data !== null) {
+        wx.showToast({ title: '保存成功', icon: 'success' });
+        this.closeModal();
+        this.loadActivities();
+      }
     });
   },
 
@@ -139,11 +142,11 @@ Page({
     const id = e.currentTarget.dataset.id;
     wx.showModal({
       title: '确认删除',
-      content: '确定要删除这个活动吗？',
+      content: '确定要删除这个拼团活动吗？',
       success: (res) => {
         if (res.confirm) {
           app.request({
-            url: '/admin/activity/' + id,
+            url: '/admin/groupbuy/activity/' + id,
             method: 'DELETE'
           }).then(() => {
             wx.showToast({ title: '删除成功', icon: 'success' });
@@ -151,6 +154,24 @@ Page({
           });
         }
       }
+    });
+  },
+
+  // 查看成团名单
+  viewTeams(e) {
+    const item = e.currentTarget.dataset.item;
+    wx.showLoading({ title: '加载中...' });
+    app.request({
+      url: '/admin/groupbuy/teams?activityId=' + item.id
+    }).then(data => {
+      wx.hideLoading();
+      this.setData({
+        showTeams: true,
+        currentActivityTitle: item.title,
+        teams: data || []
+      });
+    }).catch(() => {
+      wx.hideLoading();
     });
   }
 });

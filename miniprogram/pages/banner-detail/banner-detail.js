@@ -5,18 +5,24 @@ Page({
     statusBarHeight: 0,
     navBarHeight: 0,
     navBarTotalHeight: 0,
-    banner: {}
+    banner: {},
+    isFromShare: false
   },
 
   goBack() {
     wx.navigateBack();
   },
 
+  goHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   onLoad(options) {
     this.setData({
       statusBarHeight: app.globalData.statusBarHeight,
       navBarHeight: app.globalData.navBarHeight,
-      navBarTotalHeight: app.globalData.navBarTotalHeight
+      navBarTotalHeight: app.globalData.navBarTotalHeight,
+      isFromShare: getCurrentPages().length === 1
     });
     if (options.id) {
       this.loadBanner(options.id);

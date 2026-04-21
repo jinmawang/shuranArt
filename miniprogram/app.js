@@ -6,7 +6,8 @@ App({
     studioConfig: null,
     statusBarHeight: 0,
     navBarHeight: 0,
-    navBarTotalHeight: 0
+    navBarTotalHeight: 0,
+    groupBuyTemplateId: '0-vjVkBwh0ddliu6ZBx8Wav0eIT7AWvUXGxJqLc41CI'
   },
 
   onLaunch(options) {

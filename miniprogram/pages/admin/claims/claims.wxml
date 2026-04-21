@@ -1,3 +1,4 @@
+<wxs src="../../../utils/time.wxs" module="T"/>
 <view class="list-page">
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
@@ -25,7 +26,7 @@
       <view class="item-info">
         <view class="item-name">{{item.nickName}}</view>
         <view class="item-prize">{{item.prizeName}}</view>
-        <view class="item-time">中奖：{{item.createdAt}} · 到期：{{item.expireAt}}</view>
+        <view class="item-time">中奖：{{T.formatDateTime(item.createdAt)}} · 到期：{{T.formatDateTime(item.expireAt)}}</view>
       </view>
       <view class="item-actions">
         <view class="action-btn claim" bindtap="claimRecord" data-id="{{item.id}}" data-name="{{item.prizeName}}">兑换</view>

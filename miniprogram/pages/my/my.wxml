@@ -1,3 +1,4 @@
+<wxs src="../../utils/time.wxs" module="T"/>
 <view class="my-page">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
@@ -55,7 +56,7 @@
         <image src="{{item.icon || '/images/prize-default.png'}}" class="record-icon"/>
         <view class="record-info">
           <view class="record-name">{{item.prizeName}}</view>
-          <view class="record-time">{{item.createdAt}}</view>
+          <view class="record-time">{{T.formatDateTime(item.createdAt)}}</view>
         </view>
         <view class="record-status {{item.status}}">
           <text wx:if="{{item.status === 'pending'}}">待兑换</text>

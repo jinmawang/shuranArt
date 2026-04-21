@@ -1,0 +1,135 @@
+<wxs src="../../../utils/time.wxs" module="T"/>
+<view class="list-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view class="custom-nav-back" bindtap="goBack"></view>
+      {{showTeams ? currentActivityTitle + ' - 成团名单' : '拼团管理'}}
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 活动列表视图 -->
+  <block wx:if="{{!showTeams}}">
+    <view class="list-header">
+      <view class="add-btn" bindtap="addActivity">
+        <text>+ 添加拼团</text>
+      </view>
+    </view>
+
+    <view class="list-content">
+      <view class="list-item" wx:for="{{activities}}" wx:key="id">
+        <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="item-cover"/>
+        <view class="item-info">
+          <view class="item-name">{{item.title}}</view>
+          <view class="item-detail">{{item.groupSize}}人成团 · {{item.price || '详询'}}</view>
+          <view class="item-time">{{T.formatDateTime(item.startTime)}} - {{T.formatDateTime(item.endTime)}}</view>
+          <view class="item-status {{item.status === 1 ? 'active' : ''}}">
+            {{item.status === 1 ? '进行中' : '已关闭'}}
+          </view>
+        </view>
+        <view class="item-actions">
+          <view class="action-btn view" bindtap="viewTeams" data-item="{{item}}">名单</view>
+          <view class="action-btn edit" bindtap="editActivity" data-item="{{item}}">编辑</view>
+          <view class="action-btn delete" bindtap="deleteActivity" data-id="{{item.id}}">删除</view>
+        </view>
+      </view>
+      <view wx:if="{{activities.length === 0}}" class="empty-tip">暂无拼团活动</view>
+    </view>
+  </block>
+
+  <!-- 成团名单视图 -->
+  <block wx:if="{{showTeams}}">
+    <view class="teams-content">
+      <view class="team-section" wx:for="{{teams}}" wx:key="id">
+        <view class="team-header-admin">
+          <text class="team-label">第{{index + 1}}团</text>
+          <text class="team-status-tag {{item.status === 1 ? 'success' : item.status === 2 ? 'expired' : 'pending'}}">
+            {{item.status === 1 ? '已成团' : item.status === 2 ? '已过期' : '拼团中'}}
+          </text>
+          <text class="team-count-label">{{item.memberCount}}人</text>
+          <text class="team-time" wx:if="{{item.completedAt}}">成团: {{T.formatDateTime(item.completedAt)}}</text>
+        </view>
+        <view class="member-list">
+          <view class="member-row" wx:for="{{item.members}}" wx:for-item="member" wx:key="id">
+            <image class="member-avatar-sm" src="{{member.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+            <view class="member-info">
+              <text class="member-name">{{member.nickname || '未知'}}</text>
+              <text class="member-phone">{{member.phone || '未授权'}}</text>
+            </view>
+            <text class="member-time">{{T.formatDateTime(member.joinedAt)}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{teams.length === 0}}" class="empty-tip">暂无拼团记录</view>
+    </view>
+  </block>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <scroll-view scroll-y class="modal-content">
+      <view class="modal-title">{{editing.id ? '编辑拼团' : '添加拼团'}}</view>
+      <view class="form-item">
+        <text class="label">课程名称</text>
+        <input class="input" value="{{editing.title}}" data-key="title" bindinput="onInput" placeholder="如：暑期课/寒假课/体验课"/>
+      </view>
+      <view class="form-item">
+        <text class="label">活动描述</text>
+        <textarea class="textarea" value="{{editing.description}}" data-key="description" bindinput="onInput" placeholder="请输入活动描述"/>
+      </view>
+      <view class="form-item">
+        <text class="label">成团人数</text>
+        <input class="input" type="number" value="{{editing.groupSize}}" data-key="groupSize" bindinput="onInput" placeholder="几人成团"/>
+      </view>
+      <view class="form-item">
+        <text class="label">拼团价格</text>
+        <input class="input" value="{{editing.price}}" data-key="price" bindinput="onInput" placeholder="如：199元/人"/>
+      </view>
+      <view class="form-item">
+        <text class="label">活动图片</text>
+        <view class="image-upload" bindtap="chooseCoverImage">
+          <image wx:if="{{editing.coverImg}}" src="{{editing.coverImg}}" mode="aspectFill" class="upload-preview"/>
+          <view wx:else class="upload-placeholder">
+            <text>+ 选择图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label">开始时间</text>
+        <picker mode="date" value="{{editing.startDate}}" bindchange="onStartDateChange">
+          <view class="input picker">{{editing.startDate || '请选择开始日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="label">结束时间</text>
+        <picker mode="date" value="{{editing.endDate}}" bindchange="onEndDateChange">
+          <view class="input picker">{{editing.endDate || '请选择结束日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-divider">分享设置</view>
+      <view class="form-item">
+        <text class="label">分享标题</text>
+        <input class="input" value="{{editing.shareTitle}}" data-key="shareTitle" bindinput="onInput" placeholder="分享给好友时显示的标题"/>
+      </view>
+      <view class="form-item">
+        <text class="label">分享图片</text>
+        <view class="image-upload" bindtap="chooseShareImage">
+          <image wx:if="{{editing.shareImage}}" src="{{editing.shareImage}}" mode="aspectFill" class="upload-preview"/>
+          <view wx:else class="upload-placeholder">
+            <text>+ 选择图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <text class="label">状态</text>
+        <switch checked="{{editing.status === 1}}" bindchange="onStatusChange"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeModal">取消</button>
+        <button class="btn-confirm" bindtap="saveActivity">保存</button>
+      </view>
+    </scroll-view>
+  </view>
+</view>

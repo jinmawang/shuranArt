@@ -1,3 +1,4 @@
+<wxs src="../../../utils/time.wxs" module="T"/>
 <view class="list-page">
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
     <view style="height:{{statusBarHeight}}px;"></view>
@@ -47,7 +48,7 @@
         <view class="work-name">{{item.name}}</view>
         <view class="work-desc">家长：{{item.parentName}}</view>
         <view class="work-desc" wx:if="{{item.reason}}">理由：{{item.reason}}</view>
-        <view class="work-time">{{item.createdAt}}</view>
+        <view class="work-time">{{T.formatDateTime(item.createdAt)}}</view>
       </view>
       <view class="work-actions">
         <view class="action-btn approve" bindtap="approveChild" data-id="{{item.id}}">通过</view>
@@ -64,7 +65,7 @@
       <view class="work-info">
         <view class="work-name">{{item.childName}}</view>
         <view class="work-desc" wx:if="{{item.description}}">{{item.description}}</view>
-        <view class="work-time">{{item.createdAt}}</view>
+        <view class="work-time">{{T.formatDateTime(item.createdAt)}}</view>
       </view>
       <view class="work-actions">
         <view class="action-btn approve" bindtap="approveWork" data-id="{{item.id}}">通过</view>
@@ -82,7 +83,7 @@
       <view class="work-info">
         <view class="work-name">{{item.childName}}</view>
         <view class="work-desc" wx:if="{{item.description}}">{{item.description}}</view>
-        <view class="work-time">{{item.createdAt}}</view>
+        <view class="work-time">{{T.formatDateTime(item.createdAt)}}</view>
       </view>
       <view class="work-actions">
         <view class="action-btn unfeature" bindtap="unfeatureWork" data-id="{{item.id}}">取消加精</view>
@@ -116,7 +117,7 @@
           <text wx:if="{{item.status === 'approved'}}">已通过</text>
           <text wx:if="{{item.status === 'rejected'}}">已拒绝</text>
         </view>
-        <view class="work-time">{{item.createdAt}}</view>
+        <view class="work-time">{{T.formatDateTime(item.createdAt)}}</view>
       </view>
       <view class="work-actions">
         <view class="action-btn delete" bindtap="deleteWork" data-id="{{item.id}}">删除</view>

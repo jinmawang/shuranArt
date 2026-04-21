@@ -46,6 +46,10 @@
       <image src="/images/icon-config.png" class="menu-icon"/>
       <text>学生作品</text>
     </view>
+    <view class="menu-item" bindtap="goToGroupbuy">
+      <image src="/images/icon-activity.png" class="menu-icon"/>
+      <text>拼团管理</text>
+    </view>
   </view>
 
   <view class="admin-notice" wx:if="{{!isAdmin}}">

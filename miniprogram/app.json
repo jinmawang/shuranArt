@@ -24,7 +24,9 @@
     "pages/admin-invite/admin-invite",
     "pages/works/works",
     "pages/works/timeline",
-    "pages/works/upload"
+    "pages/works/upload",
+    "pages/groupbuy/groupbuy",
+    "pages/admin/groupbuy/groupbuy"
   ],
   "window": {
     "backgroundTextStyle": "light",

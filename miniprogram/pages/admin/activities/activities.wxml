@@ -1,3 +1,4 @@
+<wxs src="../../../utils/time.wxs" module="T"/>
 <view class="list-page">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
@@ -19,7 +20,7 @@
       <image src="{{item.coverImg || '/images/default-activity.png'}}" mode="aspectFill" class="item-cover"/>
       <view class="item-info">
         <view class="item-name">{{item.title}}</view>
-        <view class="item-time">{{item.startTime}} - {{item.endTime}}</view>
+        <view class="item-time">{{T.formatDateTime(item.startTime)}} - {{T.formatDateTime(item.endTime)}}</view>
         <view class="item-status {{item.status === 1 ? 'active' : ''}}">
           {{item.status === 1 ? '进行中' : '已结束'}}
         </view>

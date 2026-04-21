@@ -12,18 +12,24 @@ Page({
     endDate: '',
     studioWechatId: '',
     studioQrcode: '',
-    shareFrom: null
+    shareFrom: null,
+    isFromShare: false
   },
 
   goBack() {
     wx.navigateBack();
   },
 
+  goHome() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   onLoad(options) {
     this.setData({
       statusBarHeight: app.globalData.statusBarHeight,
       navBarHeight: app.globalData.navBarHeight,
-      navBarTotalHeight: app.globalData.navBarTotalHeight
+      navBarTotalHeight: app.globalData.navBarTotalHeight,
+      isFromShare: getCurrentPages().length === 1
     });
     this.loadStudioContact();
     if (options.id) {
@@ -98,8 +104,11 @@ Page({
   // 格式化日期（只显示年月日）
   formatDate(dateTimeStr) {
     if (!dateTimeStr) return '';
-    const date = dateTimeStr.split('T')[0].split(' ')[0];
-    return date;
+    var str = dateTimeStr.replace('T', ' ');
+    var datePart = str.split(' ')[0] || '';
+    var d = datePart.split('-');
+    if (d.length < 3) return datePart;
+    return d[0] + '年' + parseInt(d[1]) + '月' + parseInt(d[2]) + '日';
   },
 
   // 检查是否首次进入该活动，自动增加抽奖机会

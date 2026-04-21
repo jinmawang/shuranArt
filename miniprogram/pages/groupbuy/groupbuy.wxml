@@ -1,0 +1,97 @@
+<view class="groupbuy-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height:{{navBarTotalHeight}}px;">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
+      <view wx:if="{{!isFromShare}}" class="custom-nav-back" bindtap="goBack"></view>
+      <view wx:else class="custom-nav-home" bindtap="goHome"><image src="/images/icons/home-copy.png" class="nav-home-icon"/></view>
+      拼团活动
+    </view>
+  </view>
+  <view style="height:{{navBarTotalHeight}}px;"></view>
+
+  <!-- 活动封面 -->
+  <image wx:if="{{activity.coverImg}}" src="{{activity.coverImg}}" mode="aspectFill" class="cover-img"/>
+
+  <!-- 活动信息 -->
+  <view class="activity-info card">
+    <view class="activity-title">{{activity.title}}</view>
+    <view class="activity-meta">
+      <view class="meta-item">
+        <text class="meta-label">拼团价</text>
+        <text class="meta-value price">{{activity.price || '详询老师'}}</text>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label">成团人数</text>
+        <text class="meta-value">{{activity.groupSize}}人</text>
+      </view>
+    </view>
+    <view class="activity-time">活动时间: {{startDate}} ~ {{endDate}}</view>
+    <view class="activity-desc" wx:if="{{activity.description}}">{{activity.description}}</view>
+  </view>
+
+  <!-- 拼团列表 -->
+  <view class="section">
+    <view class="section-title">当前拼团</view>
+
+    <!-- 已有团列表 -->
+    <view class="team-list" wx:if="{{teams.length > 0}}">
+      <view class="team-card {{item.status === 1 ? 'completed' : ''}}" wx:for="{{teams}}" wx:key="id">
+        <view class="team-header">
+          <image class="team-leader-avatar" src="{{item.leaderAvatar || '/images/default-avatar.png'}}" mode="aspectFill"/>
+          <view class="team-info">
+            <text class="team-leader-name">{{item.leaderNickname || '团长'}}的团</text>
+            <text class="team-status {{item.status === 1 ? 'status-success' : 'status-pending'}}">
+              {{item.status === 1 ? '已成团' : '拼团中'}}
+            </text>
+          </view>
+          <view class="team-count">
+            <text class="count-current">{{item.memberCount}}</text>
+            <text class="count-sep">/</text>
+            <text class="count-total">{{activity.groupSize}}</text>人
+          </view>
+        </view>
+
+        <!-- 成员列表 -->
+        <view class="team-members-detail">
+          <view class="member-row" wx:for="{{item.members}}" wx:for-item="member" wx:key="id">
+            <image class="member-avatar" src="{{member.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+            <view class="member-info">
+              <text class="member-nickname">{{member.nickname || '微信用户'}}</text>
+              <text class="member-phone" wx:if="{{member.phone}}">{{member.phone}}</text>
+            </view>
+          </view>
+          <!-- 空位 -->
+          <view class="member-row empty-row" wx:for="{{activity.groupSize - item.memberCount}}" wx:key="index">
+            <view class="member-avatar empty-slot">?</view>
+            <view class="member-info">
+              <text class="member-nickname empty">等待加入</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 加入按钮 -->
+        <button wx:if="{{item.status === 0 && !myTeamId}}" class="btn-join"
+                open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneJoin" data-teamid="{{item.id}}">
+          加入拼团
+        </button>
+        <view wx:if="{{item.id == myTeamId}}" class="my-team-tag">我的团</view>
+      </view>
+    </view>
+
+    <view class="empty-tip" wx:if="{{teams.length === 0}}">
+      暂无拼团，快来开团吧！
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar" wx:if="{{!activity.ended}}">
+    <button class="btn-share" open-type="share">分享好友</button>
+    <button wx:if="{{!myTeamId}}" class="btn-create"
+            open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneCreate">
+      我要开团
+    </button>
+    <view wx:if="{{myTeamId}}" class="btn-create btn-disabled">已参与拼团</view>
+  </view>
+  <view wx:if="{{!activity.ended}}" style="height: 120rpx;"></view>
+</view>

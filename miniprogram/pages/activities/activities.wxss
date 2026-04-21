@@ -44,6 +44,7 @@
 
 .activity-status.active { background: #E8F4FB; color: #4A9ECC; }
 .activity-status.upcoming { background: #FEF8E7; color: #C08000; }
+.activity-status.groupbuy-tag { background: #EDE9FE; color: #7C3AED; }
 
 .activity-time {
   font-size: 26rpx;

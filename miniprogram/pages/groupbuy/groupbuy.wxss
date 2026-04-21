@@ -1,0 +1,175 @@
+.groupbuy-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.custom-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: #fff;
+}
+.custom-nav-title {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34rpx; font-weight: 600; color: #333;
+}
+.custom-nav-back {
+  position: absolute; left: 20rpx; top: 50%; transform: translateY(-50%);
+  width: 40rpx; height: 40rpx;
+  border-top: 4rpx solid #333; border-left: 4rpx solid #333;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.cover-img {
+  width: 100%; height: 400rpx;
+}
+
+.card {
+  background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx;
+}
+
+.activity-title {
+  font-size: 40rpx; font-weight: 700; color: #333; margin-bottom: 20rpx;
+}
+
+.activity-meta {
+  display: flex; gap: 40rpx; margin-bottom: 16rpx;
+}
+.meta-item {
+  display: flex; flex-direction: column;
+}
+.meta-label {
+  font-size: 24rpx; color: #999;
+}
+.meta-value {
+  font-size: 32rpx; font-weight: 600; color: #333;
+}
+.meta-value.price {
+  color: #e53e3e; font-size: 36rpx;
+}
+
+.activity-time {
+  font-size: 26rpx; color: #999; margin-bottom: 12rpx;
+}
+.activity-desc {
+  font-size: 28rpx; color: #666; line-height: 1.6;
+}
+
+.section {
+  margin: 20rpx;
+}
+.section-title {
+  font-size: 32rpx; font-weight: 600; color: #333; margin-bottom: 20rpx;
+}
+
+.team-card {
+  background: #fff; border-radius: 16rpx; padding: 24rpx; margin-bottom: 20rpx;
+}
+.team-card.completed {
+  border: 2rpx solid #48bb78;
+}
+
+.team-header {
+  display: flex; align-items: center; margin-bottom: 16rpx;
+}
+.team-leader-avatar {
+  width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx;
+}
+.team-info {
+  flex: 1; display: flex; flex-direction: column;
+}
+.team-leader-name {
+  font-size: 28rpx; font-weight: 600; color: #333;
+}
+.team-status {
+  font-size: 24rpx; margin-top: 4rpx;
+}
+.status-pending { color: #ed8936; }
+.status-success { color: #48bb78; }
+
+.team-count {
+  font-size: 28rpx; color: #666;
+}
+.count-current {
+  font-size: 36rpx; font-weight: 700; color: #6366f1;
+}
+
+.team-members {
+  display: flex; gap: 12rpx; margin-bottom: 16rpx; flex-wrap: wrap;
+}
+.member-avatar {
+  width: 64rpx; height: 64rpx; border-radius: 50%;
+}
+.empty-slot {
+  background: #eee; display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 28rpx;
+}
+
+.btn-join {
+  width: 100%; height: 72rpx; line-height: 72rpx;
+  background: #6366f1; color: #fff; border-radius: 36rpx;
+  font-size: 28rpx; font-weight: 600; text-align: center;
+  border: none;
+}
+.btn-join::after { border: none; }
+
+.my-team-tag {
+  text-align: center; color: #6366f1; font-size: 26rpx; font-weight: 600;
+  padding: 12rpx 0;
+}
+
+.empty-tip {
+  text-align: center; color: #999; font-size: 28rpx; padding: 60rpx 0;
+}
+
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; gap: 20rpx; padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #fff; box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+}
+.btn-share {
+  flex: 1; height: 80rpx; line-height: 80rpx;
+  background: #fff; color: #6366f1; border: 2rpx solid #6366f1;
+  border-radius: 40rpx; font-size: 28rpx; font-weight: 600;
+}
+.btn-share::after { border: none; }
+.btn-create {
+  flex: 1; height: 80rpx; line-height: 80rpx;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; border-radius: 40rpx; font-size: 28rpx; font-weight: 600;
+  border: none; text-align: center;
+}
+.btn-create::after { border: none; }
+.team-members-detail {
+  margin-bottom: 16rpx;
+}
+.member-row {
+  display: flex; align-items: center; padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.member-row:last-child { border-bottom: none; }
+.member-row .member-avatar {
+  width: 64rpx; height: 64rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0;
+}
+.member-row .empty-slot {
+  background: #eee; display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 28rpx; border-radius: 50%;
+}
+.member-info {
+  flex: 1; display: flex; flex-direction: column;
+}
+.member-nickname {
+  font-size: 28rpx; color: #333; font-weight: 500;
+}
+.member-nickname.empty {
+  color: #ccc;
+}
+.member-phone {
+  font-size: 24rpx; color: #999; margin-top: 4rpx;
+}
+.empty-row .member-info {
+  justify-content: center;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+}
