@@ -189,9 +189,9 @@ public class GroupBuyService {
             return result;
         }
 
-        // 检查团是否已满（再次读取最新memberCount防并发）
-        GroupBuyTeam freshTeam = teamMapper.selectById(teamId);
-        if (freshTeam == null || freshTeam.getStatus() != 0 || freshTeam.getMemberCount() >= activity.getGroupSize()) {
+        // 检查团是否已满（原子递增 memberCount 防并发超员）
+        int affected = teamMapper.atomicIncrementMemberCount(teamId, activity.getGroupSize());
+        if (affected == 0) {
             result.put("success", false);
             result.put("msg", "该团已满或已成团");
             return result;
@@ -209,12 +209,9 @@ public class GroupBuyService {
         fillMemberFromUser(member, userId);
         memberMapper.insert(member);
 
-        // 更新人数（使用freshTeam的最新数据）
-        freshTeam.setMemberCount(freshTeam.getMemberCount() + 1);
-        teamMapper.updateById(freshTeam);
-
-        // 检查是否成团
-        if (freshTeam.getMemberCount() >= activity.getGroupSize()) {
+        // 重新读取团信息，检查是否成团
+        GroupBuyTeam freshTeam = teamMapper.selectById(teamId);
+        if (freshTeam != null && freshTeam.getMemberCount() >= activity.getGroupSize()) {
             completeTeam(freshTeam, activity);
         }
 

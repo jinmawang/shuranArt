@@ -101,6 +101,9 @@ public class UserController {
 
             if (wxResult != null && Integer.valueOf(0).equals(wxResult.get("errcode"))) {
                 Map<String, Object> phoneInfo = (Map<String, Object>) wxResult.get("phone_info");
+                if (phoneInfo == null) {
+                    return Result.error("获取手机号失败");
+                }
                 String phone = (String) phoneInfo.get("phoneNumber");
 
                 // 同时更新用户表的手机号

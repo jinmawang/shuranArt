@@ -4,7 +4,7 @@
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
       <view wx:if="{{!isFromShare}}" class="custom-nav-back" bindtap="goBack"></view>
-      <view wx:else class="custom-nav-home" bindtap="goHome"><image src="/images/icons/home-copy.png" class="nav-home-icon"/></view>
+      <view wx:else class="custom-nav-home" bindtap="goHome"><view class="nav-home-css"></view></view>
       拼团活动
     </view>
   </view>
@@ -72,7 +72,7 @@
 
         <!-- 加入按钮 -->
         <button wx:if="{{item.status === 0 && !myTeamId}}" class="btn-join"
-                open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneJoin" data-teamid="{{item.id}}">
+                bindtap="onJoinTeam" data-teamid="{{item.id}}">
           加入拼团
         </button>
         <view wx:if="{{item.id == myTeamId}}" class="my-team-tag">我的团</view>
@@ -87,11 +87,27 @@
   <!-- 底部操作栏 -->
   <view class="bottom-bar" wx:if="{{!activity.ended}}">
     <button class="btn-share" open-type="share">分享好友</button>
-    <button wx:if="{{!myTeamId}}" class="btn-create"
-            open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneCreate">
+    <button wx:if="{{!myTeamId}}" class="btn-create" bindtap="onCreateTeam">
       我要开团
     </button>
     <view wx:if="{{myTeamId}}" class="btn-create btn-disabled">已参与拼团</view>
   </view>
   <view wx:if="{{!activity.ended}}" style="height: 120rpx;"></view>
+
+  <!-- 手机号输入弹窗 -->
+  <view class="phone-modal-mask" wx:if="{{showPhoneModal}}" bindtap="onPhoneCancel">
+    <view class="phone-modal" catchtap="noop">
+      <view class="phone-modal-title">请输入手机号</view>
+      <view class="phone-modal-desc">老师将通过此号码联系您</view>
+
+      <input class="phone-modal-input" type="number" maxlength="11"
+             placeholder="请输入手机号" value="{{phoneInput}}"
+             bindinput="onPhoneInput" focus="{{showPhoneModal}}" />
+
+      <view class="phone-modal-btns">
+        <button class="phone-modal-cancel" bindtap="onPhoneCancel">取消</button>
+        <button class="phone-modal-confirm" bindtap="onPhoneConfirm">确认</button>
+      </view>
+    </view>
+  </view>
 </view>

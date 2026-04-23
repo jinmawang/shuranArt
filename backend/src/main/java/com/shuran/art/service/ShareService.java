@@ -126,10 +126,13 @@ public class ShareService {
             return result;
         }
 
-        // 5. 确认分享
-        record.setVisitorId(visitorId);
-        record.setConfirmed(1);
-        record.setConfirmedAt(LocalDateTime.now());
+        // 5. 原子确认分享（防并发重复确认）
+        int affected = shareRecordMapper.atomicConfirm(record.getId(), visitorId);
+        if (affected == 0) {
+            result.put("success", false);
+            result.put("msg", "该链接已被使用");
+            return result;
+        }
 
         // 6. 检查分享者的已确认分享次数是否已达上限
         Activity activity = activityMapper.selectById(record.getActivityId());
@@ -140,17 +143,26 @@ public class ShareService {
             // 发放抽奖机会
             record.setLotteryGranted(1);
             User sharer = userMapper.selectById(record.getSharerId());
-            sharer.setLotteryChances(sharer.getLotteryChances() + 1);
-            userMapper.updateById(sharer);
+            if (sharer != null) {
+                sharer.setLotteryChances(sharer.getLotteryChances() + 1);
+                userMapper.updateById(sharer);
+            }
+            // 更新 lottery_granted 字段
+            ShareRecord updateRecord = new ShareRecord();
+            updateRecord.setId(record.getId());
+            updateRecord.setLotteryGranted(1);
+            shareRecordMapper.updateById(updateRecord);
             result.put("lotteryAdded", true);
             result.put("msg", "助力成功！对方获得1次抽奖机会");
         } else {
-            record.setLotteryGranted(0);
+            // 显式标记未授予抽奖机会
+            ShareRecord noLotteryRecord = new ShareRecord();
+            noLotteryRecord.setId(record.getId());
+            noLotteryRecord.setLotteryGranted(0);
+            shareRecordMapper.updateById(noLotteryRecord);
             result.put("lotteryAdded", false);
             result.put("msg", "助力成功！但对方抽奖机会已达上限");
         }
-
-        shareRecordMapper.updateById(record);
 
         result.put("success", true);
         return result;

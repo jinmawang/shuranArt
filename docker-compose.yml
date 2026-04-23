@@ -42,12 +42,19 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      - ./mysql/migration_v3.sql:/docker-entrypoint-initdb.d/02-migration_v3.sql:ro
-      - ./mysql/migration_v4.sql:/docker-entrypoint-initdb.d/03-migration_v4.sql:ro
-      - ./mysql/migration_v5.sql:/docker-entrypoint-initdb.d/04-migration_v5.sql:ro
-      - ./mysql/migration_v6_course.sql:/docker-entrypoint-initdb.d/05-migration_v6.sql:ro
-      - ./mysql/migration_v7_banner.sql:/docker-entrypoint-initdb.d/06-migration_v7.sql:ro
-      - ./mysql/migration_v8_studio.sql:/docker-entrypoint-initdb.d/07-migration_v8.sql:ro
+      - ./mysql/migration_v2.sql:/docker-entrypoint-initdb.d/02-migration_v2.sql:ro
+      - ./mysql/migration_v3.sql:/docker-entrypoint-initdb.d/03-migration_v3.sql:ro
+      - ./mysql/migration_v4.sql:/docker-entrypoint-initdb.d/04-migration_v4.sql:ro
+      - ./mysql/migration_v5.sql:/docker-entrypoint-initdb.d/05-migration_v5.sql:ro
+      - ./mysql/migration_v6_course.sql:/docker-entrypoint-initdb.d/06-migration_v6.sql:ro
+      - ./mysql/migration_v7_banner.sql:/docker-entrypoint-initdb.d/07-migration_v7.sql:ro
+      - ./mysql/migration_v8_studio.sql:/docker-entrypoint-initdb.d/08-migration_v8.sql:ro
+      - ./mysql/migration_v9_admin_invite.sql:/docker-entrypoint-initdb.d/09-migration_v9.sql:ro
+      - ./mysql/migration_v10_student_works.sql:/docker-entrypoint-initdb.d/10-migration_v10.sql:ro
+      - ./mysql/migration_v11_banner_content.sql:/docker-entrypoint-initdb.d/11-migration_v11.sql:ro
+      - ./mysql/migration_v12_child_audit.sql:/docker-entrypoint-initdb.d/12-migration_v12.sql:ro
+      - ./mysql/migration_v13_featured.sql:/docker-entrypoint-initdb.d/13-migration_v13.sql:ro
+      - ./mysql/migration_v14_group_buy.sql:/docker-entrypoint-initdb.d/14-migration_v14.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s

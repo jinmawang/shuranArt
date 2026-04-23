@@ -120,6 +120,9 @@ public class AdminController {
     @PutMapping("/course/{id}/status")
     public Result<Void> updateCourseStatus(@PathVariable Long id, @RequestBody Map<String, Integer> body) {
         Integer status = body.get("status");
+        if (status == null) {
+            return Result.error("课程状态不能为空");
+        }
         adminService.updateCourseStatus(id, status);
         return Result.success();
     }
@@ -152,6 +155,9 @@ public class AdminController {
     public Result<Map<String, String>> generateInvite(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
         String token = adminService.generateInviteToken(user.getOpenid());
         return Result.success(Map.of("token", token));
     }
@@ -160,6 +166,9 @@ public class AdminController {
     public Result<Void> deleteAdmin(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
         adminService.deleteAdmin(id, user.getOpenid());
         return Result.success();
     }

@@ -73,6 +73,35 @@ page {
   height: 44rpx;
 }
 
+/* 纯CSS首页图标（不依赖图片文件） */
+.nav-home-css {
+  position: relative;
+  width: 36rpx;
+  height: 32rpx;
+}
+/* 屋顶三角 */
+.nav-home-css::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 20rpx solid transparent;
+  border-right: 20rpx solid transparent;
+  border-bottom: 16rpx solid currentColor;
+}
+/* 房身 */
+.nav-home-css::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 26rpx; height: 18rpx;
+  border: 3rpx solid currentColor;
+  border-top: none;
+  background: transparent;
+}
+
 /* 主题颜色 */
 .primary-color { color: #4A9ECC; }
 .secondary-color { color: #3A8EBC; }

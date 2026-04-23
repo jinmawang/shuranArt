@@ -188,10 +188,15 @@ App({
           if (res.statusCode === 200 && res.data.code === 0) {
             resolve(res.data.data);
           } else if (res.statusCode === 401) {
-            // Token过期，清除旧token并重新登录
+            // Token过期，清除旧token并重新登录（防止无限重试）
+            if (options._retried) {
+              resolve(null);
+              return;
+            }
             this.globalData.token = null;
             wx.removeStorageSync('token');
             this.login().then(() => {
+              options._retried = true;
               this.request(options).then(resolve).catch(() => resolve(null));
             }).catch(() => {
               resolve(null);

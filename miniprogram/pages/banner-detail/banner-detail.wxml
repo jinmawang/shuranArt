@@ -3,7 +3,7 @@
     <view style="height:{{statusBarHeight}}px;"></view>
     <view class="custom-nav-title" style="height:{{navBarHeight}}px; position:relative;">
       <view wx:if="{{!isFromShare}}" class="custom-nav-back" bindtap="goBack"></view>
-      <view wx:else class="custom-nav-home" bindtap="goHome"><image src="/images/icons/home-copy.png" class="nav-home-icon"/></view>
+      <view wx:else class="custom-nav-home" bindtap="goHome"><view class="nav-home-css"></view></view>
       {{banner.description || '详情'}}
     </view>
   </view>

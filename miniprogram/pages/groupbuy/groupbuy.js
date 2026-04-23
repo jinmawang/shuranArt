@@ -11,7 +11,11 @@ Page({
     endDate: '',
     myTeamId: null,
     fromTeamId: null,
-    isFromShare: false
+    isFromShare: false,
+    // 手机号输入弹窗
+    showPhoneModal: false,
+    phoneInput: '',
+    pendingAction: '' // 'create' or 'join'
   },
 
   goBack() {
@@ -83,46 +87,110 @@ Page({
     return d[0] + '年' + parseInt(d[1]) + '月' + parseInt(d[2]) + '日';
   },
 
-  // 开团
+  // ─── 开团流程 ─────────────────────────────────
+
   onCreateTeam() {
+    const doCreate = () => {
+      this.pendingTeamId = null;
+      this.setData({ pendingAction: 'create' });
+      this.tryGetPhone();
+    };
     if (!app.globalData.token) {
-      app.login().then(() => this.doGetPhoneAndCreate());
-      return;
-    }
-    this.doGetPhoneAndCreate();
-  },
-
-  doGetPhoneAndCreate() {
-    // 手机号授权通过按钮的 open-type="getPhoneNumber" 触发
-  },
-
-  // 微信手机号授权回调（开团）
-  onGetPhoneCreate(e) {
-    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      wx.showToast({ title: '需要授权手机号才能参与拼团', icon: 'none' });
-      return;
-    }
-    // 请求订阅消息授权（用户同意后成团时可收到通知）
-    this.requestSubscribe(() => {
-      const code = e.detail.code;
-      this.getPhoneNumber(code).then(phone => {
-        this.doCreateTeam(phone);
+      app.login().then(doCreate).catch(() => {
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' });
       });
+    } else {
+      doCreate();
+    }
+  },
+
+  // 加入团
+  onJoinTeam(e) {
+    const teamId = e.currentTarget.dataset.teamid;
+    const doJoin = () => {
+      this.pendingTeamId = teamId;
+      this.setData({ pendingAction: 'join' });
+      this.tryGetPhone();
+    };
+    if (!app.globalData.token) {
+      app.login().then(doJoin).catch(() => {
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' });
+      });
+    } else {
+      doJoin();
+    }
+  },
+
+  // 尝试获取手机号：先看用户表是否已有，没有则弹手动输入
+  tryGetPhone() {
+    // 先请求用户信息，看是否已有手机号
+    app.request({ url: '/user/info' }).then(user => {
+      if (user && user.phone) {
+        this.proceedWithPhone(user.phone);
+      } else {
+        // 没有手机号，弹出输入框
+        this.setData({ showPhoneModal: true, phoneInput: '' });
+      }
+    }).catch(() => {
+      this.setData({ showPhoneModal: true, phoneInput: '' });
     });
   },
 
-  // 微信手机号授权回调（加入团）
-  onGetPhoneJoin(e) {
-    const teamId = e.currentTarget.dataset.teamid;
+  // 微信一键获取手机号回调（弹窗内按钮）
+  onGetPhoneQuick(e) {
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      wx.showToast({ title: '需要授权手机号才能参与拼团', icon: 'none' });
+      // 微信授权失败/拒绝，用户可手动输入
       return;
     }
+    const code = e.detail.code;
+    wx.showLoading({ title: '获取中...' });
+    app.request({
+      url: '/user/phone',
+      method: 'POST',
+      data: { code: code }
+    }).then(data => {
+      wx.hideLoading();
+      if (data && data.phone) {
+        this.setData({ showPhoneModal: false });
+        this.proceedWithPhone(data.phone);
+      } else {
+        wx.showToast({ title: '获取失败，请手动输入', icon: 'none' });
+      }
+    }).catch(() => {
+      wx.hideLoading();
+      wx.showToast({ title: '获取失败，请手动输入', icon: 'none' });
+    });
+  },
+
+  onPhoneInput(e) {
+    this.setData({ phoneInput: e.detail.value });
+  },
+
+  // 手动输入手机号确认
+  onPhoneConfirm() {
+    const phone = (this.data.phoneInput || '').trim();
+    if (!/^1\d{10}$/.test(phone)) {
+      wx.showToast({ title: '请输入正确的手机号', icon: 'none' });
+      return;
+    }
+    this.setData({ showPhoneModal: false });
+    this.proceedWithPhone(phone);
+  },
+
+  onPhoneCancel() {
+    this.setData({ showPhoneModal: false, pendingAction: '' });
+  },
+
+  noop() {},
+
+  // 拿到手机号后执行开团/加入
+  proceedWithPhone(phone) {
     this.requestSubscribe(() => {
-      const code = e.detail.code;
-      this.getPhoneNumber(code).then(phone => {
-        this.doJoinTeam(teamId, phone);
-      });
+      if (this.data.pendingAction === 'create') {
+        this.doCreateTeam(phone);
+      } else if (this.data.pendingAction === 'join') {
+        this.doJoinTeam(this.pendingTeamId, phone);
+      }
     });
   },
 
@@ -136,21 +204,8 @@ Page({
     wx.requestSubscribeMessage({
       tmplIds: [tmplId],
       complete: () => {
-        // 无论用户是否同意都继续流程
         callback();
       }
-    });
-  },
-
-  getPhoneNumber(code) {
-    return app.request({
-      url: '/user/phone',
-      method: 'POST',
-      data: { code: code }
-    }).then(data => {
-      if (data && data.phone) return data.phone;
-      wx.showToast({ title: '获取手机号失败，请重试', icon: 'none' });
-      return '';
     });
   },
 

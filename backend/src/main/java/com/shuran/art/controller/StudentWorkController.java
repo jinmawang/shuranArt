@@ -40,6 +40,9 @@ public class StudentWorkController {
     @PostMapping("/upload")
     public Result<Void> uploadWork(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        if (body.get("childId") == null) {
+            return Result.error("请选择孩子");
+        }
         Long childId = Long.valueOf(body.get("childId").toString());
         String imageUrl = (String) body.get("imageUrl");
         String description = (String) body.get("description");

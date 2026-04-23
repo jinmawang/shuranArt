@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -32,6 +33,7 @@ public class UserService {
     private String secret;
 
     @SuppressWarnings("unchecked")
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         // 调用微信接口获取 openid
         String url = String.format(

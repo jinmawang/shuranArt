@@ -48,6 +48,9 @@ public class GroupBuyController {
     @PostMapping("/create-team")
     public Result<Map<String, Object>> createTeam(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        if (body.get("activityId") == null) {
+            return Result.error("活动ID不能为空");
+        }
         Long activityId = Long.valueOf(body.get("activityId").toString());
         String phone = (String) body.getOrDefault("phone", "");
         String nickname = (String) body.getOrDefault("nickname", "");
@@ -66,6 +69,9 @@ public class GroupBuyController {
     @PostMapping("/join-team")
     public Result<Map<String, Object>> joinTeam(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        if (body.get("teamId") == null) {
+            return Result.error("团ID不能为空");
+        }
         Long teamId = Long.valueOf(body.get("teamId").toString());
         String phone = (String) body.getOrDefault("phone", "");
         String nickname = (String) body.getOrDefault("nickname", "");

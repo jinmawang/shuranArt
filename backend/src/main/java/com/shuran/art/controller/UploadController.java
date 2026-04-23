@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,11 +40,15 @@ public class UploadController {
             return Result.error("只能上传图片文件");
         }
 
-        // 生成唯一文件名
+        // 生成唯一文件名（白名单校验扩展名）
         String originalFilename = file.getOriginalFilename();
         String ext = "";
         if (originalFilename != null && originalFilename.contains(".")) {
-            ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+            ext = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        }
+        List<String> allowedExtensions = List.of(".jpg", ".jpeg", ".png", ".gif", ".webp");
+        if (!ext.isEmpty() && !allowedExtensions.contains(ext)) {
+            return Result.error("不支持的文件类型，仅支持 jpg/png/gif/webp");
         }
         String filename = UUID.randomUUID().toString().replace("-", "") + ext;
 
